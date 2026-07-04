@@ -4,6 +4,20 @@ The Product Spec Standard is an open Markdown format for product specs that need
 
 ProductSpec.io is one implementation of the Standard. The Standard itself is neutral: it defines structure, section IDs, portable review annotations, and calibration-example serialization. It does not define what makes a Product Spec good.
 
+## Where This Sits
+
+OpenProductSpec operates at the product spec layer: the what and why that come before engineering specs are written. This is where a team commits to the problem, hypothesis, scope, user experience, acceptance criteria, and success metrics.
+
+OpenSpec and Spec Kit operate at the engineering spec layer. OpenSpec's flow is propose -> apply -> archive. Spec Kit's flow is constitution -> specify -> clarify -> plan -> tasks -> analyze -> implement. Those artifacts live in the repo and are consumed by AI agents to build code.
+
+```text
+Product Spec (OpenProductSpec) -> Engineering Spec (OpenSpec / Spec Kit) -> Code (agents)
+what / why                       how / plan / tasks                         implementation
+strategic intent                 technical decomposition                    running system
+```
+
+Both layers are SDD. Both use the spec as a control system. They serve different roles with different artifacts.
+
 ## What Is Included
 
 - `SPEC.md`: the canonical v0.1 format.
@@ -32,4 +46,3 @@ Custom sections use `custom-<kebab-name>`.
 ## Status
 
 Version `0.1` is intentionally small. It is stable enough for tooling experiments, but still pre-1.0 while implementers learn what needs to change.
-

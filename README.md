@@ -62,13 +62,14 @@ Mandatory sections, in order:
 1. `problem`
 2. `hypothesis`
 3. `scope`
-4. `user_experience`
-5. `acceptance_criteria`
-6. `success_metrics`
+4. `acceptance_criteria`
+5. `success_metrics`
 
 Optional sections:
 
-`customer_truth`, `solution_alternatives`, `solution`, `strategic_positioning`, `adoption`, `pricing`, `risks`, `ai`, `open_questions`, `rollout`
+`surface`, `user_experience`, `customer_truth`, `solution_alternatives`, `solution`, `strategic_positioning`, `adoption`, `pricing`, `risks`, `ai`, `open_questions`, `rollout`
+
+`surface` describes the externally observable interface of the work. Examples include a user-facing flow URL, API endpoint shape, CLI command, admin workflow, webhook payload, dashboard, config interface, internal tool screen, or agent/tool interface. `user_experience` is a narrower section for user-facing product flows.
 
 Custom sections use `custom-<kebab-name>`.
 

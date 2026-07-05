@@ -41,6 +41,8 @@ strategic intent            technical decomposition                    running s
 
 Both layers are spec-driven development. They serve different roles with different artifacts.
 
+`surface` is the ProductSpec-level way to describe what interface becomes observable without prescribing the implementation. Examples include a user-facing flow URL, API endpoint shape, CLI command, admin workflow, webhook payload, dashboard, config interface, internal tool screen, or agent/tool interface.
+
 ## Where ProductSpec Fits
 
 ProductSpec does not replace Git, Jira, Linear, Figma, analytics tools, OpenSpec, Spec Kit, or AI coding agents.

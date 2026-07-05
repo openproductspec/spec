@@ -45,12 +45,13 @@ Mandatory sections, in order:
 1. `problem`: who is hurting, what pain they feel, and why it matters.
 2. `hypothesis`: the causal bet behind the product.
 3. `scope`: what is in, what is out, and what is deliberately cut.
-4. `user_experience`: a URL to a working prototype, mockup, deploy, or walkthrough.
-5. `acceptance_criteria`: pass/fail build checks before launch.
-6. `success_metrics`: real-user behavior after launch.
+4. `acceptance_criteria`: pass/fail build checks before launch.
+5. `success_metrics`: real-user behavior after launch.
 
 Optional sections:
 
+- `surface`
+- `user_experience`
 - `customer_truth`
 - `solution_alternatives`
 - `solution`
@@ -63,6 +64,20 @@ Optional sections:
 - `rollout`
 
 Display labels are implementation-specific, except that tools should render `ai` as "AI Details".
+
+`surface` describes the externally observable interface of the work without prescribing implementation. Examples include:
+
+- User-facing flow URL or mockup.
+- API endpoint shape.
+- CLI command.
+- Admin workflow.
+- Webhook payload.
+- Dashboard or report.
+- Config interface.
+- Internal tool screen.
+- Agent or tool interface.
+
+`user_experience` is a narrower optional section for user-facing product flows. Product-focused tools may show it by default, but the open standard does not require every software-intent artifact to include a UX URL.
 
 For products with AI features, AI eval thresholds belong in `acceptance_criteria`, not `success_metrics`. Success metrics are post-launch product and business outcomes. Acceptance criteria are pre-launch build gates.
 
@@ -78,7 +93,7 @@ Portable review annotations may be attached to a Product Spec:
 
 ```yaml
 review_id: "review_123"
-reviewer_tool: "productspec.io/reviewer-v3"
+reviewer_tool: "example-reviewer/v1"
 reviewed_at: "2026-07-04T00:00:00Z"
 sections:
   - section_id: "problem"

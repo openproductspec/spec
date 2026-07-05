@@ -23,9 +23,9 @@ Out: multi-video projects, team workspaces, non-YouTube video imports, and autom
 
 Cut from this version: speaker diarization and transcript editing.
 
-## User Experience
+## Surface
 
-https://productspec.io/sample-mockup.html
+https://example.com/transcript-search-prototype
 
 ## Acceptance Criteria
 
@@ -40,4 +40,3 @@ https://productspec.io/sample-mockup.html
 - 60% of first-time users who create a transcript run at least one search.
 - 35% of first-time users copy at least one timestamped passage.
 - Median time from URL paste to first copied passage is under 3 minutes.
-

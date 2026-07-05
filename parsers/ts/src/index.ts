@@ -2,12 +2,13 @@ export const MANDATORY_SECTION_IDS = [
   "problem",
   "hypothesis",
   "scope",
-  "user_experience",
   "acceptance_criteria",
   "success_metrics"
 ] as const;
 
 export const OPTIONAL_SECTION_IDS = [
+  "surface",
+  "user_experience",
   "customer_truth",
   "solution_alternatives",
   "solution",
@@ -55,6 +56,7 @@ const LABELS: Record<string, string> = {
   problem: "Problem",
   hypothesis: "Hypothesis",
   scope: "Scope",
+  surface: "Surface",
   user_experience: "User Experience",
   acceptance_criteria: "Acceptance Criteria",
   success_metrics: "Success Metrics",
@@ -199,4 +201,3 @@ function serializeFrontmatter(frontmatter: ProductSpecFrontmatter): string {
   }
   return output;
 }
-

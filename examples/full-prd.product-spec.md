@@ -28,9 +28,9 @@ Out: team libraries, cross-video semantic search, uploaded video files, and paid
 
 Cut: transcript editing, speaker labels, and folder organization.
 
-## User Experience
+## Surface
 
-https://productspec.io/sample-mockup.html
+https://example.com/transcript-search-prototype
 
 ## Acceptance Criteria
 
@@ -57,4 +57,3 @@ Early testers describe the product as useful when it saves them from rewatching 
 ## Rollout
 
 Start with public YouTube videos under two hours, then expand length limits after reliability is clear.
-

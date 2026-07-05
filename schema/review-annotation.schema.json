@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://productspec.io/schema/review-annotation.schema.json",
+  "$id": "https://github.com/gokulrajaram/ProductSpec/schema/review-annotation.schema.json",
   "title": "Product Spec Review Annotation",
   "type": "object",
   "required": ["review_id", "reviewer_tool", "reviewed_at", "sections"],
@@ -36,4 +36,3 @@
   },
   "additionalProperties": false
 }
-

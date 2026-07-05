@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://productspec.io/schema/product-spec.schema.json",
+  "$id": "https://github.com/gokulrajaram/ProductSpec/schema/product-spec.schema.json",
   "title": "Product Spec",
   "type": "object",
   "required": ["frontmatter", "sections"],
@@ -44,6 +44,7 @@
               "problem",
               "hypothesis",
               "scope",
+              "surface",
               "user_experience",
               "acceptance_criteria",
               "success_metrics",
@@ -68,4 +69,3 @@
   },
   "additionalProperties": false
 }
-

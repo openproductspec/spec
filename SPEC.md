@@ -112,3 +112,16 @@ created_at: "2026-07-04T00:00:00Z"
 - L2: implements portable review annotations.
 - L3: implements portable calibration serialization.
 
+## Planned v0.2 Additions
+
+The next compatibility milestone is validation and conformance.
+
+Planned v0.2 additions:
+
+- Validator behavior for `.product-spec.md` files.
+- Valid and invalid fixture corpus.
+- Round-trip conformance tests.
+- Review-annotation examples.
+- Versioning and compatibility rules.
+
+Validators check structure and portability. They do not judge product quality.

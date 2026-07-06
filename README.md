@@ -112,7 +112,7 @@ cut:
 ```
 ````
 
-See `examples/ai-support-triage.product-spec.md` for the complete version.
+See [examples/ai-support-triage.product-spec.md](examples/ai-support-triage.product-spec.md) for the complete version.
 
 ## Naming
 
@@ -206,15 +206,15 @@ Early ecosystem contributions are welcome: examples, importer/exporter experimen
 - [conformance/](conformance/): valid and invalid fixtures for implementers.
 - [examples/README.md](examples/README.md): guide to choosing the right example.
 - [examples/](examples/): minimal and expanded examples.
-- `parsers/ts`: TypeScript reference parser, validator, and CLI.
+- [parsers/ts](parsers/ts): TypeScript reference parser, validator, and CLI.
 
 Examples include AI features, consumer UX, enterprise workflows, internal APIs, and agent handoffs:
 
-- `examples/ai-support-triage.product-spec.md`
-- `examples/consumer-family-calendar.product-spec.md`
-- `examples/enterprise-approval-workflow.product-spec.md`
-- `examples/internal-webhook-replay-api.product-spec.md`
-- `examples/full-prd.product-spec.md`
+- [examples/ai-support-triage.product-spec.md](examples/ai-support-triage.product-spec.md)
+- [examples/consumer-family-calendar.product-spec.md](examples/consumer-family-calendar.product-spec.md)
+- [examples/enterprise-approval-workflow.product-spec.md](examples/enterprise-approval-workflow.product-spec.md)
+- [examples/internal-webhook-replay-api.product-spec.md](examples/internal-webhook-replay-api.product-spec.md)
+- [examples/full-prd.product-spec.md](examples/full-prd.product-spec.md)
 
 ## Canonical Sections
 

@@ -8,28 +8,18 @@ Contributions are welcome through GitHub Issues and Pull Requests. Because Produ
 
 Useful contributions include:
 
-- examples of real Product Specs
-- product-leader feedback on which sections belong in the standard
+- real Product Spec examples with sensitive details removed
+- comments on whether the default sections match how strong teams make product decisions
 - before-and-after revisions showing how a Product Spec changed through review
 - section vocabulary proposals
+- critiques of Acceptance Criteria and Success Metrics semantics
+- notes on how Product Specs should connect to Jira, Linear, Figma, Git, OpenSpec, Spec Kit, and AI coding agents
 - validator bugs
 - parser improvements
 - schema clarifications
 - documentation improvements
-- interop notes for Jira, Linear, Figma, Git, OpenSpec, Spec Kit, and AI coding agents
 
-## Product Leaders And PMs
-
-You do not need to write parser code to shape ProductSpec.
-
-The most useful product-leader contributions are:
-
-- real Product Spec examples with sensitive details removed
-- comments on whether the default sections match how strong teams make product decisions
-- examples of Product Specs changing from `spec_revision: 1` to `spec_revision: 2`
-- proposed section vocabulary changes
-- notes on how Product Specs should connect to Jira, Linear, Figma, Git, OpenSpec, Spec Kit, and AI coding agents
-- critiques of Acceptance Criteria and Success Metrics semantics
+You do not need to write parser code to shape ProductSpec. A clear issue with a real example is enough to move the standard forward.
 
 Good issues from PMs and product leaders often start with:
 
@@ -38,7 +28,7 @@ Good issues from PMs and product leaders often start with:
 - "This field is too heavyweight for real teams because..."
 - "This example would fail in my org because..."
 
-Use `Discussion`, `Example request`, or `Section vocabulary proposal` issues. Pull requests are welcome, but a clear issue with a real example is enough to move the standard forward.
+Use `General spec discussion`, `Example request`, or `Section vocabulary proposal` issues. Pull requests are welcome when you want to contribute an actual file change.
 
 ## How To Comment On Default Sections
 
@@ -51,6 +41,16 @@ Use a `General spec discussion` issue when you want to comment on the default se
 - `success_metrics`
 
 You do not need to open a pull request for this. An issue is the right starting point.
+
+Steps:
+
+1. Go to `https://github.com/gokulrajaram/ProductSpec/issues/new/choose`.
+2. Choose `General spec discussion`.
+3. Use a title like `Discussion: Acceptance Criteria and Success Metrics are unclear`.
+4. In `Topic`, name the section or distinction you want to discuss.
+5. In `Context`, include a real or anonymized example from product work.
+6. In `Optional proposal`, say what you would change in the field guide, examples, or standard.
+7. Click `Submit new issue`.
 
 Example issue:
 
@@ -74,6 +74,18 @@ Maintainers can then discuss the proposal and decide whether it should become a 
 ## How To Propose A Section Vocabulary Change
 
 Use a `Section vocabulary proposal` issue when you want to add, remove, rename, or change a canonical section.
+
+Steps:
+
+1. Go to `https://github.com/gokulrajaram/ProductSpec/issues/new/choose`.
+2. Choose `Section vocabulary proposal`.
+3. Fill in the proposed section ID, such as `constraints`.
+4. Choose whether the section should be `Mandatory`, `Optional`, or a `Custom convention`.
+5. Explain what current section cannot cover the idea.
+6. Paste a concrete example of the section as Markdown.
+7. Describe validation expectations.
+8. Describe compatibility and migration impact.
+9. Click `Submit new issue`.
 
 Example issue:
 
@@ -179,11 +191,15 @@ git push origin add-your-example
 
 Then open a pull request against `gokulrajaram/ProductSpec`. Maintainers review the pull request before the example becomes part of the standard repo.
 
-Run:
+To open the pull request:
 
-```bash
-npm run validate -- examples/your-example.product-spec.md
-```
+1. Go to your fork on GitHub: `https://github.com/<your-user>/ProductSpec`.
+2. GitHub will usually show a banner for your recently pushed branch. Click `Compare & pull request`.
+3. If there is no banner, go to `Pull requests`, then click `New pull request`.
+4. Set `base repository` to `gokulrajaram/ProductSpec` and `base` to `main`.
+5. Set `head repository` to your fork and `compare` to `add-your-example`.
+6. In the PR description, explain what product-work pattern the example shows and why it belongs in the repo.
+7. Click `Create pull request`.
 
 Good examples show how ProductSpec works beyond classic product UI: APIs, internal tools, infrastructure changes, agent workflows, data pipelines, and operational systems are all welcome.
 

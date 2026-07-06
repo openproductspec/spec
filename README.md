@@ -62,8 +62,9 @@ ProductSpec -> Engineering Spec -> Tasks -> Code -> Evaluation -> Learning
 - `docs/decision-trace.md`: the future optional reasoning-trail extension.
 - `schema/product-spec.schema.json`: JSON Schema for parsed Product Spec documents.
 - `schema/review-annotation.schema.json`: JSON Schema for portable review annotations.
+- `conformance/*`: valid and invalid fixtures for implementers.
 - `examples/*.product-spec.md`: minimal and expanded examples.
-- `parsers/ts`: dependency-free TypeScript reference parser.
+- `parsers/ts`: TypeScript reference parser, validator, and CLI.
 
 ## Canonical Sections
 
@@ -87,4 +88,8 @@ Custom sections use `custom-<kebab-name>`.
 
 Version `0.1` is intentionally small. It is stable enough for tooling experiments, but still pre-1.0 while implementers learn what needs to change. See `docs/versioning.md` for compatibility expectations.
 
-The next milestone is `0.2`: validator CLI, conformance fixtures, review-annotation examples, and clearer versioning rules.
+The v0.2 tooling milestone adds conformance fixtures, a structured validator, and a CLI:
+
+```bash
+productspec validate path/to/file.product-spec.md
+```

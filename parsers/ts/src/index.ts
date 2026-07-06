@@ -51,6 +51,16 @@ export interface ProductSpecDocument {
   sections: ProductSpecSection[];
 }
 
+export interface ProductSpecValidationError {
+  code: string;
+  message: string;
+  path?: string;
+}
+
+export type ProductSpecValidationResult =
+  | { valid: true; document: ProductSpecDocument; errors: [] }
+  | { valid: false; errors: ProductSpecValidationError[] };
+
 const LABELS: Record<string, string> = {
   problem: "Problem",
   hypothesis: "Hypothesis",
@@ -87,12 +97,48 @@ export function parseProductSpecMarkdown(markdown: string): ProductSpecDocument 
   return { frontmatter, sections };
 }
 
+export function validateProductSpecMarkdown(markdown: string): ProductSpecValidationResult {
+  try {
+    return { valid: true, document: parseProductSpecMarkdown(markdown), errors: [] };
+  } catch (error) {
+    return {
+      valid: false,
+      errors: [validationErrorFor(error)]
+    };
+  }
+}
+
 export function serializeProductSpecMarkdown(doc: ProductSpecDocument): string {
   const frontmatter = serializeFrontmatter(doc.frontmatter);
   const body = doc.sections
     .map((section) => `## ${section.label}\n\n${section.content.trim()}`)
     .join("\n\n");
   return `---\n${frontmatter}---\n\n${body}\n`;
+}
+
+function validationErrorFor(error: unknown): ProductSpecValidationError {
+  const message = error instanceof Error ? error.message : "Invalid Product Spec.";
+  if (message.includes("frontmatter is required")) {
+    return { code: "missing_frontmatter", message };
+  }
+  if (message.includes("Unsupported spec_format_version")) {
+    return { code: "unsupported_version", message, path: "frontmatter.spec_format_version" };
+  }
+  if (message.includes("Missing mandatory section")) {
+    const sectionId = message.split(":").at(-1)?.trim();
+    return {
+      code: "missing_required_section",
+      message,
+      path: sectionId ? `sections.${sectionId}` : "sections"
+    };
+  }
+  if (message.includes("Missing required Product Spec frontmatter")) {
+    return { code: "missing_required_frontmatter", message, path: "frontmatter" };
+  }
+  if (message.includes("Unsupported artifact_type")) {
+    return { code: "unsupported_artifact_type", message, path: "frontmatter.artifact_type" };
+  }
+  return { code: "invalid_product_spec", message };
 }
 
 function parseFrontmatter(raw: string): ProductSpecFrontmatter {

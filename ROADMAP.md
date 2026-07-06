@@ -19,16 +19,21 @@ Includes:
 
 ## v0.2: Validation And Conformance
 
+Status: current.
+
 Goal: make ProductSpec easier for other tools to adopt correctly.
 
-Planned additions:
+Includes:
 
 - Validator CLI for `.product-spec.md` files.
 - Valid and invalid fixture corpus.
 - Round-trip conformance tests.
 - Custom-section preservation tests.
-- Review-annotation examples.
-- Clearer versioning and compatibility rules.
+- Structured validator result with stable error codes.
+
+Remaining:
+
+- Review-annotation fixture examples.
 - Formatter expectations for stable Markdown output.
 
 ## v0.3: Decision Trace

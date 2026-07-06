@@ -47,15 +47,16 @@ In v0.1, the mandatory sections are:
 
 The v0.1 shape in this repository is the current canonical v0.1 shape. Earlier experimental commits may have different v0.1 section requirements; implementers should follow the current `SPEC.md`, schema, parser, and examples.
 
-## Next Milestone
+## v0.2 Tooling Milestone
 
-v0.2 is expected to focus on validation and conformance:
+v0.2 focuses on validation and conformance:
 
 - Validator CLI.
 - Valid and invalid fixture corpus.
 - Round-trip conformance tests.
-- Review-annotation examples.
-- Clearer compatibility rules for future v0.x changes.
+- Structured validator results with stable error codes.
+
+This does not change `spec_format_version`, which remains `"0.1"` for the current Product Spec document shape.
 
 ## v1.0 Bar
 

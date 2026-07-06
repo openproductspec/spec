@@ -52,11 +52,16 @@ The v0.1 shape in this repository is the current canonical v0.1 shape. Earlier e
 v0.2 focuses on validation and conformance:
 
 - Validator CLI.
+- Local CLI wrappers: `npm run validate -- <file>` and `npm run cli -- validate <file>`.
 - Valid and invalid fixture corpus.
 - Round-trip conformance tests.
-- Structured validator results with stable error codes.
+- Structured validator results with stable error and warning codes.
+- Stable errors for missing frontmatter, unsupported versions, missing required frontmatter, unsupported artifact types, missing required sections, duplicate sections, invalid required-section order, and invalid custom section IDs.
+- Non-failing warnings for empty or very thin required sections.
 
 This does not change `spec_format_version`, which remains `"0.1"` for the current Product Spec document shape.
+
+The v0.2 CLI package is ready to publish as `@productspec/parser`, with the `productspec` binary. Publishing requires npm authentication and package-owner access; until then, `npm run cli -- validate <file>` is the supported local path.
 
 ## v1.0 Bar
 

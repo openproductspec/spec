@@ -55,6 +55,7 @@ ProductSpec -> Engineering Spec -> Tasks -> Code -> Evaluation -> Learning
 ## What Is Included
 
 - `SPEC.md`: the canonical v0.1 standard.
+- `CHANGELOG.md`: release history for the standard and tooling.
 - `ROADMAP.md`: the planned path from v0.1 to a stable semantic model.
 - `docs/vision.md`: the public vision for ProductSpec as the intent layer.
 - `docs/validate-your-first-product-spec.md`: the fastest local validation path.

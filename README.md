@@ -154,28 +154,28 @@ Early ecosystem contributions are welcome: examples, importer/exporter experimen
 
 ## What Is Included
 
-- `SPEC.md`: the canonical v0.1 standard.
-- `CHANGELOG.md`: release history for the standard and tooling.
-- `CONTRIBUTING.md`: how to propose examples, validator changes, and section vocabulary changes.
-- `docs/philosophy.md`: the core beliefs behind ProductSpec.
-- `docs/launch-post.md`: a draft launch post for sharing the project.
-- `docs/why-productspec.md`: why the intent layer needs its own artifact.
-- `docs/faq.md`: answers to common ProductSpec adoption questions.
-- `docs/use-in-your-repo.md`: copy-paste setup for using ProductSpec in an existing repository.
-- `docs/adoption.md`: how teams can adopt ProductSpec across Git, Jira, Linear, Figma, CI, engineering specs, and agents.
-- `docs/handoff-example.md`: how ProductSpec interacts with Jira, Figma, Git, OpenSpec, Spec Kit, and coding agents.
-- `docs/end-to-end-handoff.md`: a concrete walkthrough from Product Spec to issue, design, engineering spec, agent loop, pull request, and launch learning.
-- `docs/vision.md`: the public vision for ProductSpec as the intent layer.
-- `docs/validator.md`: validator error and warning codes.
-- `docs/validate-your-first-product-spec.md`: the fastest local validation path.
-- `docs/field-guide.md`: field-level guidance for writing each section.
-- `docs/versioning.md`: compatibility rules before v1.0.
-- `docs/decision-trace.md`: the future optional reasoning-trail extension.
-- `schema/product-spec.schema.json`: JSON Schema for parsed Product Spec documents.
-- `schema/review-annotation.schema.json`: JSON Schema for portable review annotations.
-- `conformance/*`: valid and invalid fixtures for implementers.
-- `examples/README.md`: guide to choosing the right example.
-- `examples/*.product-spec.md`: minimal and expanded examples.
+- [SPEC.md](SPEC.md): the canonical v0.1 standard.
+- [CHANGELOG.md](CHANGELOG.md): release history for the standard and tooling.
+- [CONTRIBUTING.md](CONTRIBUTING.md): how to propose examples, validator changes, and section vocabulary changes.
+- [docs/philosophy.md](docs/philosophy.md): the core beliefs behind ProductSpec.
+- [docs/launch-post.md](docs/launch-post.md): a draft launch post for sharing the project.
+- [docs/why-productspec.md](docs/why-productspec.md): why the intent layer needs its own artifact.
+- [docs/faq.md](docs/faq.md): answers to common ProductSpec adoption questions.
+- [docs/use-in-your-repo.md](docs/use-in-your-repo.md): copy-paste setup for using ProductSpec in an existing repository.
+- [docs/adoption.md](docs/adoption.md): how teams can adopt ProductSpec across Git, Jira, Linear, Figma, CI, engineering specs, and agents.
+- [docs/handoff-example.md](docs/handoff-example.md): how ProductSpec interacts with Jira, Figma, Git, OpenSpec, Spec Kit, and coding agents.
+- [docs/end-to-end-handoff.md](docs/end-to-end-handoff.md): a concrete walkthrough from Product Spec to issue, design, engineering spec, agent loop, pull request, and launch learning.
+- [docs/vision.md](docs/vision.md): the public vision for ProductSpec as the intent layer.
+- [docs/validator.md](docs/validator.md): validator error and warning codes.
+- [docs/validate-your-first-product-spec.md](docs/validate-your-first-product-spec.md): the fastest local validation path.
+- [docs/field-guide.md](docs/field-guide.md): field-level guidance for writing each section.
+- [docs/versioning.md](docs/versioning.md): compatibility rules before v1.0.
+- [docs/decision-trace.md](docs/decision-trace.md): the future optional reasoning-trail extension.
+- [schema/product-spec.schema.json](schema/product-spec.schema.json): JSON Schema for parsed Product Spec documents.
+- [schema/review-annotation.schema.json](schema/review-annotation.schema.json): JSON Schema for portable review annotations.
+- [conformance/](conformance/): valid and invalid fixtures for implementers.
+- [examples/README.md](examples/README.md): guide to choosing the right example.
+- [examples/](examples/): minimal and expanded examples.
 - `parsers/ts`: TypeScript reference parser, validator, and CLI.
 
 Examples include AI features, consumer UX, enterprise workflows, internal APIs, and agent handoffs:

@@ -48,6 +48,12 @@ Support leads at B2B SaaS companies lose their morning planning window because u
 
 If incoming tickets are automatically labeled by urgency, customer tier, and likely owner, support leads will respond to account-risk issues faster because the queue starts each day pre-sorted by consequence.
 
+## Scope
+
+In: ticket ingestion, urgency labels, customer-tier lookup, owner recommendation, confidence score, reviewer override, and audit log.
+
+Out: auto-replies, direct ticket reassignment, customer-visible status changes, and custom routing rules.
+
 ## Acceptance Criteria
 
 - AI evals: on a 500-ticket golden set, urgency classification reaches at least 92% precision for `account_risk`.

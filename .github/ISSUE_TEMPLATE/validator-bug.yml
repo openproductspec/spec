@@ -1,0 +1,38 @@
+name: Validator bug
+description: Report unexpected parser or validator behavior.
+title: "Validator bug: "
+labels:
+  - validator
+  - bug
+body:
+  - type: textarea
+    id: input
+    attributes:
+      label: Product Spec input
+      description: Paste the smallest Product Spec that reproduces the issue.
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: What should the validator return?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Include error or warning codes when possible.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Parser version
+      placeholder: "@productspec/parser@0.2.0"
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context

@@ -1,0 +1,25 @@
+name: General spec discussion
+description: Discuss ProductSpec semantics, compatibility, or ecosystem fit.
+title: "Discussion: "
+labels:
+  - discussion
+body:
+  - type: textarea
+    id: topic
+    attributes:
+      label: Topic
+      description: What should the community discuss?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Include examples, related tools, or implementation constraints.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Optional proposal
+      description: If you have a suggested direction, include it here.

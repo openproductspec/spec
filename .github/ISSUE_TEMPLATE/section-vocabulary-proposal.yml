@@ -1,0 +1,52 @@
+name: Section vocabulary proposal
+description: Propose a canonical ProductSpec section change.
+title: "Section proposal: "
+labels:
+  - section-vocabulary
+  - proposal
+body:
+  - type: input
+    id: section_id
+    attributes:
+      label: Proposed section ID
+      description: Use snake_case for canonical sections.
+      placeholder: "example_section"
+    validations:
+      required: true
+  - type: dropdown
+    id: section_type
+    attributes:
+      label: Section type
+      options:
+        - Mandatory
+        - Optional
+        - Custom convention
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What current gap does this solve?
+      description: Explain what existing sections cannot cover.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example usage
+      description: Show how this section would appear in a Product Spec.
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation expectations
+      description: Should validators enforce anything about this section?
+  - type: textarea
+    id: migration
+    attributes:
+      label: Compatibility and migration impact
+      description: Describe impact on existing Product Specs and tools.
+    validations:
+      required: true

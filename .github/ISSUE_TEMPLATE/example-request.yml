@@ -1,0 +1,26 @@
+name: Example request
+description: Request or contribute a Product Spec example.
+title: "Example request: "
+labels:
+  - examples
+body:
+  - type: input
+    id: domain
+    attributes:
+      label: Domain or use case
+      placeholder: "Internal API, CLI tool, infrastructure migration, agent workflow"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why would this example help?
+      description: Explain what current examples do not show.
+    validations:
+      required: true
+  - type: textarea
+    id: sketch
+    attributes:
+      label: Optional sketch
+      description: Share any rough Product Spec content or constraints.
+      render: markdown

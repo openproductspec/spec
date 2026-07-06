@@ -74,6 +74,7 @@ ProductSpec -> Engineering Spec -> Tasks -> Code -> Evaluation -> Learning
 
 - `SPEC.md`: the canonical v0.1 standard.
 - `CHANGELOG.md`: release history for the standard and tooling.
+- `CONTRIBUTING.md`: how to propose examples, validator changes, and section vocabulary changes.
 - `ROADMAP.md`: the planned path from v0.1 to a stable semantic model.
 - `docs/why-productspec.md`: why the intent layer needs its own artifact.
 - `docs/handoff-example.md`: how ProductSpec interacts with Jira, Figma, Git, OpenSpec, Spec Kit, and coding agents.
@@ -88,6 +89,8 @@ ProductSpec -> Engineering Spec -> Tasks -> Code -> Evaluation -> Learning
 - `conformance/*`: valid and invalid fixtures for implementers.
 - `examples/*.product-spec.md`: minimal and expanded examples.
 - `parsers/ts`: TypeScript reference parser, validator, and CLI.
+
+Examples include both product UI work and non-UI software intent, such as `examples/internal-webhook-replay-api.product-spec.md`.
 
 ## Canonical Sections
 

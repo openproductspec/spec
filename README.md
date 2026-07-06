@@ -129,12 +129,37 @@ ProductSpec -> Engineering Spec -> Tasks -> Code -> Evaluation -> Learning
 - AI coding agents execute implementation tasks.
 - ProductSpec stores the software intent behind the work: the problem, hypothesis, scope, acceptance criteria, and success metrics that downstream tools should preserve.
 
+## Ecosystem
+
+ProductSpec is meant to be implemented by many tools.
+
+Current repo artifacts:
+
+- `@productspec/parser`: TypeScript parser, validator, and CLI.
+- JSON Schema for parsed Product Spec documents.
+- Valid and invalid conformance fixtures.
+- GitHub issue and pull request templates.
+- Examples for AI features, consumer UX, enterprise workflows, internal APIs, and revision history.
+
+Natural integration points:
+
+- Git and GitHub for versioned Product Specs, pull requests, and review.
+- Jira and Linear for work tracking that links back to Product Spec revisions.
+- Figma and prototypes through `user_experience`.
+- OpenSpec and Spec Kit for downstream engineering specs.
+- AI coding agents that build until Acceptance Criteria pass.
+- Analytics and experiment tools that measure Success Metrics after launch.
+
+Early ecosystem contributions are welcome: examples, importer/exporter experiments, editor integrations, CI validation actions, review tools, and mappings into engineering-spec systems.
+
 ## What Is Included
 
 - `SPEC.md`: the canonical v0.1 standard.
 - `CHANGELOG.md`: release history for the standard and tooling.
 - `CONTRIBUTING.md`: how to propose examples, validator changes, and section vocabulary changes.
 - `ROADMAP.md`: the planned path from v0.1 to a stable semantic model.
+- `docs/philosophy.md`: the core beliefs behind ProductSpec.
+- `docs/launch-post.md`: a draft launch post for sharing the project.
 - `docs/why-productspec.md`: why the intent layer needs its own artifact.
 - `docs/faq.md`: answers to common ProductSpec adoption questions.
 - `docs/use-in-your-repo.md`: copy-paste setup for using ProductSpec in an existing repository.

@@ -9,12 +9,36 @@ Contributions are welcome through GitHub Issues and Pull Requests. Because Produ
 Useful contributions include:
 
 - examples of real Product Specs
+- product-leader feedback on which sections belong in the standard
+- before-and-after revisions showing how a Product Spec changed through review
 - section vocabulary proposals
 - validator bugs
 - parser improvements
 - schema clarifications
 - documentation improvements
 - interop notes for Jira, Linear, Figma, Git, OpenSpec, Spec Kit, and AI coding agents
+
+## Product Leaders And PMs
+
+You do not need to write parser code to shape ProductSpec.
+
+The most useful product-leader contributions are:
+
+- real Product Spec examples with sensitive details removed
+- comments on whether the default sections match how strong teams make product decisions
+- examples of Product Specs changing from `spec_revision: 1` to `spec_revision: 2`
+- proposed section vocabulary changes
+- notes on how Product Specs should connect to Jira, Linear, Figma, Git, OpenSpec, Spec Kit, and AI coding agents
+- critiques of Acceptance Criteria and Success Metrics semantics
+
+Good issues from PMs and product leaders often start with:
+
+- "Here is a Product Spec shape my team uses today."
+- "This section is missing from consequential product work because..."
+- "This field is too heavyweight for real teams because..."
+- "This example would fail in my org because..."
+
+Use `Discussion`, `Example request`, or `Section vocabulary proposal` issues. Pull requests are welcome, but a clear issue with a real example is enough to move the standard forward.
 
 ## Change Process
 

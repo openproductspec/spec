@@ -31,8 +31,8 @@ Added:
 
 Publishing status:
 
-- `@productspec/parser` is ready for npm publish.
-- Actual npm publish requires npm authentication and package-owner access.
+- `@productspec/parser@0.2.0` is published to npm.
+- The package exposes the `productspec` CLI binary.
 
 ## v0.1.0 - Document Shape
 

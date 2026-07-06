@@ -61,7 +61,7 @@ v0.2 focuses on validation and conformance:
 
 This does not change `spec_format_version`, which remains `"0.1"` for the current Product Spec document shape.
 
-The v0.2 CLI package is ready to publish as `@productspec/parser`, with the `productspec` binary. Publishing requires npm authentication and package-owner access; until then, `npm run cli -- validate <file>` is the supported local path.
+The v0.2 CLI package is published as `@productspec/parser`, with the `productspec` binary. Use `npm exec --package @productspec/parser -- productspec validate <file>` to run the published CLI without installing it globally.
 
 ## v1.0 Bar
 

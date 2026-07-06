@@ -3,6 +3,12 @@
 This is the fastest local path for trying the ProductSpec validator.
 
 ```bash
+npm exec --package @productspec/parser -- productspec validate examples/minimal.product-spec.md
+```
+
+To validate the examples from a full repo checkout:
+
+```bash
 git clone https://github.com/gokulrajaram/ProductSpec.git
 cd ProductSpec
 npm install
@@ -15,7 +21,7 @@ You should see:
 examples/minimal.product-spec.md: valid
 ```
 
-## Install The Local CLI
+## Local Development CLI
 
 For local development, run the package CLI through npm:
 
@@ -32,8 +38,7 @@ npm run link:cli
 ```
 
 After linking, `productspec validate examples/minimal.product-spec.md` works if your npm
-global binary directory is on `PATH`. Until the package is published, `npm run cli -- ...`
-is the most reliable local command.
+global binary directory is on `PATH`.
 
 ## What Validation Checks
 

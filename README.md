@@ -93,6 +93,12 @@ Version `0.1` is intentionally small. It is stable enough for tooling experiment
 The v0.2 tooling milestone adds conformance fixtures, a structured validator, and a CLI:
 
 ```bash
+npm exec --package @productspec/parser -- productspec validate examples/minimal.product-spec.md
+```
+
+For local development from this repository:
+
+```bash
 npm install
 npm run build
 node dist/cli.js validate examples/minimal.product-spec.md
@@ -117,7 +123,6 @@ npm run link:cli
 ```
 
 After linking, `productspec validate examples/minimal.product-spec.md` works if your npm
-global binary directory is on `PATH`. Until the package is published, `npm run cli -- ...`
-is the most reliable local command.
+global binary directory is on `PATH`.
 
 See `docs/validate-your-first-product-spec.md` for the first-run path and current validator checks.

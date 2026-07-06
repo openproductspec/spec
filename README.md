@@ -39,6 +39,8 @@ npm exec --package @productspec/parser -- productspec validate examples/minimal.
 
 ## Example
 
+Full Product Spec files include frontmatter such as `title`, `author`, and timestamps. This shortened example shows the section body.
+
 ```markdown
 ## Problem
 

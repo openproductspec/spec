@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install parser dependencies
+        run: npm ci --prefix parsers/ts
+
+      - name: Run parser tests
+        run: npm test
+
+      - name: Validate conformance fixtures
+        run: |
+          npm run validate -- conformance/valid/minimal.product-spec.md
+          npm run validate -- conformance/valid/with-user-experience.product-spec.md
+          npm run validate -- conformance/valid/with-custom-section.product-spec.md
+
+      - name: Verify package dry run
+        working-directory: parsers/ts
+        run: |
+          npm run build
+          npm publish --dry-run

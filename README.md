@@ -6,6 +6,20 @@ ProductSpec is designed for Product Specs that need to be read by humans, review
 
 ProductSpec.io is one implementation of ProductSpec. ProductSpec itself is neutral: it defines structure, section IDs, portable review annotations, calibration-example serialization, and eventually portable decision traces. It does not define what makes a Product Spec good.
 
+## Quick Start
+
+Validate a Product Spec with the published CLI:
+
+```bash
+npm exec --package @productspec/parser -- productspec validate path/to/file.product-spec.md
+```
+
+Try the included example from a repo checkout:
+
+```bash
+npm exec --package @productspec/parser -- productspec validate examples/minimal.product-spec.md
+```
+
 ## Naming
 
 - `ProductSpec` is the open standard, project, repository, and ecosystem for software intent.
@@ -57,6 +71,7 @@ ProductSpec -> Engineering Spec -> Tasks -> Code -> Evaluation -> Learning
 - `SPEC.md`: the canonical v0.1 standard.
 - `CHANGELOG.md`: release history for the standard and tooling.
 - `ROADMAP.md`: the planned path from v0.1 to a stable semantic model.
+- `docs/why-productspec.md`: why the intent layer needs its own artifact.
 - `docs/vision.md`: the public vision for ProductSpec as the intent layer.
 - `docs/validate-your-first-product-spec.md`: the fastest local validation path.
 - `docs/field-guide.md`: field-level guidance for writing each section.

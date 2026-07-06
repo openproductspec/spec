@@ -1,8 +1,9 @@
-import { readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { existsSync } from "node:fs";
 import {
   CANONICAL_SECTION_IDS,
   MANDATORY_SECTION_IDS,
@@ -304,5 +305,55 @@ Keep this around.
 
     expect(invalid.status).toBe(1);
     expect(invalid.stderr).toContain("missing_required_section");
+  });
+
+  it("initializes a starter Product Spec from the CLI", () => {
+    const build = spawnSync("npm", ["run", "build"], { cwd: packageRoot, encoding: "utf8" });
+    expect(build.status, build.stderr).toBe(0);
+
+    const dir = mkdtempSync(join(tmpdir(), "productspec-init-"));
+    const target = join(dir, "starter.product-spec.md");
+
+    try {
+      const init = spawnSync("node", [
+        fileURLToPath(new URL("../dist/cli.js", import.meta.url)),
+        "init",
+        target
+      ], { encoding: "utf8" });
+
+      expect(init.status).toBe(0);
+      expect(init.stdout).toContain("created");
+      expect(existsSync(target)).toBe(true);
+
+      const markdown = readFileSync(target, "utf8");
+      const result = validateProductSpecMarkdown(markdown);
+      expect(result.valid).toBe(true);
+      expect(markdown).toContain("## Problem");
+      expect(markdown).toContain("## Success Metrics");
+
+      const secondInit = spawnSync("node", [
+        fileURLToPath(new URL("../dist/cli.js", import.meta.url)),
+        "init",
+        target
+      ], { encoding: "utf8" });
+
+      expect(secondInit.status).toBe(1);
+      expect(secondInit.stderr).toContain("already exists");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("keeps every example valid", () => {
+    const exampleDir = `${root}/examples`;
+    const examples = readdirSync(exampleDir).filter((file) => file.endsWith(".product-spec.md"));
+
+    expect(examples).toContain("minimal.product-spec.md");
+    expect(examples.length).toBeGreaterThanOrEqual(5);
+
+    for (const example of examples) {
+      const result = validateProductSpecMarkdown(readFileSync(`${exampleDir}/${example}`, "utf8"));
+      expect(result.valid, example).toBe(true);
+    }
   });
 });

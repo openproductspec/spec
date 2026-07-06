@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.3.0 - Adoption Milestone
+
+ProductSpec v0.3.0 keeps the Product Spec document shape at `spec_format_version:
+"0.1"` and improves first-run adoption.
+
+Added:
+
+- `productspec init <file>` for creating a starter Product Spec.
+- Stronger examples for AI features, consumer UX, enterprise workflows, and internal APIs.
+- A sharper README opening and expanded `docs/why-productspec.md`.
+
 ## v0.2.0 - Tooling Milestone
 
 ProductSpec v0.2.0 keeps the Product Spec document shape at `spec_format_version:

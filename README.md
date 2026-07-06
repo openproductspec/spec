@@ -6,9 +6,16 @@
 
 ProductSpec is an open standard for software intent before implementation.
 
-ProductSpec is designed for Product Specs that need to be read by humans, reviewed by product tools, and executed by AI agents downstream.
+It gives teams a portable Markdown format for the product decision that comes before tickets, engineering plans, and code.
 
-ProductSpec is neutral: it defines structure, section IDs, portable review annotations, calibration-example serialization, and eventually portable decision traces. It does not define what makes a Product Spec good.
+Use it when the work is consequential enough that intent needs to survive handoff: from humans to humans, from product to engineering, and from teams to AI agents.
+
+```text
+Product Spec -> Engineering Spec -> Code -> Evaluation -> Learning
+what / why      how / plan / tasks   implementation   outcome
+```
+
+ProductSpec is neutral. It defines structure, section IDs, portable review annotations, calibration-example serialization, and eventually portable decision traces. It does not define what makes a Product Spec good.
 
 ## Quick Start
 
@@ -18,11 +25,39 @@ Validate a Product Spec with the published CLI:
 npm exec --package @productspec/parser -- productspec validate path/to/file.product-spec.md
 ```
 
-Try the included example from a repo checkout:
+Create a starter Product Spec:
+
+```bash
+npm exec --package @productspec/parser -- productspec init my-feature.product-spec.md
+```
+
+Try an included example:
 
 ```bash
 npm exec --package @productspec/parser -- productspec validate examples/minimal.product-spec.md
 ```
+
+## Example
+
+```markdown
+## Problem
+
+Support leads at B2B SaaS companies lose their morning planning window because urgent, account-risk tickets are buried among routine product questions.
+
+## Hypothesis
+
+If incoming tickets are automatically labeled by urgency, customer tier, and likely owner, support leads will respond to account-risk issues faster because the queue starts each day pre-sorted by consequence.
+
+## Acceptance Criteria
+
+- AI evals: on a 500-ticket golden set, urgency classification reaches at least 92% precision for `account_risk`.
+
+## Success Metrics
+
+- Median time to first human response for account-risk tickets falls below 15 minutes during business hours.
+```
+
+See `examples/ai-support-triage.product-spec.md` for the complete version.
 
 ## Naming
 
@@ -90,7 +125,13 @@ ProductSpec -> Engineering Spec -> Tasks -> Code -> Evaluation -> Learning
 - `examples/*.product-spec.md`: minimal and expanded examples.
 - `parsers/ts`: TypeScript reference parser, validator, and CLI.
 
-Examples include both product UI work and non-UI software intent, such as `examples/internal-webhook-replay-api.product-spec.md`.
+Examples include AI features, consumer UX, enterprise workflows, internal APIs, and agent handoffs:
+
+- `examples/ai-support-triage.product-spec.md`
+- `examples/consumer-family-calendar.product-spec.md`
+- `examples/enterprise-approval-workflow.product-spec.md`
+- `examples/internal-webhook-replay-api.product-spec.md`
+- `examples/full-prd.product-spec.md`
 
 ## Canonical Sections
 
@@ -114,10 +155,16 @@ Custom sections use `custom-<kebab-name>`.
 
 Version `0.1` is intentionally small. It is stable enough for tooling experiments, but still pre-1.0 while implementers learn what needs to change. See `docs/versioning.md` for compatibility expectations.
 
-The v0.2 tooling milestone adds conformance fixtures, a structured validator, and a CLI:
+The v0.3 adoption milestone includes conformance fixtures, a structured validator, examples, and a CLI:
 
 ```bash
 npm exec --package @productspec/parser -- productspec validate examples/minimal.product-spec.md
+```
+
+To create a starter Product Spec:
+
+```bash
+npm exec --package @productspec/parser -- productspec init my-feature.product-spec.md
 ```
 
 For local development from this repository:

@@ -63,6 +63,14 @@ This does not change `spec_format_version`, which remains `"0.1"` for the curren
 
 The v0.2 CLI package is published as `@productspec/parser`, with the `productspec` binary. Use `npm exec --package @productspec/parser -- productspec validate <file>` to run the published CLI without installing it globally.
 
+## v0.3 Adoption Milestone
+
+v0.3 keeps the document shape at `spec_format_version: "0.1"` and improves adoption:
+
+- `productspec init <file>` creates a starter Product Spec.
+- Additional examples show AI features, consumer UX, enterprise workflows, and internal APIs.
+- The README and "Why ProductSpec?" docs explain the intent layer more directly.
+
 ## v1.0 Bar
 
 v1.0 is the first compatibility promise.

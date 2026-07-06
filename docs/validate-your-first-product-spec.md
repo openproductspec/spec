@@ -2,8 +2,14 @@
 
 This is the fastest local path for trying the ProductSpec validator.
 
+Create a starter file:
+
 ```bash
-npm exec --package @productspec/parser -- productspec validate examples/minimal.product-spec.md
+npm exec --package @productspec/parser -- productspec init my-feature.product-spec.md
+```
+
+```bash
+npm exec --package @productspec/parser -- productspec validate my-feature.product-spec.md
 ```
 
 To validate the examples from a full repo checkout:
@@ -30,6 +36,12 @@ npm run cli -- validate examples/minimal.product-spec.md
 ```
 
 This uses the `productspec` binary from `parsers/ts` without requiring a global install.
+
+To create a starter file through the local CLI:
+
+```bash
+npm run cli -- init my-feature.product-spec.md
+```
 
 You can also link it:
 

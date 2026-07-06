@@ -1,14 +1,14 @@
 # Why ProductSpec?
 
-Software development is changing from human-authored code to agent-executed work.
+AI made it much easier to turn instructions into code.
 
-That shift makes intent more important, not less. If an AI agent can build quickly, the expensive mistake is no longer slow implementation. The expensive mistake is building the wrong thing with confidence.
+That makes intent more important, not less. When implementation gets faster, the expensive mistake is building the wrong thing with confidence.
 
 ProductSpec exists for that intent layer.
 
 ## The Missing Artifact
 
-Teams already have tools for work tracking, design, source control, engineering specs, and code execution:
+Teams already have tools for every layer after intent:
 
 - Jira and Linear track work.
 - Figma captures design artifacts.
@@ -27,6 +27,8 @@ The Product Spec is where a team commits to the problem, hypothesis, scope, acce
 
 It can live in Git, link to Figma, generate Jira or Linear work, feed OpenSpec or Spec Kit, and guide AI coding agents. It should remain the durable statement of intent when tickets, branches, and implementation details change.
 
+Without that artifact, teams often end up with a pile of downstream objects that look coordinated but do not share the same why.
+
 ## Human Readable, Agent Executable
 
 A Product Spec has two readers:
@@ -35,6 +37,17 @@ A Product Spec has two readers:
 2. AI agents and downstream tools that need enough structure to plan and execute the work.
 
 ProductSpec is intentionally Markdown-first because the artifact should remain readable in normal product and engineering workflows. It is also structured enough for parsers, validators, review tools, imports, exports, and agent handoffs.
+
+That is the difference from a classic PRD. A PRD was mostly a human handoff. A Product Spec is a human-readable control file for downstream software work.
+
+## Acceptance Criteria vs. Success Metrics
+
+ProductSpec separates two ideas that often get mixed together:
+
+- Acceptance Criteria are the build contract. They say what must be true before launch. For AI products, eval thresholds belong here.
+- Success Metrics are the market contract. They say what real user or business behavior would make the work worth continuing after launch.
+
+An AI agent can use Acceptance Criteria to know when the implementation loop is done. A team uses Success Metrics to know whether the shipped product mattered.
 
 ## When To Use It
 
@@ -50,6 +63,8 @@ It is for consequential software work where intent needs to survive handoff:
 
 For a throwaway script or solo experiment, it may be faster to build directly. For work that affects a team, product surface, customer promise, or AI execution loop, the Product Spec is the control system.
 
+The more handoffs a piece of work has, the more valuable the spec becomes.
+
 ## What ProductSpec Is Not
 
 ProductSpec does not define product taste. It does not tell you whether a spec is good.
@@ -64,6 +79,8 @@ It defines the portable structure:
 - future decision trace extensions
 
 Different products and teams can build opinionated review layers on top.
+
+The standard should stay small and portable. The ecosystem around it can be opinionated.
 
 ## The Goal
 

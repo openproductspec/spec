@@ -86,6 +86,45 @@ ProductSpec should be reconciled against implementation. When code, tests, UX, e
 
 The open standard should define portable artifacts for this loop. Implementations can connect to GitHub, issue trackers, design tools, CI, eval systems, analytics, and deployed products to detect drift.
 
+## Managed Implementation
+
+The open standard should stay portable. A managed implementation can make the standard useful inside day-to-day product and engineering work.
+
+The managed implementation should be Git-native, not Git-centric.
+
+PMs should be able to work in a polished ProductSpec editor. Engineers should be able to review clean Markdown, pull requests, commits, and linked implementation history in GitHub.
+
+A strong managed workflow:
+
+1. Create: a PM writes a Product Spec in ProductSpec.
+2. Publish: ProductSpec opens a GitHub branch and pull request with clean Markdown at a chosen repo path.
+3. Review: engineers review in GitHub, PMs respond in ProductSpec, and comments or approvals sync across both surfaces.
+4. Implement: issues, pull requests, tests, eval runs, feature flags, and analytics link back to specific Product Spec sections.
+5. Reconcile: ProductSpec detects drift and proposes an explicit decision, spec revision, implementation change, or Decision Trace entry.
+
+The managed implementation should not become a generic GitHub document editor.
+
+The product loop is narrower and more valuable:
+
+```text
+Define intent -> Review with engineering -> Track implementation -> Reconcile drift after shipping
+```
+
+Useful managed capabilities include:
+
+- Publishing Product Specs as clean Markdown into a selected GitHub repo and path.
+- Opening review branches and pull requests for spec review.
+- Mapping Product Spec sections to issues, pull requests, tests, eval runs, and analytics.
+- Showing Acceptance Criteria with linked implementation and test evidence.
+- Detecting freshness and drift when linked code, tests, UX, evals, or metrics change.
+- Drafting Decision Trace entries when implementation and intent diverge.
+
+The positioning:
+
+```text
+Specs your PMs can write. Specs your engineers can trust.
+```
+
 ## Decision Trace
 
 Decision Trace is the audit trail for drift reconciliation.

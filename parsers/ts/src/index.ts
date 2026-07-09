@@ -59,9 +59,12 @@ export interface ProductSpecScope {
 export interface ProductSpecAiEval {
   id: string;
   type: string;
-  input_set: string;
   evaluator: string;
   pass_threshold: number;
+  cases: Array<{
+    input: string;
+    expected: string;
+  }>;
   checks: string[];
 }
 
@@ -284,7 +287,7 @@ function validateDocument(document: ProductSpecDocument): {
           path
         });
       }
-      const missingFields = ["id", "type", "input_set", "evaluator"].filter(
+      const missingFields = ["id", "type", "evaluator"].filter(
         (field) => !String(aiEval[field as keyof ProductSpecAiEval] ?? "").trim()
       );
       if (missingFields.length) {
@@ -298,6 +301,16 @@ function validateDocument(document: ProductSpecDocument): {
         errors.push({
           code: "invalid_ai_eval",
           message: "Invalid AI eval: pass_threshold must be a number greater than 0 and less than or equal to 1.",
+          path
+        });
+      }
+      if (
+        !aiEval.cases.length ||
+        aiEval.cases.some((testCase) => !testCase.input.trim() || !testCase.expected.trim())
+      ) {
+        errors.push({
+          code: "invalid_ai_eval",
+          message: "Invalid AI eval: cases must include at least one item with non-empty input and expected values.",
           path
         });
       }
@@ -468,6 +481,8 @@ function parseAiEvalList(raw: string): ProductSpecAiEval[] {
   const evals: Array<Partial<ProductSpecAiEval>> = [];
   let current: Partial<ProductSpecAiEval> | undefined;
   let inChecks = false;
+  let inCases = false;
+  let currentCase: { input: string; expected: string } | undefined;
 
   for (const line of raw.split("\n")) {
     if (!line.trim()) continue;
@@ -476,12 +491,33 @@ function parseAiEvalList(raw: string): ProductSpecAiEval[] {
       evals.push(current);
       assignAiEvalValue(current, line.slice(2));
       inChecks = false;
+      inCases = false;
+      currentCase = undefined;
       continue;
     }
     if (!current) throw new Error("Invalid AI eval block: expected list item.");
+    if (line.trim() === "cases:") {
+      current.cases = [];
+      inCases = true;
+      inChecks = false;
+      currentCase = undefined;
+      continue;
+    }
     if (line.trim() === "checks:") {
       current.checks = [];
       inChecks = true;
+      inCases = false;
+      currentCase = undefined;
+      continue;
+    }
+    if (inCases && line.startsWith("    - ")) {
+      currentCase = { input: "", expected: "" };
+      current.cases = [...(current.cases ?? []), currentCase];
+      assignAiEvalCaseValue(currentCase, line.replace(/^    - /, ""));
+      continue;
+    }
+    if (inCases && currentCase && line.startsWith("      ")) {
+      assignAiEvalCaseValue(currentCase, line.trim());
       continue;
     }
     if (inChecks && line.startsWith("    - ")) {
@@ -499,11 +535,17 @@ function parseAiEvalList(raw: string): ProductSpecAiEval[] {
   return evals.map((aiEval) => ({
     id: String(aiEval.id ?? ""),
     type: String(aiEval.type ?? ""),
-    input_set: String(aiEval.input_set ?? ""),
     evaluator: String(aiEval.evaluator ?? ""),
     pass_threshold: Number(aiEval.pass_threshold),
+    cases: aiEval.cases ?? [],
     checks: aiEval.checks ?? []
   }));
+}
+
+function assignAiEvalCaseValue(target: { input: string; expected: string }, line: string) {
+  const match = /^(input|expected):\s*(.*)$/.exec(line);
+  if (!match) throw new Error(`Invalid AI eval case line: ${line}`);
+  target[match[1] as "input" | "expected"] = unquote(match[2]);
 }
 
 function assignAiEvalValue(target: Partial<ProductSpecAiEval>, line: string) {

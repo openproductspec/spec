@@ -87,12 +87,12 @@ Required fields:
 
 - `id`
 - `type`
-- `input_set`
 - `evaluator`
 - `pass_threshold`
+- `cases`
 - `checks`
 
-Fix: place the block inside Acceptance Criteria, include every required field, set `pass_threshold` to a number greater than `0` and less than or equal to `1`, and include at least one check.
+Fix: place the block inside Acceptance Criteria, include every required field, set `pass_threshold` to a number greater than `0` and less than or equal to `1`, include at least one inline case with `input` and `expected`, and include at least one check.
 
 ### `invalid_structured_scope`
 

@@ -128,13 +128,25 @@
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["id", "type", "input_set", "evaluator", "pass_threshold", "checks"],
+              "required": ["id", "type", "evaluator", "pass_threshold", "cases", "checks"],
               "properties": {
                 "id": { "type": "string", "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$" },
                 "type": { "type": "string", "minLength": 1 },
-                "input_set": { "type": "string", "minLength": 1 },
                 "evaluator": { "type": "string", "minLength": 1 },
                 "pass_threshold": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+                "cases": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["input", "expected"],
+                    "properties": {
+                      "input": { "type": "string", "minLength": 1 },
+                      "expected": { "type": "string", "minLength": 1 }
+                    },
+                    "additionalProperties": false
+                  }
+                },
                 "checks": {
                   "type": "array",
                   "minItems": 1,

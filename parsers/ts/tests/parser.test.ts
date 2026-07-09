@@ -137,9 +137,11 @@ In: transcript search, timestamp citations, and quote copy.
 \`\`\`productspec-ai-evals
 - id: quote_relevance
   type: rubric
-  input_set: evals/quote-search-cases.jsonl
   evaluator: llm_judge
   pass_threshold: 0.85
+  cases:
+    - input: "Find the passage where the speaker defines activation."
+      expected: "Returns the relevant timestamped transcript passage."
   checks:
     - returned passage answers the query
     - citation links to the correct timestamp
@@ -157,9 +159,14 @@ In: transcript search, timestamp citations, and quote copy.
       {
         id: "quote_relevance",
         type: "rubric",
-        input_set: "evals/quote-search-cases.jsonl",
         evaluator: "llm_judge",
         pass_threshold: 0.85,
+        cases: [
+          {
+            input: "Find the passage where the speaker defines activation.",
+            expected: "Returns the relevant timestamped transcript passage."
+          }
+        ],
         checks: ["returned passage answers the query", "citation links to the correct timestamp"]
       }
     ]);
@@ -463,9 +470,9 @@ In: transcript search.
     expect(schema.properties.sections.items.properties.ai_evals.items.required).toEqual([
       "id",
       "type",
-      "input_set",
       "evaluator",
       "pass_threshold",
+      "cases",
       "checks"
     ]);
     expect(schema.properties.sections.items.properties.success_metrics.items.required).toEqual([

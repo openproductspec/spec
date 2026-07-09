@@ -54,7 +54,9 @@ https://example.com/transcript-search-prototype
 ```productspec-ai-evals
 - id: quote_grounding
   type: rubric
-  input_set: evals/transcript-search-queries.jsonl
+  cases:
+    - input: "Representative input for this eval."
+      expected: "Expected behavior for this eval."
   evaluator: llm_judge
   pass_threshold: 0.9
   checks:

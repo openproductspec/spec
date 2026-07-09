@@ -126,7 +126,9 @@ Structured AI evals may be included in `acceptance_criteria` with a fenced `prod
 ```productspec-ai-evals
 - id: quote_relevance
   type: rubric
-  input_set: evals/quote-search-cases.jsonl
+  cases:
+    - input: "Representative input for this eval."
+      expected: "Expected behavior for this eval."
   evaluator: llm_judge
   pass_threshold: 0.85
   checks:
@@ -140,7 +142,7 @@ Each AI eval item requires:
 
 - `id`: stable snake_case eval identifier.
 - `type`: eval type, for example `rubric`, `deterministic`, `regression`, or `human_review`.
-- `input_set`: path or URI for the eval cases.
+- `cases`: one or more inline test cases, each with `input` and `expected`.
 - `evaluator`: evaluator name or mechanism.
 - `pass_threshold`: number greater than `0` and less than or equal to `1`.
 - `checks`: one or more pass/fail checks.

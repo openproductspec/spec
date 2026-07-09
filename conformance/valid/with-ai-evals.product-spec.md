@@ -28,7 +28,9 @@ In: transcript search, timestamp citations, and quote copy.
 ```productspec-ai-evals
 - id: quote_relevance
   type: rubric
-  input_set: evals/quote-search-cases.jsonl
+  cases:
+    - input: "Representative input for this eval."
+      expected: "Expected behavior for this eval."
   evaluator: llm_judge
   pass_threshold: 0.85
   checks:

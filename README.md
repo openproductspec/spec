@@ -117,7 +117,9 @@ cut:
 ```productspec-ai-evals
 - id: account_risk_urgency
   type: rubric
-  input_set: evals/account-risk-golden-set.jsonl
+  cases:
+    - input: "Representative input for this eval."
+      expected: "Expected behavior for this eval."
   evaluator: llm_judge
   pass_threshold: 0.92
   checks:

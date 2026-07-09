@@ -48,7 +48,9 @@ https://example.com/saved-search-alerts-prototype
 ```productspec-ai-evals
 - id: passage_match_quality
   type: rubric
-  input_set: evals/saved-search-alerts.jsonl
+  cases:
+    - input: "Representative input for this eval."
+      expected: "Expected behavior for this eval."
   evaluator: llm_judge
   pass_threshold: 0.86
   checks:

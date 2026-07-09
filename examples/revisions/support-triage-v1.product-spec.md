@@ -45,7 +45,9 @@ cut:
 ```productspec-ai-evals
 - id: urgent_ticket_precision
   type: rubric
-  input_set: evals/urgent-ticket-golden-set.jsonl
+  cases:
+    - input: "Representative input for this eval."
+      expected: "Expected behavior for this eval."
   evaluator: llm_judge
   pass_threshold: 0.88
   checks:

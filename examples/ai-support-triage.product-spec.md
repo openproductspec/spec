@@ -52,7 +52,9 @@ https://example.com/support-triage-dashboard
 ```productspec-ai-evals
 - id: account_risk_urgency
   type: rubric
-  input_set: evals/account-risk-golden-set.jsonl
+  cases:
+    - input: "Representative input for this eval."
+      expected: "Expected behavior for this eval."
   evaluator: llm_judge
   pass_threshold: 0.92
   checks:
@@ -61,7 +63,9 @@ https://example.com/support-triage-dashboard
     - confidence below threshold is marked needs_review
 - id: pii_redaction_regression
   type: deterministic
-  input_set: evals/pii-redaction-regression.jsonl
+  cases:
+    - input: "Representative input for this eval."
+      expected: "Expected behavior for this eval."
   evaluator: automated_test
   pass_threshold: 1
   checks:

@@ -151,7 +151,9 @@ For AI products, use a structured eval block when the eval should be parsed by t
 ```productspec-ai-evals
 - id: answer_faithfulness
   type: rubric
-  input_set: evals/faithfulness-cases.jsonl
+  cases:
+    - input: "Representative input for this eval."
+      expected: "Expected behavior for this eval."
   evaluator: llm_judge
   pass_threshold: 0.9
   checks:

@@ -33,8 +33,16 @@ Out: a generator CLI.
 
 ## Acceptance Criteria
 
-- A new repo can copy the starter and validate it unchanged.
+```productspec-acceptance-criteria
+- id: AC-1
+  criterion: A new repo can copy the starter and validate it unchanged.
+```
 
 ## Success Metrics
 
-- Most new specs derive from the starter within a quarter.
+```productspec-success-metrics
+- id: SM-1
+  metric: share_of_new_specs_derived_from_starter
+  target: ">= 50%"
+  window: within a quarter of the starter landing
+```

@@ -958,12 +958,48 @@ function unquote(value: string): string {
   return trimmed;
 }
 
+function fencedRanges(body: string): Array<[number, number]> {
+  const ranges: Array<[number, number]> = [];
+  const openPattern = /^ {0,3}(`{3,}|~{3,})/;
+  let offset = 0;
+  let openMarker: string | null = null;
+  let openStart = 0;
+
+  for (const line of body.split("\n")) {
+    const fence = openPattern.exec(line);
+    if (openMarker === null) {
+      if (fence) {
+        openMarker = fence[1];
+        openStart = offset;
+      }
+    } else if (
+      fence &&
+      fence[1][0] === openMarker[0] &&
+      fence[1].length >= openMarker.length &&
+      line.slice(fence[0].length).trim() === ""
+    ) {
+      ranges.push([openStart, offset + line.length]);
+      openMarker = null;
+    }
+    offset += line.length + 1;
+  }
+
+  if (openMarker !== null) {
+    ranges.push([openStart, body.length]);
+  }
+  return ranges;
+}
+
 function parseSections(
   body: string,
   customSections: Array<{ id: string; label: string }>
 ): ProductSpecSection[] {
   const headingPattern = /^##\s+(.+)$/gm;
-  const matches = [...body.matchAll(headingPattern)];
+  const fenced = fencedRanges(body);
+  const matches = [...body.matchAll(headingPattern)].filter((match) => {
+    const index = match.index ?? 0;
+    return !fenced.some(([start, end]) => index >= start && index < end);
+  });
   return matches.map((match, index) => {
     const label = match[1].trim();
     const start = (match.index ?? 0) + match[0].length;

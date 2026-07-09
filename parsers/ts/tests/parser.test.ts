@@ -770,6 +770,7 @@ In: transcript search.
       "conformance/valid/with-ai-evals.product-spec.md",
       "conformance/valid/with-traceability.product-spec.md",
       "conformance/valid/with-custom-section.product-spec.md",
+      "conformance/valid/with-fenced-heading.product-spec.md",
       "starter-kit/docs/product-specs/example.product-spec.md",
       "conformance/invalid/missing-frontmatter.product-spec.md",
       "conformance/invalid/missing-required-section.product-spec.md",
@@ -792,6 +793,7 @@ In: transcript search.
       "conformance/valid/with-ai-evals.product-spec.md",
       "conformance/valid/with-traceability.product-spec.md",
       "conformance/valid/with-custom-section.product-spec.md",
+      "conformance/valid/with-fenced-heading.product-spec.md",
       "starter-kit/docs/product-specs/example.product-spec.md"
     ];
 
@@ -1301,6 +1303,29 @@ Keep this around.
     expect(action).toContain("decision_traces:");
     expect(action).toContain("validate-trace");
   });
+  it("ignores ## headings inside fenced code blocks", () => {
+    const markdown = readFileSync(
+      fileURLToPath(
+        new URL("../../../conformance/valid/with-fenced-heading.product-spec.md", import.meta.url)
+      ),
+      "utf8"
+    );
+    const parsed = parseProductSpecMarkdown(markdown);
+
+    expect(parsed.sections.map((section) => section.id)).toEqual([
+      "problem",
+      "hypothesis",
+      "scope",
+      "acceptance_criteria",
+      "success_metrics"
+    ]);
+
+    const scope = parsed.sections.find((section) => section.id === "scope");
+    expect(scope?.content).toContain("Who is hurting.");
+    expect(scope?.content).toContain("Out: a generator CLI.");
+    expect(validateProductSpecMarkdown(markdown).errors).toEqual([]);
+  });
+
 });
 
 function productSpecFiles(directory: string): string[] {

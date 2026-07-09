@@ -35,7 +35,7 @@ In: transcript search, timestamp citations, and quote copy.
   cases:
     - input: "Representative input for this eval."
       expected: "Expected behavior for this eval."
-  evaluator: llm_judge
+  evaluator: llm
   pass_threshold: 0.85
 ```
 

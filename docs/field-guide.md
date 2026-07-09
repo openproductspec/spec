@@ -154,7 +154,7 @@ For AI products, use a structured eval block when the eval should be parsed by t
   cases:
     - input: "Representative input for this eval."
       expected: "Expected behavior for this eval."
-  evaluator: llm_judge
+  evaluator: llm
   pass_threshold: 0.9
   checks:
     - answer is supported by retrieved source text

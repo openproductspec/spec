@@ -27,6 +27,10 @@ export const CANONICAL_SECTION_IDS = [
 
 export type CanonicalSectionId = (typeof CANONICAL_SECTION_IDS)[number];
 export type ArtifactType = "hypothesis" | "prd" | "openspec_proposal";
+export const AI_EVAL_TYPES = ["exact_match", "contains", "regex", "llm_judge", "human_review"] as const;
+export const AI_EVAL_EVALUATORS = ["deterministic", "llm", "human"] as const;
+export type AiEvalType = (typeof AI_EVAL_TYPES)[number];
+export type AiEvalEvaluator = (typeof AI_EVAL_EVALUATORS)[number];
 
 export interface ProductSpecFrontmatter {
   spec_format_version: "0.1";
@@ -64,8 +68,8 @@ export interface ProductSpecAcceptanceCriterion {
 
 export interface ProductSpecAiEval {
   id: string;
-  type: string;
-  evaluator: string;
+  type: AiEvalType;
+  evaluator: AiEvalEvaluator;
   pass_threshold: number;
   cases: Array<{
     input: string;
@@ -346,6 +350,20 @@ function validateDocument(document: ProductSpecDocument): {
         errors.push({
           code: "invalid_ai_eval",
           message: "Invalid AI eval: id must use EVAL-<number>.",
+          path
+        });
+      }
+      if (aiEval.type && !AI_EVAL_TYPES.includes(aiEval.type as AiEvalType)) {
+        errors.push({
+          code: "invalid_ai_eval",
+          message: `Invalid AI eval: type must be one of ${AI_EVAL_TYPES.join(", ")}.`,
+          path
+        });
+      }
+      if (aiEval.evaluator && !AI_EVAL_EVALUATORS.includes(aiEval.evaluator as AiEvalEvaluator)) {
+        errors.push({
+          code: "invalid_ai_eval",
+          message: `Invalid AI eval: evaluator must be one of ${AI_EVAL_EVALUATORS.join(", ")}.`,
           path
         });
       }
@@ -644,8 +662,8 @@ function parseAiEvalList(raw: string): ProductSpecAiEval[] {
 
   return evals.map((aiEval) => ({
     id: String(aiEval.id ?? ""),
-    type: String(aiEval.type ?? ""),
-    evaluator: String(aiEval.evaluator ?? ""),
+    type: String(aiEval.type ?? "") as AiEvalType,
+    evaluator: String(aiEval.evaluator ?? "") as AiEvalEvaluator,
     pass_threshold: Number(aiEval.pass_threshold),
     cases: aiEval.cases ?? [],
     checks: aiEval.checks ?? []

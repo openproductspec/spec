@@ -61,18 +61,18 @@ https://example.com/support-triage-dashboard
   cases:
     - input: "Representative input for this eval."
       expected: "Expected behavior for this eval."
-  evaluator: llm_judge
+  evaluator: llm
   pass_threshold: 0.92
   checks:
     - urgency classification identifies account-risk tickets
     - owner recommendation matches the expected support queue
     - confidence below threshold is marked needs_review
 - id: EVAL-2
-  type: deterministic
+  type: contains
   cases:
-    - input: "Representative input for this eval."
-      expected: "Expected behavior for this eval."
-  evaluator: automated_test
+    - input: "Model prepares redacted ticket context before classification."
+      expected: "Private customer data is replaced with redaction placeholders."
+  evaluator: deterministic
   pass_threshold: 1
   checks:
     - no private customer data appears in model-visible input

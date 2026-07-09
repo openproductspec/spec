@@ -61,7 +61,7 @@ https://example.com/support-triage-dashboard
   cases:
     - input: "Representative input for this eval."
       expected: "Expected behavior for this eval."
-  evaluator: llm_judge
+  evaluator: llm
   pass_threshold: 0.92
   checks:
     - urgency classification identifies account-risk tickets

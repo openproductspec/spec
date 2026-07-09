@@ -145,8 +145,14 @@
               "required": ["id", "type", "evaluator", "pass_threshold", "cases"],
               "properties": {
                 "id": { "type": "string", "pattern": "^EVAL-[1-9][0-9]*$" },
-                "type": { "type": "string", "minLength": 1 },
-                "evaluator": { "type": "string", "minLength": 1 },
+                "type": {
+                  "type": "string",
+                  "enum": ["exact_match", "contains", "regex", "llm_judge", "human_review"]
+                },
+                "evaluator": {
+                  "type": "string",
+                  "enum": ["deterministic", "llm", "human"]
+                },
                 "pass_threshold": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
                 "cases": {
                   "type": "array",

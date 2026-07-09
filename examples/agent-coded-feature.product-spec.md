@@ -58,7 +58,7 @@ https://example.com/saved-search-alerts-prototype
   cases:
     - input: "Representative input for this eval."
       expected: "Expected behavior for this eval."
-  evaluator: llm_judge
+  evaluator: llm
   pass_threshold: 0.86
   checks:
     - returned passage is relevant to the saved query

@@ -63,7 +63,7 @@ https://example.com/transcript-search-prototype
   cases:
     - input: "Representative input for this eval."
       expected: "Expected behavior for this eval."
-  evaluator: llm_judge
+  evaluator: llm
   pass_threshold: 0.9
   checks:
     - returned passage includes the cited text in the source transcript

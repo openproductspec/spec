@@ -145,7 +145,7 @@ Structured AI evals may also be included in `acceptance_criteria` with a fenced 
   cases:
     - input: "Representative input for this eval."
       expected: "Expected behavior for this eval."
-  evaluator: llm_judge
+  evaluator: llm
   pass_threshold: 0.85
   checks:
     - returned passage answers the query
@@ -159,7 +159,7 @@ Each AI eval item requires:
 - `id`: generated durable identifier using `EVAL-<number>`.
 - `type`: eval type, for example `exact_match`, `contains`, `regex`, `llm_judge`, or `human_review`.
 - `cases`: one or more inline test cases, each with `input` and `expected`.
-- `evaluator`: evaluator name or mechanism.
+- `evaluator`: who or what grades the eval: `deterministic`, `llm`, or `human`.
 - `pass_threshold`: number greater than `0` and less than or equal to `1`.
 - `checks`: optional extra pass/fail grading rules when `input` and `expected` are not specific enough on their own.
 

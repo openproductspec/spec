@@ -156,7 +156,7 @@ In: transcript search, timestamp citations, and quote copy.
 \`\`\`productspec-ai-evals
 - id: EVAL-1
   type: llm_judge
-  evaluator: llm_judge
+  evaluator: llm
   pass_threshold: 0.85
   cases:
     - input: "Find the passage where the speaker defines activation."
@@ -189,7 +189,7 @@ In: transcript search, timestamp citations, and quote copy.
       {
         id: "EVAL-1",
         type: "llm_judge",
-        evaluator: "llm_judge",
+        evaluator: "llm",
         pass_threshold: 0.85,
         cases: [
           {
@@ -253,6 +253,66 @@ In: transcript search.
 `);
 
     expect(result.valid).toBe(true);
+  });
+
+  it("rejects unsupported AI eval type and evaluator values", () => {
+    const result = validateProductSpecMarkdown(`---
+spec_format_version: "0.1"
+title: "Unsupported AI Evals"
+artifact_type: "prd"
+author: "ProductSpec"
+created_at: "2026-07-05T00:00:00Z"
+updated_at: "2026-07-05T00:00:00Z"
+---
+
+## Problem
+
+Researchers lose time finding exact quotes in long video transcripts.
+
+## Hypothesis
+
+If quote search returns cited transcript passages, researchers will trust the transcript as a source.
+
+## Scope
+
+In: transcript search.
+
+## Acceptance Criteria
+
+\`\`\`productspec-acceptance-criteria
+- id: AC-1
+  criterion: User can search a transcript by phrase.
+\`\`\`
+
+\`\`\`productspec-ai-evals
+- id: EVAL-1
+  type: custom
+  evaluator: llm_judge
+  pass_threshold: 1
+  cases:
+    - input: "Model classifies a refund request."
+      expected: "refund_request"
+\`\`\`
+
+## Success Metrics
+
+\`\`\`productspec-success-metrics
+- id: SM-1
+  metric: weekly_active_researchers_copying_timestamped_quote
+  target: ">= 40%"
+  window: weekly
+\`\`\`
+`);
+
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors.map((error) => error.message)).toContain(
+        "Invalid AI eval: type must be one of exact_match, contains, regex, llm_judge, human_review."
+      );
+      expect(result.errors.map((error) => error.message)).toContain(
+        "Invalid AI eval: evaluator must be one of deterministic, llm, human."
+      );
+    }
   });
 
   it("rejects malformed AI eval blocks", () => {
@@ -336,7 +396,7 @@ In: transcript search, timestamp citations, and quote copy.
 \`\`\`productspec-ai-evals
 - id: quote_relevance
   type: llm_judge
-  evaluator: llm_judge
+  evaluator: llm
   pass_threshold: 0.85
   cases:
     - input: "Find the passage where the speaker defines activation."
@@ -652,6 +712,18 @@ In: transcript search.
     expect(schema.properties.sections.items.properties.ai_evals.items.properties.id.pattern).toBe(
       "^EVAL-[1-9][0-9]*$"
     );
+    expect(schema.properties.sections.items.properties.ai_evals.items.properties.type.enum).toEqual([
+      "exact_match",
+      "contains",
+      "regex",
+      "llm_judge",
+      "human_review"
+    ]);
+    expect(schema.properties.sections.items.properties.ai_evals.items.properties.evaluator.enum).toEqual([
+      "deterministic",
+      "llm",
+      "human"
+    ]);
     expect(schema.properties.sections.items.properties.success_metrics.items.required).toEqual([
       "id",
       "metric",

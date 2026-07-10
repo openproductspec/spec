@@ -1,5 +1,10 @@
 name: Validate ProductSpec files
 description: Validate ProductSpec Markdown files in a GitHub Actions workflow.
+author: Gokul Rajaram
+
+branding:
+  icon: check-square
+  color: blue
 
 inputs:
   files:

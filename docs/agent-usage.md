@@ -24,6 +24,8 @@ Product Specs are control files for consequential software work.
 Before planning, coding, testing, or changing scope, load `skills/productspec/SKILL.md` and read the relevant `.product-spec.md` file.
 ```
 
+The repo also includes a complete copyable setup in [`starter-kit/`](../starter-kit/), including `AGENTS.md`, `CLAUDE.md`, and `skills/productspec/SKILL.md`.
+
 ## What Agents Should Do
 
 Agents should:
@@ -78,4 +80,3 @@ Out of scope:
 The Product Spec should remain the current committed intent.
 
 Agents can write code quickly. ProductSpec keeps them attached to the product decision the team actually made.
-

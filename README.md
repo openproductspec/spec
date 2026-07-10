@@ -201,6 +201,7 @@ Current repo artifacts:
 - `@productspec/parser`: TypeScript parser, validator, and CLI.
 - JSON Schema for parsed Product Spec documents.
 - Valid and invalid conformance fixtures.
+- `starter-kit/`: copyable repo setup with Product Specs, Decision Traces, agent instructions, PR template, and CI.
 - GitHub issue and pull request templates.
 - Examples for AI features, consumer UX, enterprise workflows, internal APIs, and revision history.
 
@@ -238,6 +239,7 @@ Early ecosystem contributions are welcome: examples, importer/exporter experimen
 - [docs/before-after.md](docs/before-after.md): a loose PRD transformed into ProductSpec.
 - [docs/productspec-vs.md](docs/productspec-vs.md): how ProductSpec differs from PRDs, Jira, Git, Figma, engineering design docs, OpenSpec, Spec Kit, and ADRs.
 - [docs/repo-starter-kit.md](docs/repo-starter-kit.md): copy-paste conventions for using ProductSpec in an existing repo.
+- [starter-kit/](starter-kit/): a copyable repo starter kit with ProductSpec, Decision Trace, AGENTS/CLAUDE instructions, and CI.
 - [docs/handoff-example.md](docs/handoff-example.md): how ProductSpec interacts with Jira, Figma, Git, OpenSpec, Spec Kit, and coding agents.
 - [docs/end-to-end-handoff.md](docs/end-to-end-handoff.md): a concrete walkthrough from Product Spec to issue, design, engineering spec, agent loop, pull request, and launch learning.
 - [docs/vision.md](docs/vision.md): the public vision for ProductSpec as the intent layer.

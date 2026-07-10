@@ -1,0 +1,17 @@
+name: ProductSpec
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate-product-specs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gokulrajaram/ProductSpec@main
+        with:
+          files: "docs/product-specs/**/*.product-spec.md"
+

@@ -2,6 +2,8 @@
 
 Use this setup when you want Product Specs to live beside code.
 
+For a ready-to-copy version, use [`starter-kit/`](../starter-kit/). It includes a starter Product Spec, Decision Trace, `AGENTS.md`, `CLAUDE.md`, the ProductSpec agent skill, a pull request template, and GitHub Actions validation.
+
 ## Suggested Folders
 
 ```text
@@ -84,3 +86,31 @@ jobs:
 ```
 
 For stricter repositories, run this on both `pull_request` and `push`.
+
+## Suggested Agent Setup
+
+Copy these files from [`starter-kit/`](../starter-kit/):
+
+```text
+AGENTS.md
+CLAUDE.md
+skills/productspec/SKILL.md
+```
+
+This gives coding agents the same instruction: Product Specs are the control file for consequential work, Acceptance Criteria are the build contract, Success Metrics are post-launch outcomes, and Decision Traces should be proposed when implementation diverges from intent.
+
+## Suggested Decision Trace Setup
+
+Start with:
+
+```text
+docs/decision-traces/example.decision-trace.json
+```
+
+Create a Decision Trace when:
+
+- product intent changes after review
+- implementation drifts from the approved Product Spec
+- scope is traded off during implementation
+- evals or launch evidence changes the team's understanding
+- success metrics create a learning after launch

@@ -1,0 +1,38 @@
+{
+  "decision_trace_format_version": "0.1",
+  "trace_id": "example-product-spec-trace",
+  "title": "Example Product Spec Decision Trace",
+  "created_at": "2026-07-09T00:00:00Z",
+  "updated_at": "2026-07-09T00:00:00Z",
+  "subject": {
+    "type": "product_spec",
+    "id": "example-product-spec",
+    "title": "Example Product Spec",
+    "product_spec_path": "../product-specs/example.product-spec.md",
+    "product_spec_revision": 1
+  },
+  "events": [
+    {
+      "event_id": "initial-intent",
+      "event_type": "intent_decision",
+      "occurred_at": "2026-07-09T00:00:00Z",
+      "summary": "Start with reviewer-approved triage labels before any automated workflow changes.",
+      "source": {
+        "product_spec_revision": 1,
+        "links": [
+          {
+            "type": "product_spec",
+            "url": "../product-specs/example.product-spec.md",
+            "title": "Example Product Spec"
+          }
+        ]
+      },
+      "decision": {
+        "outcome": "no_action",
+        "rationale": "The first launch should improve queue visibility without changing downstream workflow state automatically.",
+        "approved_by": ["Product lead", "Engineering lead"]
+      }
+    }
+  ]
+}
+

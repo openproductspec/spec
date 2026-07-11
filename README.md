@@ -4,9 +4,9 @@
 [![npm](https://img.shields.io/npm/v/@productspec/parser.svg)](https://www.npmjs.com/package/@productspec/parser)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-ProductSpec is an open standard for software intent before implementation.
+ProductSpec is the open standard for AI-native Product Specs.
 
-It gives teams a portable Markdown format for the product decision that comes before tickets, engineering plans, and code.
+It gives teams a portable Markdown format for software intent before implementation: the product decision that comes before tickets, engineering plans, and code.
 
 Use it when the work is consequential enough that intent needs to survive handoff: from humans to humans, from product to engineering, and from teams to AI agents.
 

@@ -40,6 +40,7 @@ Agents should:
 - cite `AC-<number>` IDs in plans, tasks, tests, and pull request summaries
 - treat `scope.out` and `scope.cut` as explicit non-goals
 - use `applies_to` and `Related Artifacts` to find linked code, issues, pull requests, designs, eval runs, and dashboards
+- resolve `product_spec` related artifacts across the repo before planning, so build order follows the dependency graph
 - propose a Product Spec revision or Decision Trace when implementation diverges from intent
 
 Agents should not:

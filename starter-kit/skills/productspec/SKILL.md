@@ -25,7 +25,7 @@ Read these sections in order:
 3. `Scope`: what is in, out, and deliberately cut.
 4. `Acceptance Criteria`: the build contract, including AI evals when present.
 5. `Success Metrics`: post-launch outcome checks.
-6. `Related Artifacts`: issues, pull requests, eval runs, dashboards, designs, or engineering specs linked to the work.
+6. `Related Artifacts`: issues, pull requests, eval runs, dashboards, designs, engineering specs, or other Product Specs the work depends on.
 
 Acceptance Criteria are the build contract. Plans, tasks, code changes, tests, and pull request summaries should cite the relevant `AC-<number>` IDs.
 
@@ -42,6 +42,7 @@ When creating an implementation plan:
 - Name any Acceptance Criteria that are not covered by the plan.
 - Treat `scope.out` and `scope.cut` as explicit non-goals.
 - Use `applies_to` and `Related Artifacts` to find relevant code, issues, pull requests, designs, evals, and dashboards.
+- Resolve `product_spec` related artifacts before planning. A spec whose `depends_on` target is not built yet is blocked, not buildable, and the plan should say what it waits for.
 
 ## Change Rules
 

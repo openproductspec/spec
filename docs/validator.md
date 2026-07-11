@@ -287,13 +287,16 @@ A `productspec-related-artifacts` block is malformed or placed outside `Related 
 Required fields:
 
 - `type`
-- `url`
+- `url`, or `product_spec_path` when `type` is `product_spec`
 
 Optional fields:
 
 - `title`
 - `section_id`
 - `item_id`
+- `product_spec_path` (only on `type: product_spec`, which does not take `url`)
+- `product_spec_revision` (positive integer)
+- `relation` (`depends_on`, `blocks`, `supersedes`, `relates_to`; only on `type: product_spec`)
 
 Supported `type` values:
 
@@ -309,6 +312,7 @@ Supported `type` values:
 - `experiment`
 - `release`
 - `code`
+- `product_spec`
 - `other`
 
 Fix: place the block inside `Related Artifacts`, include every required field, and use `item_id` only for `AC-<number>`, `SM-<number>`, or `EVAL-<number>`.

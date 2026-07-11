@@ -17,6 +17,7 @@ Start here if you want to see ProductSpec as a working artifact rather than a sc
 | [`internal-webhook-replay-api.product-spec.md`](internal-webhook-replay-api.product-spec.md) | A non-UI internal API. |
 | [`platform-cache-migration.product-spec.md`](platform-cache-migration.product-spec.md) | Platform work with no conventional user-facing UI. |
 | [`provisional-success-metric.product-spec.md`](provisional-success-metric.product-spec.md) | A realistic provisional Success Metric with `target: tbd` and `target_owner`. |
+| [`converted-customer-handoff.product-spec.md`](converted-customer-handoff.product-spec.md) | A real PRD converted to a Product Spec: `applies_to`, structured scope, provisional targets, `related_artifacts`, and `tool_metadata` in one file. |
 | [`full-prd.product-spec.md`](full-prd.product-spec.md) | Optional sections and a richer PRD-style artifact. |
 | [`hypothesis.product-spec.md`](hypothesis.product-spec.md) | A smaller bet framed as a hypothesis artifact. |
 | [`revisions/`](revisions/) | A Product Spec evolving from `spec_revision: 1` to `spec_revision: 2`. |

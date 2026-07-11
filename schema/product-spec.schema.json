@@ -227,7 +227,19 @@
             "minItems": 1,
             "items": {
               "type": "object",
-              "required": ["type", "url"],
+              "required": ["type"],
+              "allOf": [
+                {
+                  "if": { "properties": { "type": { "const": "product_spec" } }, "required": ["type"] },
+                  "then": { "required": ["product_spec_path"], "not": { "required": ["url"] } },
+                  "else": {
+                    "required": ["url"],
+                    "not": {
+                      "anyOf": [{ "required": ["product_spec_path"] }, { "required": ["product_spec_revision"] }]
+                    }
+                  }
+                }
+              ],
               "properties": {
                 "type": {
                   "enum": [
@@ -243,6 +255,7 @@
                     "experiment",
                     "release",
                     "code",
+                    "product_spec",
                     "other"
                   ]
                 },
@@ -274,7 +287,10 @@
                     { "type": "string", "pattern": "^custom-[a-z0-9]+(-[a-z0-9]+)*$" }
                   ]
                 },
-                "item_id": { "type": "string", "pattern": "^(AC|SM|EVAL)-[1-9][0-9]*$" }
+                "item_id": { "type": "string", "pattern": "^(AC|SM|EVAL)-[1-9][0-9]*$" },
+                "product_spec_path": { "type": "string", "minLength": 1 },
+                "product_spec_revision": { "type": "integer", "minimum": 1 },
+                "relation": { "enum": ["depends_on", "blocks", "supersedes", "relates_to"] }
               },
               "additionalProperties": false
             }

@@ -161,7 +161,20 @@ Related artifacts inside `## Related Artifacts`, for item-level traceability:
 ```
 ````
 
-Each item requires `type` and `url`. `title`, `section_id`, and `item_id` are optional. `type` is one of `github_issue`, `github_pr`, `jira_issue`, `linear_issue`, `figma`, `engineering_spec`, `eval_run`, `dashboard`, `analytics_snapshot`, `experiment`, `release`, `code`, `other`. The block belongs inside `## Related Artifacts`, and `item_id` is where a durable `AC-`, `SM-`, or `EVAL-` id earns its keep.
+Each item requires `type`, plus `url` for every type except `product_spec`, which requires `product_spec_path` instead. `title`, `section_id`, and `item_id` are optional. `type` is one of `github_issue`, `github_pr`, `jira_issue`, `linear_issue`, `figma`, `engineering_spec`, `eval_run`, `dashboard`, `analytics_snapshot`, `experiment`, `release`, `code`, `product_spec`, `other`. The block belongs inside `## Related Artifacts`, and `item_id` is where a durable `AC-`, `SM-`, or `EVAL-` id earns its keep.
+
+A `product_spec` item points at another spec in the same repo and makes dependencies traversable:
+
+````markdown
+```productspec-related-artifacts
+- type: product_spec
+  product_spec_path: "../library/citation-library.product-spec.md"
+  product_spec_revision: 2
+  relation: depends_on
+```
+````
+
+`product_spec_revision` is an optional positive integer pinning the referenced spec's `spec_revision`. `relation` is one of `depends_on`, `blocks`, `supersedes`, `relates_to`, defaulting to `relates_to`. `product_spec_path` and `product_spec_revision` are rejected on any other type.
 
 Frontmatter `applies_to` carries document-level scope. `related_artifacts` carries item-level links. They are not alternatives.
 

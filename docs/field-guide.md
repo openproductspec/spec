@@ -328,3 +328,15 @@ Use `Related Artifacts` for item-level links:
 ````
 
 Use `section_id` when the link applies to a whole section. Use `item_id` when the link applies to a specific Acceptance Criterion, Success Metric, or AI eval.
+
+A related artifact can also point at another Product Spec. Use `type: product_spec` with `product_spec_path`, an optional `product_spec_revision` pin, and an optional `relation` of `depends_on`, `blocks`, `supersedes`, or `relates_to`:
+
+```productspec-related-artifacts
+- type: product_spec
+  product_spec_path: "../library/citation-library.product-spec.md"
+  product_spec_revision: 2
+  relation: depends_on
+  title: "Citation Library"
+```
+
+Use `depends_on` when this spec cannot ship until the referenced spec does, and `blocks` for the reverse. `supersedes` says this spec replaces the referenced one. A repo of specs with these links is a graph a tool can walk to find build order.

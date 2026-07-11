@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No unreleased changes.
+- Related artifacts can reference another Product Spec: new `product_spec` type with required `product_spec_path`, optional `product_spec_revision` pin, and optional `relation` (`depends_on`, `blocks`, `supersedes`, `relates_to`). `url` is not allowed on `product_spec` entries, and the spec fields are rejected on every other type. Parser, JSON Schema, docs, skills, conformance fixtures, and tests updated together.
 
 ## v0.11.0 - Parser Round-Trip Fixes
 

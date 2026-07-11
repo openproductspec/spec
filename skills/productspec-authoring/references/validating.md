@@ -54,7 +54,7 @@ Product Spec errors:
 | `invalid_success_metric` | Block missing, an item without `id` in `SM-<number>` form, `metric`, `target`, `window`, a `target_status` other than `committed` or `provisional`, or a provisional target with no `target_owner` |
 | `invalid_ai_eval` | Bad field in a `productspec-ai-evals` item, or the block sits outside Acceptance Criteria |
 | `invalid_structured_scope` | `productspec-scope` block with no non-empty item across `in`, `out`, `cut` |
-| `invalid_related_artifact` | Item missing `type` or `url`, an unsupported `type`, or the block sits outside Related Artifacts |
+| `invalid_related_artifact` | Item missing `type` or `url` (`product_spec_path` for `type: product_spec`), an unsupported `type` or `relation`, a non-positive `product_spec_revision`, spec fields on a non-spec type, or the block sits outside Related Artifacts |
 | `invalid_custom_section_id` | A declared custom section id is not `custom-<kebab-name>` |
 | `invalid_product_spec` | The document could not be parsed at all |
 

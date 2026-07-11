@@ -1085,6 +1085,7 @@ In: transcript search.
       "conformance/valid/with-traceability.product-spec.md",
       "conformance/valid/with-custom-section.product-spec.md",
       "conformance/valid/with-fenced-heading.product-spec.md",
+      "conformance/valid/with-spec-dependency.product-spec.md",
       "conformance/valid/with-provisional-success-metric.product-spec.md",
       "starter-kit/docs/product-specs/example.product-spec.md",
       "conformance/invalid/missing-frontmatter.product-spec.md",
@@ -1092,6 +1093,7 @@ In: transcript search.
       "conformance/invalid/unsupported-version.product-spec.md",
       "conformance/invalid/malformed-applies-to.product-spec.md",
       "conformance/invalid/malformed-related-artifact.product-spec.md",
+      "conformance/invalid/malformed-spec-dependency.product-spec.md",
       "conformance/invalid/missing-required-decision-trace-field.decision-trace.json"
     ];
 
@@ -1124,7 +1126,8 @@ In: transcript search.
       ["conformance/invalid/missing-required-section.product-spec.md", "missing_required_section"],
       ["conformance/invalid/unsupported-version.product-spec.md", "unsupported_version"],
       ["conformance/invalid/malformed-applies-to.product-spec.md", "invalid_applies_to"],
-      ["conformance/invalid/malformed-related-artifact.product-spec.md", "invalid_related_artifact"]
+      ["conformance/invalid/malformed-related-artifact.product-spec.md", "invalid_related_artifact"],
+      ["conformance/invalid/malformed-spec-dependency.product-spec.md", "invalid_related_artifact"]
     ];
 
     for (const [fixture, code] of invalidFixtures) {
@@ -1221,7 +1224,28 @@ In: transcript search.
     expect(schema.properties.sections.items.properties.success_metrics.items.properties.id.pattern).toBe(
       "^SM-[1-9][0-9]*$"
     );
-    expect(schema.properties.sections.items.properties.related_artifacts.items.required).toEqual(["type", "url"]);
+    expect(schema.properties.sections.items.properties.related_artifacts.items.required).toEqual(["type"]);
+    expect(schema.properties.sections.items.properties.related_artifacts.items.allOf).toEqual([
+      {
+        if: { properties: { type: { const: "product_spec" } }, required: ["type"] },
+        then: { required: ["product_spec_path"], not: { required: ["url"] } },
+        else: {
+          required: ["url"],
+          not: {
+            anyOf: [{ required: ["product_spec_path"] }, { required: ["product_spec_revision"] }]
+          }
+        }
+      }
+    ]);
+    expect(schema.properties.sections.items.properties.related_artifacts.items.properties.type.enum).toContain(
+      "product_spec"
+    );
+    expect(schema.properties.sections.items.properties.related_artifacts.items.properties.relation.enum).toEqual([
+      "depends_on",
+      "blocks",
+      "supersedes",
+      "relates_to"
+    ]);
   });
 
   it("ships Decision Trace as an optional companion standard", () => {
@@ -1626,6 +1650,36 @@ Keep this around.
     expect(action).toContain("decision_traces:");
     expect(action).toContain("validate-trace");
   });
+  it("parses and round-trips product_spec related artifacts", () => {
+    const markdown = readFileSync(
+      fileURLToPath(
+        new URL("../../../conformance/valid/with-spec-dependency.product-spec.md", import.meta.url)
+      ),
+      "utf8"
+    );
+    const parsed = parseProductSpecMarkdown(markdown);
+    const section = parsed.sections.find((entry) => entry.id === "related_artifacts");
+
+    expect(section?.related_artifacts?.[0]).toMatchObject({
+      type: "product_spec",
+      product_spec_path: "../library/citation-library.product-spec.md",
+      product_spec_revision: 2,
+      relation: "depends_on",
+      section_id: "acceptance_criteria",
+      item_id: "AC-1"
+    });
+    expect(validateProductSpecMarkdown(markdown).errors).toEqual([]);
+    expect(parseProductSpecMarkdown(serializeProductSpecMarkdown(parsed))).toEqual(parsed);
+
+    const wrongType = validateProductSpecMarkdown(
+      markdown.replace('url: "https://github.com/acme/app/issues/123"', 'url: "https://github.com/acme/app/issues/123"\n  product_spec_revision: 2')
+    );
+    expect(wrongType.valid).toBe(false);
+    if (!wrongType.valid) {
+      expect(wrongType.errors.map((error) => error.code)).toContain("invalid_related_artifact");
+    }
+  });
+
   it("ignores ## headings inside fenced code blocks", () => {
     const markdown = readFileSync(
       fileURLToPath(

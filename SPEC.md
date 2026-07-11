@@ -218,14 +218,31 @@ Item-level traceability belongs in the optional `related_artifacts` section with
 
 Each related artifact requires:
 
-- `type`: one of `github_issue`, `github_pr`, `jira_issue`, `linear_issue`, `figma`, `engineering_spec`, `eval_run`, `dashboard`, `analytics_snapshot`, `experiment`, `release`, `code`, or `other`.
-- `url`: the linked artifact URL or durable external reference.
+- `type`: one of `github_issue`, `github_pr`, `jira_issue`, `linear_issue`, `figma`, `engineering_spec`, `eval_run`, `dashboard`, `analytics_snapshot`, `experiment`, `release`, `code`, `product_spec`, or `other`.
+- `url`: the linked artifact URL or durable external reference. When `type` is `product_spec`, `product_spec_path` replaces `url`.
 
 Optional fields:
 
 - `title`: human-readable label.
 - `section_id`: canonical section ID or `custom-<kebab-name>`.
 - `item_id`: `AC-<number>`, `SM-<number>`, or `EVAL-<number>`.
+- `product_spec_path`: repo-relative path to another Product Spec in the same repository. Required when `type` is `product_spec`, and `url` is not allowed alongside it. Follows the shape of Decision Trace's `subject`.
+- `product_spec_revision`: positive integer pinning the referenced spec's `spec_revision`.
+- `relation`: one of four values, defaulting to `relates_to`.
+  - `depends_on`: this spec cannot ship until the referenced spec ships.
+  - `blocks`: the referenced spec cannot ship until this spec ships.
+  - `supersedes`: this spec replaces the referenced spec.
+  - `relates_to`: association with no ordering meaning.
+
+A `product_spec` artifact makes a library of specs traversable: a tool can resolve `depends_on` edges across files and order the buildable set.
+
+```productspec-related-artifacts
+- type: product_spec
+  product_spec_path: "../library/citation-library.product-spec.md"
+  product_spec_revision: 2
+  relation: depends_on
+  title: "Citation Library"
+```
 
 ## Custom Sections
 

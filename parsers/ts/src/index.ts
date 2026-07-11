@@ -43,11 +43,19 @@ export const RELATED_ARTIFACT_TYPES = [
   "experiment",
   "release",
   "code",
+  "product_spec",
   "other"
+] as const;
+export const RELATED_ARTIFACT_RELATIONS = [
+  "depends_on",
+  "blocks",
+  "supersedes",
+  "relates_to"
 ] as const;
 export type AiEvalType = (typeof AI_EVAL_TYPES)[number];
 export type AiEvalEvaluator = (typeof AI_EVAL_EVALUATORS)[number];
 export type RelatedArtifactType = (typeof RELATED_ARTIFACT_TYPES)[number];
+export type RelatedArtifactRelation = (typeof RELATED_ARTIFACT_RELATIONS)[number];
 export const DECISION_TRACE_SUBJECT_TYPES = [
   "product_spec",
   "engineering_spec",
@@ -142,10 +150,13 @@ export interface ProductSpecSuccessMetric {
 
 export interface ProductSpecRelatedArtifact {
   type: RelatedArtifactType;
-  url: string;
+  url?: string;
   title?: string;
   section_id?: string;
   item_id?: string;
+  product_spec_path?: string;
+  product_spec_revision?: number;
+  relation?: RelatedArtifactRelation;
 }
 
 export interface ProductSpecDocument {
@@ -211,7 +222,7 @@ export interface DecisionTraceEvent {
 }
 
 export interface DecisionTraceLink {
-  type: RelatedArtifactType | "product_spec";
+  type: RelatedArtifactType;
   url: string;
   title?: string;
 }
@@ -613,7 +624,8 @@ function validateDocument(document: ProductSpecDocument): {
           path
         });
       }
-      const missingFields = ["type", "url"].filter(
+      const requiredFields = artifact.type === "product_spec" ? ["type", "product_spec_path"] : ["type", "url"];
+      const missingFields = requiredFields.filter(
         (field) => !String(artifact[field as keyof ProductSpecRelatedArtifact] ?? "").trim()
       );
       if (missingFields.length) {
@@ -627,6 +639,41 @@ function validateDocument(document: ProductSpecDocument): {
         errors.push({
           code: "invalid_related_artifact",
           message: `Invalid related artifact: type must be one of ${RELATED_ARTIFACT_TYPES.join(", ")}.`,
+          path
+        });
+      }
+      if (artifact.url && artifact.type === "product_spec") {
+        errors.push({
+          code: "invalid_related_artifact",
+          message: "Invalid related artifact: product_spec entries use product_spec_path, not url.",
+          path
+        });
+      }
+      if (artifact.product_spec_path && artifact.type !== "product_spec") {
+        errors.push({
+          code: "invalid_related_artifact",
+          message: "Invalid related artifact: product_spec_path only applies to type product_spec.",
+          path
+        });
+      }
+      if (artifact.product_spec_revision !== undefined && artifact.type !== "product_spec") {
+        errors.push({
+          code: "invalid_related_artifact",
+          message: "Invalid related artifact: product_spec_revision only applies to type product_spec.",
+          path
+        });
+      }
+      if (artifact.product_spec_revision !== undefined && !positiveInteger(artifact.product_spec_revision)) {
+        errors.push({
+          code: "invalid_related_artifact",
+          message: "Invalid related artifact: product_spec_revision must be a positive integer.",
+          path
+        });
+      }
+      if (artifact.relation && !RELATED_ARTIFACT_RELATIONS.includes(artifact.relation as RelatedArtifactRelation)) {
+        errors.push({
+          code: "invalid_related_artifact",
+          message: `Invalid related artifact: relation must be one of ${RELATED_ARTIFACT_RELATIONS.join(", ")}.`,
           path
         });
       }
@@ -846,7 +893,7 @@ function validateDecisionTraceResult(value: unknown, path: string): ProductSpecV
 
 function validateDecisionTraceLinks(value: unknown, path: string): ProductSpecValidationError[] {
   const errors: ProductSpecValidationError[] = [];
-  const linkTypes = ["product_spec", ...RELATED_ARTIFACT_TYPES];
+  const linkTypes: readonly string[] = RELATED_ARTIFACT_TYPES;
   if (!Array.isArray(value)) {
     return [{ code: "invalid_trace_link", message: "Decision Trace links must be an array.", path }];
   }
@@ -1309,10 +1356,15 @@ function parseRelatedArtifactList(raw: string): ProductSpecRelatedArtifact[] {
 
   return artifacts.map((artifact) => ({
     type: String(artifact.type ?? "") as RelatedArtifactType,
-    url: String(artifact.url ?? ""),
+    ...(artifact.url ? { url: String(artifact.url) } : {}),
     ...(artifact.title ? { title: String(artifact.title) } : {}),
     ...(artifact.section_id ? { section_id: String(artifact.section_id) } : {}),
-    ...(artifact.item_id ? { item_id: String(artifact.item_id) } : {})
+    ...(artifact.item_id ? { item_id: String(artifact.item_id) } : {}),
+    ...(artifact.product_spec_path ? { product_spec_path: String(artifact.product_spec_path) } : {}),
+    ...(artifact.product_spec_revision !== undefined
+      ? { product_spec_revision: Number(artifact.product_spec_revision) }
+      : {}),
+    ...(artifact.relation ? { relation: String(artifact.relation) as RelatedArtifactRelation } : {})
   }));
 }
 
@@ -1320,7 +1372,7 @@ function assignRelatedArtifactValue(target: Partial<ProductSpecRelatedArtifact>,
   const match = /^([A-Za-z0-9_]+):\s*(.*)$/.exec(line);
   if (!match) throw new Error(`Invalid related artifact block line: ${line}`);
   const key = match[1] as keyof ProductSpecRelatedArtifact;
-  if (!["type", "url", "title", "section_id", "item_id"].includes(key)) {
+  if (!["type", "url", "title", "section_id", "item_id", "product_spec_path", "product_spec_revision", "relation"].includes(key)) {
     throw new Error(`Invalid related artifact field: ${key}`);
   }
   target[key] = unquote(match[2]) as never;

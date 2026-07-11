@@ -2,7 +2,21 @@
 
 ## Unreleased
 
-- Related artifacts can reference another Product Spec: new `product_spec` type with required `product_spec_path`, optional `product_spec_revision` pin, and optional `relation` (`depends_on`, `blocks`, `supersedes`, `relates_to`). `url` is not allowed on `product_spec` entries, and the spec fields are rejected on every other type. Parser, JSON Schema, docs, skills, conformance fixtures, and tests updated together.
+No unreleased changes.
+
+## v0.12.0 - Product Spec Dependencies
+
+Added:
+
+- Related artifacts can reference another Product Spec: new `product_spec` type with required `product_spec_path`, optional `product_spec_revision` pin, and optional `relation` (`depends_on`, `blocks`, `supersedes`, `relates_to`).
+- `product_spec` related artifacts make a library of specs traversable as a dependency graph.
+- Conformance fixtures for valid and invalid Product Spec dependencies.
+
+Changed:
+
+- `url` is not allowed on `product_spec` related artifacts.
+- `product_spec_path`, `product_spec_revision`, and `relation` are rejected on every other related artifact type.
+- Omitted `product_spec` relations parse as `relates_to`.
 
 ## v0.11.0 - Parser Round-Trip Fixes
 

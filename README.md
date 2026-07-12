@@ -82,7 +82,7 @@ npm exec --package @productspec/parser -- productspec validate-trace examples/de
 Start the ProductSpec MCP server:
 
 ```bash
-npm exec --package @productspec/parser -- productspec mcp
+npx --yes -p @productspec/parser@latest productspec mcp
 ```
 
 Use the GitHub Action in a repository:

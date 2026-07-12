@@ -7,7 +7,7 @@ Use it when an agent needs to implement work from a `.product-spec.md` file and 
 ## Start The Server
 
 ```bash
-npm exec --package @productspec/parser -- productspec mcp
+npx --yes -p @productspec/parser@latest productspec mcp
 ```
 
 The server uses stdio and implements the MCP `tools/list` and `tools/call` flow.

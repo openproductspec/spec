@@ -4,6 +4,14 @@
 
 No unreleased changes.
 
+## v0.13.0 - MCP Server
+
+Added:
+
+- `productspec mcp` starts a lightweight stdio MCP server for coding agents.
+- MCP tools expose Product Specs as structured intent: spec discovery, validation, Scope, Acceptance Criteria, AI Evals, Success Metrics, Related Artifacts, and completion-claim checklists.
+- `docs/agent-mcp.md` documents MCP client configuration and agent usage.
+
 ## v0.12.0 - Product Spec Dependencies
 
 Added:

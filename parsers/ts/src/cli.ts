@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { validateDecisionTraceJson, validateProductSpecMarkdown } from "./index.js";
+import { runProductSpecMcpServer } from "./mcp.js";
 
 const [command, filePath] = process.argv.slice(2);
 
@@ -58,7 +59,10 @@ if (command === "init" && filePath) {
   process.exit(0);
 }
 
-if (command === "validate-trace" && filePath) {
+if (command === "mcp") {
+  runProductSpecMcpServer();
+  process.stdin.resume();
+} else if (command === "validate-trace" && filePath) {
   const result = validateDecisionTraceJson(readFileSync(filePath, "utf8"));
   if (result.valid) {
     console.log(`${filePath}: valid`);
@@ -69,25 +73,23 @@ if (command === "validate-trace" && filePath) {
     console.error(`${error.code}: ${error.message}`);
   }
   process.exit(1);
-}
+} else if (command !== "validate" || !filePath) {
+  console.error("Usage: productspec validate path/to/file.product-spec.md\n       productspec validate-trace path/to/file.decision-trace.json\n       productspec init path/to/file.product-spec.md\n       productspec mcp");
+  process.exit(1);
+} else {
+  const result = validateProductSpecMarkdown(readFileSync(filePath, "utf8"));
 
-if (command !== "validate" || !filePath) {
-  console.error("Usage: productspec validate path/to/file.product-spec.md\n       productspec validate-trace path/to/file.decision-trace.json\n       productspec init path/to/file.product-spec.md");
+  for (const warning of result.warnings) {
+    console.warn(`warning ${warning.code}: ${warning.message}`);
+  }
+
+  if (result.valid) {
+    console.log(`${filePath}: valid`);
+    process.exit(0);
+  }
+
+  for (const error of result.errors) {
+    console.error(`${error.code}: ${error.message}`);
+  }
   process.exit(1);
 }
-
-const result = validateProductSpecMarkdown(readFileSync(filePath, "utf8"));
-
-for (const warning of result.warnings) {
-  console.warn(`warning ${warning.code}: ${warning.message}`);
-}
-
-if (result.valid) {
-  console.log(`${filePath}: valid`);
-  process.exit(0);
-}
-
-for (const error of result.errors) {
-  console.error(`${error.code}: ${error.message}`);
-}
-process.exit(1);

@@ -49,6 +49,7 @@ See `examples/revisions/` for a Product Spec that evolves from revision 1 to rev
 If you want to use ProductSpec with coding agents, start here:
 
 - [Get started with agents](docs/get-started-with-agents.md): install the skills, convert a PRD, validate in CI, implement from a Product Spec, and record drift.
+- [Use the MCP server](docs/agent-mcp.md): expose Product Specs to coding agents as structured tools.
 
 Validate a Product Spec with the published CLI:
 
@@ -76,6 +77,12 @@ Validate a Decision Trace:
 
 ```bash
 npm exec --package @productspec/parser -- productspec validate-trace examples/decision-traces/transcript-search.decision-trace.json
+```
+
+Start the ProductSpec MCP server:
+
+```bash
+npm exec --package @productspec/parser -- productspec mcp
 ```
 
 Use the GitHub Action in a repository:

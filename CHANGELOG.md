@@ -8,6 +8,10 @@ Changed:
 - GitHub Action now accepts optional `agent_runs` globs and validates Agent Run files.
 - Starter kit now includes an Agent Run example and validates it in CI.
 
+Fixed:
+
+- Unknown frontmatter preservation now covers all key shapes, not only snake_case keys. Kebab-case keys (`code-fold`), keys with spaces (`review date`), quoted keys (`"due-date"`), and non-ASCII keys are preserved under `parser_metadata.unknown_frontmatter` instead of being silently dropped on serialize.
+
 ## v0.22.0 - Agent Run Drafting
 
 Added:

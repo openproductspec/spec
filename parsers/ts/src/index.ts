@@ -1415,7 +1415,7 @@ function parseFrontmatter(raw: string): {
 }
 
 function frontmatterKey(line: string): string | undefined {
-  return /^([A-Za-z0-9_]+):/.exec(line)?.[1];
+  return /^("[^"]*"|'[^']*'|[^\s:#][^:]*?):/.exec(line)?.[1];
 }
 
 function assignKeyValue(target: Record<string, unknown>, line: string) {

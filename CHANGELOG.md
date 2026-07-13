@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.21.0 - Agent Harness Records
+
+Added:
+
+- Agent Run companion artifact for recording an agent's ProductSpec harness run: pinned spec revision, checked `AC-`, `EVAL-`, and `SM-` IDs, evidence links, drift state, and completion claim.
+- `productspec validate-run path/to/file.agent-run.json`.
+- `schema/agent-run.schema.json`.
+- Agent-ready repo example now includes an Agent Run file.
+
+Changed:
+
+- README and agent docs now position ProductSpec as the intent harness contract for AI coding agents.
+
 ## v0.20.0 - Parser Preservation And Agent Examples
 
 Added:

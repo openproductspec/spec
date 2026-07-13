@@ -1,0 +1,49 @@
+{
+  "agent_run_format_version": "0.1",
+  "run_id": "transcript-search-run",
+  "agent": {
+    "name": "Codex",
+    "version": "cli"
+  },
+  "product_spec": {
+    "path": "docs/product-specs/transcript-search.product-spec.md",
+    "spec_revision": 1,
+    "content_hash": "sha256:abc123"
+  },
+  "started_at": "2026-07-13T00:00:00Z",
+  "completed_at": "2026-07-13T00:15:00Z",
+  "status": "completed",
+  "checked_items": [
+    {
+      "item_id": "AC-1",
+      "status": "passed",
+      "evidence": [
+        {
+          "type": "github_pr",
+          "url": "https://github.com/example/transcript-search/pull/18",
+          "title": "Implement transcript search"
+        }
+      ]
+    },
+    {
+      "item_id": "EVAL-1",
+      "status": "passed",
+      "evidence": [
+        {
+          "type": "eval_run",
+          "url": "../evidence/transcript-search-eval-run.json",
+          "title": "Transcript search eval run"
+        }
+      ]
+    },
+    {
+      "item_id": "SM-1",
+      "status": "not_checked",
+      "evidence": []
+    }
+  ],
+  "drift": {
+    "detected": false
+  },
+  "completion_claim": "Transcript search satisfies AC-1 through AC-3 and EVAL-1. SM-1 is post-launch and not checked by this run."
+}

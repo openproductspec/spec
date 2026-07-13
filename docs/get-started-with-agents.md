@@ -8,6 +8,7 @@ Use this when you want to:
 - validate Product Specs in CI
 - ask an agent to implement from a Product Spec
 - record drift when implementation changes intent
+- record an agent run against a pinned Product Spec revision
 
 ## 1. Install the skills
 
@@ -94,7 +95,25 @@ Cite the Product Spec path, spec_revision, and covered AC- ids in the pull reque
 
 Acceptance Criteria are the build contract. Success Metrics are not implementation tasks; they are post-launch outcome checks.
 
-## 5. Record drift
+## 5. Record the agent run
+
+An Agent Run records what happened when Claude, Codex, Cursor, or another agent used a Product Spec as its harness.
+
+It should include:
+
+- the Product Spec path and `spec_revision`
+- the checked `AC-`, `EVAL-`, and `SM-` IDs
+- evidence links such as PRs, test reports, and eval runs
+- whether drift was detected
+- the agent's completion claim
+
+Validate the run:
+
+```bash
+npm exec --yes --package @productspec/parser -- productspec validate-run docs/agent-runs/checkout-redesign.agent-run.json
+```
+
+## 6. Record drift
 
 Do not silently let implementation redefine intent.
 
@@ -121,4 +140,5 @@ npm exec --yes --package @productspec/parser -- productspec validate-trace docs/
 - [ProductSpec implementation skill](../skills/productspec/SKILL.md)
 - [Use ProductSpec in your repo](use-in-your-repo.md)
 - [Agent usage](agent-usage.md)
+- [Agent Run](agent-run.md)
 - [Decision Trace](decision-trace.md)

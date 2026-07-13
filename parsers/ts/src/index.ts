@@ -85,9 +85,22 @@ export const DECISION_TRACE_OUTCOMES = [
   "record_learning",
   "no_action"
 ] as const;
+export const AGENT_RUN_STATUSES = [
+  "completed",
+  "blocked",
+  "failed"
+] as const;
+export const AGENT_RUN_ITEM_STATUSES = [
+  "passed",
+  "failed",
+  "not_checked",
+  "blocked"
+] as const;
 export type DecisionTraceSubjectType = (typeof DECISION_TRACE_SUBJECT_TYPES)[number];
 export type DecisionTraceEventType = (typeof DECISION_TRACE_EVENT_TYPES)[number];
 export type DecisionTraceOutcome = (typeof DECISION_TRACE_OUTCOMES)[number];
+export type AgentRunStatus = (typeof AGENT_RUN_STATUSES)[number];
+export type AgentRunItemStatus = (typeof AGENT_RUN_ITEM_STATUSES)[number];
 
 export interface ProductSpecFrontmatter {
   spec_format_version: "0.1";
@@ -234,6 +247,41 @@ export type DecisionTraceValidationResult =
   | { valid: true; document: DecisionTraceDocument; errors: [] }
   | { valid: false; errors: ProductSpecValidationError[] };
 
+export interface AgentRunDocument {
+  agent_run_format_version: "0.1";
+  run_id: string;
+  agent: {
+    name: string;
+    version?: string;
+  };
+  product_spec: {
+    path: string;
+    spec_revision: number;
+    content_hash?: string;
+  };
+  started_at: string;
+  completed_at?: string;
+  status: AgentRunStatus;
+  checked_items: AgentRunCheckedItem[];
+  drift: {
+    detected: boolean;
+    decision_trace_path?: string;
+    summary?: string;
+  };
+  completion_claim?: string;
+}
+
+export interface AgentRunCheckedItem {
+  item_id: string;
+  status: AgentRunItemStatus;
+  evidence?: DecisionTraceLink[];
+  notes?: string;
+}
+
+export type AgentRunValidationResult =
+  | { valid: true; document: AgentRunDocument; errors: [] }
+  | { valid: false; errors: ProductSpecValidationError[] };
+
 const LABELS: Record<string, string> = {
   problem: "Problem",
   hypothesis: "Hypothesis",
@@ -310,6 +358,27 @@ export function validateDecisionTraceJson(json: string): DecisionTraceValidation
   const errors = validateDecisionTraceValue(parsed);
   if (errors.length) return { valid: false, errors };
   return { valid: true, document: parsed as DecisionTraceDocument, errors: [] };
+}
+
+export function validateAgentRunJson(json: string): AgentRunValidationResult {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch (error) {
+    return {
+      valid: false,
+      errors: [
+        {
+          code: "invalid_json",
+          message: error instanceof Error ? error.message : "Invalid JSON."
+        }
+      ]
+    };
+  }
+
+  const errors = validateAgentRunValue(parsed);
+  if (errors.length) return { valid: false, errors };
+  return { valid: true, document: parsed as AgentRunDocument, errors: [] };
 }
 
 export function serializeProductSpecMarkdown(doc: ProductSpecDocument): string {
@@ -1016,6 +1085,185 @@ function validateDecisionTraceLinks(value: unknown, path: string): ProductSpecVa
         path: `${linkPath}.type`
       });
     }
+  }
+  return errors;
+}
+
+function validateAgentRunValue(value: unknown): ProductSpecValidationError[] {
+  const errors: ProductSpecValidationError[] = [];
+  if (!isRecord(value)) {
+    return [{ code: "invalid_agent_run", message: "Agent Run must be a JSON object." }];
+  }
+
+  const requiredFields = [
+    "agent_run_format_version",
+    "run_id",
+    "agent",
+    "product_spec",
+    "started_at",
+    "status",
+    "checked_items",
+    "drift"
+  ];
+  for (const field of requiredFields) {
+    if (value[field] === undefined || value[field] === null || value[field] === "") {
+      errors.push({
+        code: "missing_required_agent_run_field",
+        message: `Missing required Agent Run field: ${field}`,
+        path: field
+      });
+    }
+  }
+
+  if (value.agent_run_format_version !== "0.1") {
+    errors.push({
+      code: "unsupported_agent_run_version",
+      message: "Unsupported agent_run_format_version.",
+      path: "agent_run_format_version"
+    });
+  }
+  if (typeof value.run_id === "string" && !/^[a-z0-9]+(?:[-_][a-z0-9]+)*$/.test(value.run_id)) {
+    errors.push({
+      code: "invalid_agent_run_id",
+      message: "Invalid run_id. Use lowercase words separated by hyphens or underscores.",
+      path: "run_id"
+    });
+  }
+  if (value.started_at !== undefined && !isoDateTime(value.started_at)) {
+    errors.push({
+      code: "invalid_datetime",
+      message: "Invalid Agent Run date-time: started_at must be ISO 8601.",
+      path: "started_at"
+    });
+  }
+  if (value.completed_at !== undefined && !isoDateTime(value.completed_at)) {
+    errors.push({
+      code: "invalid_datetime",
+      message: "Invalid Agent Run date-time: completed_at must be ISO 8601.",
+      path: "completed_at"
+    });
+  }
+  if (value.status && !AGENT_RUN_STATUSES.includes(value.status as AgentRunStatus)) {
+    errors.push({
+      code: "invalid_agent_run_status",
+      message: `Invalid Agent Run status: ${String(value.status)}`,
+      path: "status"
+    });
+  }
+
+  errors.push(...validateAgentRunAgent(value.agent, "agent"));
+  errors.push(...validateAgentRunProductSpec(value.product_spec, "product_spec"));
+  errors.push(...validateAgentRunCheckedItems(value.checked_items, "checked_items"));
+  errors.push(...validateAgentRunDrift(value.drift, "drift"));
+  return errors;
+}
+
+function validateAgentRunAgent(value: unknown, path: string): ProductSpecValidationError[] {
+  const errors: ProductSpecValidationError[] = [];
+  if (!isRecord(value)) return [{ code: "invalid_agent_run_agent", message: "Agent Run agent must be an object.", path }];
+  if (!nonEmptyString(value.name)) {
+    errors.push({
+      code: "missing_required_agent_run_field",
+      message: "Missing required Agent Run agent field: name",
+      path: `${path}.name`
+    });
+  }
+  if (value.version !== undefined && !nonEmptyString(value.version)) {
+    errors.push({ code: "invalid_agent_run_agent", message: "Agent Run agent version must be a non-empty string.", path: `${path}.version` });
+  }
+  return errors;
+}
+
+function validateAgentRunProductSpec(value: unknown, path: string): ProductSpecValidationError[] {
+  const errors: ProductSpecValidationError[] = [];
+  if (!isRecord(value)) return [{ code: "invalid_agent_run_product_spec", message: "Agent Run product_spec must be an object.", path }];
+  if (!nonEmptyString(value.path)) {
+    errors.push({
+      code: "missing_required_agent_run_field",
+      message: "Missing required Agent Run product_spec field: path",
+      path: `${path}.path`
+    });
+  }
+  if (!positiveInteger(value.spec_revision)) {
+    errors.push({
+      code: "invalid_agent_run_revision",
+      message: "Agent Run product_spec spec_revision must be a positive integer.",
+      path: `${path}.spec_revision`
+    });
+  }
+  if (value.content_hash !== undefined && !nonEmptyString(value.content_hash)) {
+    errors.push({ code: "invalid_agent_run_product_spec", message: "Agent Run content_hash must be a non-empty string.", path: `${path}.content_hash` });
+  }
+  return errors;
+}
+
+function validateAgentRunCheckedItems(value: unknown, path: string): ProductSpecValidationError[] {
+  const errors: ProductSpecValidationError[] = [];
+  if (!Array.isArray(value)) return [{ code: "invalid_agent_run_item", message: "Agent Run checked_items must be an array.", path }];
+  const seenItemIds = new Set<string>();
+  for (const [index, item] of value.entries()) {
+    const itemPath = `${path}.${index}`;
+    if (!isRecord(item)) {
+      errors.push({ code: "invalid_agent_run_item", message: "Agent Run checked item must be an object.", path: itemPath });
+      continue;
+    }
+    if (!nonEmptyString(item.item_id)) {
+      errors.push({
+        code: "missing_required_agent_run_field",
+        message: "Missing required Agent Run checked item field: item_id",
+        path: `${itemPath}.item_id`
+      });
+    } else if (!/^(AC|EVAL|SM)-[1-9]\d*$/.test(item.item_id)) {
+      errors.push({
+        code: "invalid_agent_run_item",
+        message: "Agent Run checked item id must reference AC-<number>, EVAL-<number>, or SM-<number>.",
+        path: `${itemPath}.item_id`
+      });
+    } else if (seenItemIds.has(item.item_id)) {
+      errors.push({
+        code: "duplicate_agent_run_item_id",
+        message: `Duplicate Agent Run checked item id: ${item.item_id}.`,
+        path: `${itemPath}.item_id`
+      });
+    } else {
+      seenItemIds.add(item.item_id);
+    }
+    if (!nonEmptyString(item.status)) {
+      errors.push({
+        code: "missing_required_agent_run_field",
+        message: "Missing required Agent Run checked item field: status",
+        path: `${itemPath}.status`
+      });
+    } else if (!AGENT_RUN_ITEM_STATUSES.includes(item.status as AgentRunItemStatus)) {
+      errors.push({
+        code: "invalid_agent_run_item",
+        message: `Invalid Agent Run checked item status: ${String(item.status)}`,
+        path: `${itemPath}.status`
+      });
+    }
+    if (item.evidence !== undefined) errors.push(...validateDecisionTraceLinks(item.evidence, `${itemPath}.evidence`));
+    if (item.notes !== undefined && !nonEmptyString(item.notes)) {
+      errors.push({ code: "invalid_agent_run_item", message: "Agent Run checked item notes must be a non-empty string.", path: `${itemPath}.notes` });
+    }
+  }
+  return errors;
+}
+
+function validateAgentRunDrift(value: unknown, path: string): ProductSpecValidationError[] {
+  const errors: ProductSpecValidationError[] = [];
+  if (!isRecord(value)) return [{ code: "invalid_agent_run_drift", message: "Agent Run drift must be an object.", path }];
+  if (typeof value.detected !== "boolean") {
+    errors.push({
+      code: "missing_required_agent_run_field",
+      message: "Missing required Agent Run drift field: detected",
+      path: `${path}.detected`
+    });
+  }
+  if (value.decision_trace_path !== undefined && !nonEmptyString(value.decision_trace_path)) {
+    errors.push({ code: "invalid_agent_run_drift", message: "Agent Run decision_trace_path must be a non-empty string.", path: `${path}.decision_trace_path` });
+  }
+  if (value.summary !== undefined && !nonEmptyString(value.summary)) {
+    errors.push({ code: "invalid_agent_run_drift", message: "Agent Run drift summary must be a non-empty string.", path: `${path}.summary` });
   }
   return errors;
 }

@@ -2,6 +2,7 @@
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import {
   resolveProductSpecGraph,
+  validateAgentRunJson,
   validateDecisionTraceJson,
   validateProductSpecMarkdown,
   type ProductSpecGraphInput,
@@ -105,6 +106,17 @@ if (command === "mcp") {
     console.error(`${error.code}: ${error.message}`);
   }
   process.exit(1);
+} else if (command === "validate-run" && filePath) {
+  const result = validateAgentRunJson(readFileOrExit(filePath));
+  if (result.valid) {
+    console.log(`${filePath}: valid`);
+    process.exit(0);
+  }
+
+  for (const error of result.errors) {
+    console.error(`${error.code}: ${error.message}`);
+  }
+  process.exit(1);
 } else if (command === "graph" && filePath) {
   if (!existsSync(filePath) || !statSync(filePath).isDirectory()) {
     console.error(`${filePath}: not a directory`);
@@ -164,7 +176,7 @@ if (command === "mcp") {
   }
   process.exit(0);
 } else if (command !== "validate" || !filePath) {
-  console.error("Usage: productspec validate path/to/file.product-spec.md\n       productspec validate-trace path/to/file.decision-trace.json\n       productspec graph path/to/spec-directory [--json]\n       productspec init path/to/file.product-spec.md\n       productspec mcp");
+  console.error("Usage: productspec validate path/to/file.product-spec.md\n       productspec validate-trace path/to/file.decision-trace.json\n       productspec validate-run path/to/file.agent-run.json\n       productspec graph path/to/spec-directory [--json]\n       productspec init path/to/file.product-spec.md\n       productspec mcp");
   process.exit(1);
 } else {
   const result = validateProductSpecMarkdown(readFileOrExit(filePath));

@@ -10,6 +10,8 @@ It gives teams a portable Markdown format for defining what should be built, wha
 
 Use it when consequential software work needs intent to survive handoff: from product to engineering, from humans to agents, and from implementation back to learning.
 
+ProductSpec can also act as the intent harness contract for Claude, Codex, Cursor, and other coding agents. The Product Spec tells the agent what to build, what not to build, how to prove completion, and when to stop and re-plan.
+
 ```text
 Product Spec -> Engineering Spec -> Code -> Evaluation -> Learning
 what / why      how / plan / tasks   implementation   outcome
@@ -20,6 +22,8 @@ ProductSpec is neutral. It defines structure, section IDs, portable review annot
 Design principle: structure the parts machines must execute or compare. Leave the parts humans must reason about readable.
 
 ProductSpec can also act as the control file for agent-led work. The repo includes `skills/productspec/SKILL.md`, a loadable agent skill that tells coding agents how to read Product Specs, cite Acceptance Criteria, respect scope, and propose a Decision Trace when implementation diverges from intent. `skills/productspec-authoring/SKILL.md` covers the other direction: writing a Product Spec, validating it, and converting an existing PRD into one. Both are installable with `npx skills add gokulrajaram/ProductSpec`.
+
+Agent Run is the optional companion artifact for recording what happened when an agent used ProductSpec as a harness: the pinned spec revision, checked criteria and evals, linked evidence, drift status, and completion claim.
 
 Decision Trace is the optional companion standard for recording how consequential decisions, drift, revisions, and outcomes are handled over time.
 
@@ -67,6 +71,7 @@ If you want to use ProductSpec with coding agents, start here:
 - [Get started with agents](docs/get-started-with-agents.md): install the skills, convert a PRD, validate in CI, implement from a Product Spec, and record drift.
 - [Use the MCP server](docs/agent-mcp.md): expose Product Specs to coding agents as structured tools.
 - [Evidence loop](docs/evidence-loop.md): connect Product Specs to implementation, evals, metrics, and Decision Trace.
+- [Agent Run](docs/agent-run.md): record one Claude, Codex, Cursor, or other agent execution against a pinned Product Spec.
 
 Validate a Product Spec with the published CLI:
 
@@ -94,6 +99,12 @@ Validate a Decision Trace:
 
 ```bash
 npm exec --package @productspec/parser -- productspec validate-trace examples/decision-traces/transcript-search.decision-trace.json
+```
+
+Validate an Agent Run:
+
+```bash
+npm exec --package @productspec/parser -- productspec validate-run examples/agent-ready-repo/docs/agent-runs/transcript-search.agent-run.json
 ```
 
 Start the ProductSpec MCP server:

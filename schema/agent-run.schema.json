@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gokulrajaram/ProductSpec/schema/agent-run.schema.json",
+  "title": "Agent Run",
+  "type": "object",
+  "required": [
+    "agent_run_format_version",
+    "run_id",
+    "agent",
+    "product_spec",
+    "started_at",
+    "status",
+    "checked_items",
+    "drift"
+  ],
+  "properties": {
+    "agent_run_format_version": { "const": "0.1" },
+    "run_id": { "type": "string", "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$" },
+    "agent": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "product_spec": {
+      "type": "object",
+      "required": ["path", "spec_revision"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "spec_revision": { "type": "integer", "minimum": 1 },
+        "content_hash": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "started_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": "string", "format": "date-time" },
+    "status": { "enum": ["completed", "blocked", "failed"] },
+    "checked_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["item_id", "status"],
+        "properties": {
+          "item_id": { "type": "string", "pattern": "^(AC|EVAL|SM)-[1-9][0-9]*$" },
+          "status": { "enum": ["passed", "failed", "not_checked", "blocked"] },
+          "evidence": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/link" }
+          },
+          "notes": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "drift": {
+      "type": "object",
+      "required": ["detected"],
+      "properties": {
+        "detected": { "type": "boolean" },
+        "decision_trace_path": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "completion_claim": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "link": {
+      "type": "object",
+      "required": ["type", "url"],
+      "properties": {
+        "type": {
+          "enum": [
+            "product_spec",
+            "engineering_spec",
+            "github_issue",
+            "github_pr",
+            "jira_issue",
+            "linear_issue",
+            "figma",
+            "eval_run",
+            "dashboard",
+            "analytics_snapshot",
+            "experiment",
+            "release",
+            "code",
+            "other"
+          ]
+        },
+        "url": { "type": "string", "minLength": 1 },
+        "title": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

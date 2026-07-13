@@ -1,6 +1,6 @@
 {
   "name": "@productspec/parser",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "description": "Reference parser for ProductSpec.",
   "type": "module",
   "license": "MIT",

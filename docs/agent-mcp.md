@@ -4,6 +4,8 @@ ProductSpec includes a lightweight MCP server so coding agents can read Product 
 
 Use it when an agent needs to implement work from a `.product-spec.md` file and should load scope, acceptance criteria, AI evals, success metrics, and related artifacts before writing code.
 
+In this mode, ProductSpec is the intent harness contract. Claude, Codex, Cursor, or another coding agent can still decide how to plan and edit code, but ProductSpec supplies the stable context, constraints, completion checks, evidence targets, and revision pin.
+
 ## Start The Server
 
 ```bash
@@ -69,6 +71,7 @@ Use ProductSpec MCP before coding:
 6. Before claiming done, call check_spec_session. If the Product Spec changed, re-read and re-plan.
 7. Call get_evidence_checklist to identify which pull requests, tests, eval runs, dashboards, or analytics snapshots should attach to AC-, EVAL-, and SM- IDs.
 8. Call check_completion_claim and verify each returned Acceptance Criterion and AI Eval.
+9. Write an Agent Run artifact if the repo wants a durable record of what the agent checked.
 ```
 
 ## Boundary

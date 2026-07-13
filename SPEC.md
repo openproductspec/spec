@@ -313,3 +313,5 @@ The ProductSpec repo includes a reference parser, validator, CLI, JSON Schemas, 
 Validators check structure and portability. They do not judge product quality.
 
 Decision Trace is defined as an optional companion standard for recording decisions, drift, revisions, outcomes, and learnings over time.
+
+Agent Run is defined as an optional companion artifact for recording one AI agent execution against a Product Spec. ProductSpec remains the committed intent. Agent Run records the harness run: the pinned spec revision, checked `AC-`, `EVAL-`, and `SM-` IDs, evidence links, drift state, and completion claim.

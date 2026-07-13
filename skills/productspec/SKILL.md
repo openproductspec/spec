@@ -7,6 +7,8 @@ description: Use when implementing, reviewing, planning, or changing work govern
 
 Product Specs are the control file for consequential software work.
 
+When a repo uses Agent Run files, treat them as the receipt for one agent execution against a pinned Product Spec revision.
+
 Before planning, coding, testing, or changing scope, look for relevant `.product-spec.md` files in the repository. Common locations include:
 
 - `specs/`
@@ -67,6 +69,7 @@ When reporting progress or opening a pull request:
 
 - If ProductSpec MCP is available, call `check_spec_session` first. If the Product Spec changed, re-read it and re-plan before claiming done.
 - If ProductSpec MCP is available, call `get_evidence_checklist` and attach or name evidence for covered `AC-` and `EVAL-` IDs.
+- If the repo uses Agent Run files, create or update `*.agent-run.json` with the Product Spec path, pinned `spec_revision`, checked `AC-`, `EVAL-`, and `SM-` IDs, evidence links, drift state, and completion claim. Validate it with `productspec validate-run`.
 - cite the Product Spec path and `spec_revision`
 - cite the Acceptance Criteria covered
 - cite AI evals added or changed

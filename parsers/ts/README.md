@@ -19,6 +19,9 @@ npx --yes -p @productspec/parser productspec validate path/to/file.product-spec.
 # Validate a Decision Trace
 npx --yes -p @productspec/parser productspec validate-trace path/to/file.decision-trace.json
 
+# Validate an Agent Run
+npx --yes -p @productspec/parser productspec validate-run path/to/file.agent-run.json
+
 # Resolve the spec dependency graph under a directory
 npx --yes -p @productspec/parser productspec graph path/to/spec-directory
 
@@ -32,7 +35,7 @@ npx --yes -p @productspec/parser productspec mcp
 ## Library
 
 ```ts
-import { validateProductSpecMarkdown, validateDecisionTraceJson } from "@productspec/parser";
+import { validateProductSpecMarkdown, validateDecisionTraceJson, validateAgentRunJson } from "@productspec/parser";
 
 const result = validateProductSpecMarkdown(markdown);
 if (!result.valid) {

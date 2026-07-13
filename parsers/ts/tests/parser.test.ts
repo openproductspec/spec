@@ -11,6 +11,7 @@ import {
   resolveProductSpecGraph,
   serializeProductSpecMarkdown,
   validateDecisionTraceJson,
+  validateAgentRunJson,
   validateProductSpecMarkdown,
   type ProductSpecGraphInput
 } from "../src/index";
@@ -1776,6 +1777,101 @@ Keep this around.
 
     expect(invalid.status).toBe(1);
     expect(invalid.stderr).toContain("missing_required_trace_field");
+  }, 30000);
+
+  it("validates Agent Run files", () => {
+    const run = {
+      agent_run_format_version: "0.1",
+      run_id: "transcript-search-run",
+      agent: {
+        name: "Codex",
+        version: "cli"
+      },
+      product_spec: {
+        path: "docs/product-specs/transcript-search.product-spec.md",
+        spec_revision: 1,
+        content_hash: "sha256:abc123"
+      },
+      started_at: "2026-07-13T00:00:00Z",
+      completed_at: "2026-07-13T00:15:00Z",
+      status: "completed",
+      checked_items: [
+        {
+          item_id: "AC-1",
+          status: "passed",
+          evidence: [
+            {
+              type: "github_pr",
+              url: "https://github.com/example/transcript-search/pull/18",
+              title: "Implement transcript search"
+            }
+          ]
+        },
+        {
+          item_id: "EVAL-1",
+          status: "passed",
+          evidence: [
+            {
+              type: "eval_run",
+              url: "./evidence/transcript-search-eval-run.json"
+            }
+          ]
+        }
+      ],
+      drift: {
+        detected: false
+      },
+      completion_claim: "AC-1 and EVAL-1 are satisfied."
+    };
+
+    const result = validateAgentRunJson(JSON.stringify(run));
+
+    expect(result.valid).toBe(true);
+    if (result.valid) expect(result.document.checked_items[0].item_id).toBe("AC-1");
+  });
+
+  it("rejects Agent Run files with invalid item ids", () => {
+    const result = validateAgentRunJson(JSON.stringify({
+      agent_run_format_version: "0.1",
+      run_id: "bad-run",
+      agent: { name: "Codex" },
+      product_spec: {
+        path: "docs/product-specs/transcript-search.product-spec.md",
+        spec_revision: 1
+      },
+      started_at: "2026-07-13T00:00:00Z",
+      status: "completed",
+      checked_items: [
+        { item_id: "TASK-1", status: "passed" }
+      ],
+      drift: { detected: false }
+    }));
+
+    expect(result.valid).toBe(false);
+    if (!result.valid) expect(result.errors.map((error) => error.code)).toContain("invalid_agent_run_item");
+  });
+
+  it("provides a CLI validator for Agent Run files", () => {
+    const build = spawnSync("npm", ["run", "build"], { cwd: packageRoot, encoding: "utf8" });
+    expect(build.status, build.stderr).toBe(0);
+
+    const valid = spawnSync("node", [
+      fileURLToPath(new URL("../dist/cli.js", import.meta.url)),
+      "validate-run",
+      `${root}/examples/agent-ready-repo/docs/agent-runs/transcript-search.agent-run.json`
+    ], { encoding: "utf8" });
+
+    expect(valid.status).toBe(0);
+    expect(valid.stdout).toContain("valid");
+
+    const invalid = spawnSync("node", [
+      fileURLToPath(new URL("../dist/cli.js", import.meta.url)),
+      "validate-run",
+      `${root}/conformance/invalid/missing-required-agent-run-field.agent-run.json`
+    ], { encoding: "utf8" });
+
+    expect(invalid.status).toBe(1);
+    expect(invalid.stderr).toContain("missing_required_agent_run_field");
   }, 30000);
 
   it("initializes a starter Product Spec from the CLI", () => {

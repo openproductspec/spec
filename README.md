@@ -15,6 +15,19 @@ Product Spec -> Engineering Spec -> Code -> Evaluation -> Learning
 what / why      how / plan / tasks   implementation   outcome
 ```
 
+For agent-led work, ProductSpec acts as the harness contract:
+
+```text
+Product Spec
+  -> MCP tools
+  -> coding agent
+  -> implementation
+  -> Agent Run receipt
+  -> Related Artifacts
+  -> Decision Trace
+  -> revised Product Spec
+```
+
 ProductSpec is neutral. It defines structure, section IDs, portable review annotations, calibration-example serialization, and portable decision traces. It does not define what makes a Product Spec good.
 
 Design principle: structure the parts machines must execute or compare. Leave the parts humans must reason about readable.
@@ -28,6 +41,21 @@ Decision Trace is the optional companion standard for recording how consequentia
 ```text
 Intent -> Implementation -> Drift -> Decision Trace -> Revised Intent
 ```
+
+## What Agents Can Do Today
+
+With the parser, CLI, MCP server, and companion artifacts in this repo, agents can:
+
+- validate Product Specs before planning or coding
+- pin `spec_revision` and content hash at the start of a work session
+- read Scope, Acceptance Criteria, AI Evals, Success Metrics, and Related Artifacts as structured data
+- resolve a folder of specs into buildable, blocked, and ordered work
+- ask what evidence is expected for each `AC-`, `EVAL-`, and `SM-` item
+- check whether the Product Spec changed before claiming completion
+- draft an Agent Run receipt
+- record drift or learning through Decision Trace
+
+ProductSpec does not tell the agent how to code. It tells the agent what intent it is accountable to.
 
 ## Intent And Evidence
 

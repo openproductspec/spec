@@ -21,6 +21,24 @@ OpenSpec and Spec Kit help turn intent into technical plans and tasks. ProductSp
 
 Markdown works in Git, pull requests, issues, docs, editors, and agent workflows. It is readable without a special app, easy to diff, and simple for tools to parse.
 
+## Is ProductSpec just a Markdown template?
+
+No. Markdown is the container.
+
+ProductSpec adds the parts that make a spec portable across people, tools, and agents:
+
+- canonical sections
+- structured Scope, Acceptance Criteria, AI Evals, Success Metrics, and Related Artifacts
+- durable `AC-`, `EVAL-`, and `SM-` IDs
+- validation and conformance fixtures
+- `spec_revision` for meaningful intent changes
+- MCP tools for agents
+- graph resolution across dependent specs
+- Agent Run receipts for what an agent checked
+- Decision Trace for drift, decisions, and learning
+
+A plain Markdown spec can be read by an agent. A Product Spec can be validated, cited, pinned, checked, linked to evidence, and used as a harness contract.
+
 ## Do I need ProductSpec.io to use ProductSpec?
 
 No. ProductSpec is an open standard. You can write `.product-spec.md` files by hand, validate them with the CLI, and store them in Git.

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+Added:
+
+- Support SLA analytics pipeline example.
+- README section showing what agents can do today with ProductSpec.
+- FAQ entry explaining how ProductSpec differs from a Markdown template.
+
 ## v0.23.0 - Parser Fidelity And Harness Demo
 
 Changed:

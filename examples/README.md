@@ -15,6 +15,7 @@ Start here if you want to see ProductSpec as a working artifact rather than a sc
 | [`consumer-family-calendar.product-spec.md`](consumer-family-calendar.product-spec.md) | A consumer UX feature with a prototype link. |
 | [`enterprise-approval-workflow.product-spec.md`](enterprise-approval-workflow.product-spec.md) | A cross-functional enterprise workflow. |
 | [`internal-webhook-replay-api.product-spec.md`](internal-webhook-replay-api.product-spec.md) | A non-UI internal API. |
+| [`support-sla-analytics-pipeline.product-spec.md`](support-sla-analytics-pipeline.product-spec.md) | A data pipeline/analytics feature with freshness, backfill, and dashboard trust criteria. |
 | [`platform-cache-migration.product-spec.md`](platform-cache-migration.product-spec.md) | Platform work with no conventional user-facing UI. |
 | [`provisional-success-metric.product-spec.md`](provisional-success-metric.product-spec.md) | A realistic provisional Success Metric with `target: tbd` and `target_owner`. |
 | [`converted-customer-handoff.product-spec.md`](converted-customer-handoff.product-spec.md) | A real PRD converted to a Product Spec: `applies_to`, structured scope, provisional targets, `related_artifacts`, and `tool_metadata` in one file. |

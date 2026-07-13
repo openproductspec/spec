@@ -1,0 +1,68 @@
+{
+  "decision_trace_format_version": "0.1",
+  "trace_id": "transcript-search-evidence-loop",
+  "title": "Transcript Search Evidence Loop Decision Trace",
+  "created_at": "2026-07-13T00:00:00Z",
+  "updated_at": "2026-07-14T00:00:00Z",
+  "subject": {
+    "type": "product_spec",
+    "id": "transcript-search-evidence-loop",
+    "title": "Transcript Search Evidence Loop",
+    "product_spec_path": "./transcript-search-v1.product-spec.md",
+    "product_spec_revision": 1
+  },
+  "events": [
+    {
+      "event_id": "eval-run-passed",
+      "event_type": "ai_eval_drift",
+      "occurred_at": "2026-07-13T00:00:00Z",
+      "summary": "The phrase containment eval passed for EVAL-1, so the team kept the launch gate unchanged.",
+      "source": {
+        "product_spec_revision": 1,
+        "links": [
+          {
+            "type": "eval_run",
+            "url": "./transcript-search.eval-run.json",
+            "title": "Transcript search phrase containment eval"
+          }
+        ]
+      },
+      "decision": {
+        "outcome": "no_action",
+        "rationale": "The eval evidence matched the intended behavior for the first release.",
+        "approved_by": ["Product lead", "Engineering lead"]
+      }
+    },
+    {
+      "event_id": "quote-copy-metric-review",
+      "event_type": "success_metric_review",
+      "occurred_at": "2026-07-14T00:00:00Z",
+      "summary": "The day 14 analytics snapshot showed the quote-copy workflow met SM-1.",
+      "source": {
+        "product_spec_revision": 1,
+        "links": [
+          {
+            "type": "analytics_snapshot",
+            "url": "https://analytics.example.com/snapshots/transcript-search-day-14",
+            "title": "Transcript search day 14 quote-copy snapshot"
+          }
+        ]
+      },
+      "decision": {
+        "outcome": "record_learning",
+        "rationale": "The success metric was met, and no intent revision was needed.",
+        "approved_by": ["Product lead"]
+      },
+      "result": {
+        "linked_artifacts": [
+          {
+            "type": "product_spec",
+            "url": "./transcript-search-v1.product-spec.md",
+            "title": "Transcript Search Evidence Loop"
+          }
+        ],
+        "learning": "A timestamped copy action gave researchers enough source context for the first release."
+      }
+    }
+  ]
+}

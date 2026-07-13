@@ -5,6 +5,7 @@ import {
   checkSpecSession,
   getAcceptanceCriteria,
   getAiEvals,
+  getEvidenceChecklist,
   getProductSpec,
   getRelatedArtifacts,
   getScope,
@@ -91,6 +92,11 @@ const tools: Record<string, { description: string; inputSchema: object; handler:
     inputSchema: objectSchema({ root: stringProperty("Root directory. Defaults to current working directory.") }),
     handler: (args) => getSpecGraph({ root: optionalString(args.root) })
   },
+  get_evidence_checklist: {
+    description: "Return the implementation, eval, and post-launch evidence expected for a Product Spec.",
+    inputSchema: specPathSchema(),
+    handler: (args) => getEvidenceChecklist(specPathArgs(args))
+  },
   check_completion_claim: {
     description: "Return the Acceptance Criteria and AI Evals an agent must verify before claiming implementation is complete.",
     inputSchema: objectSchema({
@@ -105,7 +111,7 @@ const tools: Record<string, { description: string; inputSchema: object; handler:
   }
 };
 
-const SERVER_VERSION = "0.15.0";
+const SERVER_VERSION = "0.16.0";
 
 export function runProductSpecMcpServer() {
   const rl = createInterface({ input: process.stdin, crlfDelay: Infinity });

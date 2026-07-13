@@ -27,6 +27,8 @@ Decision Trace is the optional companion standard for recording how consequentia
 Intent -> Implementation -> Drift -> Decision Trace -> Revised Intent
 ```
 
+ProductSpec also gives implementation evidence a place to attach. Acceptance Criteria define launch correctness, AI Evals define model behavior checks, Success Metrics define post-launch outcomes, and Related Artifacts link those IDs to pull requests, eval runs, dashboards, analytics snapshots, and releases.
+
 ## Living Specs
 
 Product Specs are living documents. They should change when evidence, scope, design, acceptance criteria, or success metrics change.
@@ -50,6 +52,7 @@ If you want to use ProductSpec with coding agents, start here:
 
 - [Get started with agents](docs/get-started-with-agents.md): install the skills, convert a PRD, validate in CI, implement from a Product Spec, and record drift.
 - [Use the MCP server](docs/agent-mcp.md): expose Product Specs to coding agents as structured tools.
+- [Evidence loop](docs/evidence-loop.md): connect Product Specs to implementation, evals, metrics, and Decision Trace.
 
 Validate a Product Spec with the published CLI:
 

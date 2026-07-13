@@ -244,6 +244,14 @@ A `product_spec` artifact makes a library of specs traversable: a tool can resol
   title: "Citation Library"
 ```
 
+Related Artifacts also connect ProductSpec IDs to evidence:
+
+- `AC-<number>` links to implementation evidence such as pull requests, tests, code links, release notes, or engineering specs.
+- `EVAL-<number>` links to eval evidence such as eval runs, test reports, or human review records.
+- `SM-<number>` links to post-launch outcome evidence such as dashboards, analytics snapshots, experiments, or metric reviews.
+
+ProductSpec does not collect evidence. It gives evidence a durable item ID to attach to.
+
 ## Custom Sections
 
 Custom section IDs use `custom-<kebab-name>`.

@@ -22,6 +22,7 @@ Start here if you want to see ProductSpec as a working artifact rather than a sc
 | [`hypothesis.product-spec.md`](hypothesis.product-spec.md) | A smaller bet framed as a hypothesis artifact. |
 | [`revisions/`](revisions/) | A Product Spec evolving from `spec_revision: 1` to `spec_revision: 2`. |
 | [`decision-traces/`](decision-traces/) | Companion Decision Trace examples for decisions, drift, and revisions. |
+| [`evidence-loop/`](evidence-loop/) | Product Spec evidence links across a PR, eval run, analytics snapshot, and Decision Trace. |
 | [`../starter-kit/`](../starter-kit/) | Copyable repo setup with Product Spec, Decision Trace, agent instructions, PR template, and CI. |
 
 ## What To Notice
@@ -34,6 +35,7 @@ Start here if you want to see ProductSpec as a working artifact rather than a sc
 - `user_experience` is optional and points to the externally observable experience when one exists.
 - `spec_revision` in frontmatter tracks the revision of this Product Spec's intent, separate from `spec_format_version`.
 - `applies_to` and `Related Artifacts` connect Product Spec intent to code, issues, pull requests, eval runs, dashboards, designs, and other durable records.
+- The evidence-loop example shows how `AC-`, `EVAL-`, and `SM-` IDs connect to implementation, eval, and post-launch evidence.
 
 ## Validate An Example
 

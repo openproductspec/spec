@@ -329,6 +329,12 @@ Use `Related Artifacts` for item-level links:
 
 Use `section_id` when the link applies to a whole section. Use `item_id` when the link applies to a specific Acceptance Criterion, Success Metric, or AI eval.
 
+Use item IDs to attach evidence:
+
+- `AC-<number>`: implementation evidence such as pull requests, tests, code links, release notes, or engineering specs.
+- `EVAL-<number>`: eval evidence such as eval runs, test reports, or human review records.
+- `SM-<number>`: post-launch outcome evidence such as dashboards, analytics snapshots, experiments, or metric reviews.
+
 A related artifact can also point at another Product Spec. Use `type: product_spec` with `product_spec_path`, an optional `product_spec_revision` pin, and an optional `relation` of `depends_on`, `blocks`, `supersedes`, or `relates_to`:
 
 ```productspec-related-artifacts

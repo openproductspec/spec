@@ -40,6 +40,7 @@ For MCP clients that support stdio servers:
 - `get_success_metrics`: returns Success Metrics.
 - `get_related_artifacts`: returns Related Artifacts.
 - `get_spec_graph`: resolves `product_spec` links across all specs under a root into buildable, blocked, and ordered work.
+- `get_evidence_checklist`: returns the implementation, eval, and post-launch evidence expected for a Product Spec.
 - `check_completion_claim`: returns the criteria and evals an agent must verify before claiming implementation is complete.
 
 ## Spec Sessions
@@ -65,7 +66,8 @@ Use ProductSpec MCP before coding:
 3. Load Scope, Acceptance Criteria, AI Evals, Success Metrics, and Related Artifacts.
 4. Keep implementation inside Scope.
 5. Before claiming done, call check_spec_session. If the Product Spec changed, re-read and re-plan.
-6. Call check_completion_claim and verify each returned Acceptance Criterion and AI Eval.
+6. Call get_evidence_checklist to identify which pull requests, tests, eval runs, dashboards, or analytics snapshots should attach to AC-, EVAL-, and SM- IDs.
+7. Call check_completion_claim and verify each returned Acceptance Criterion and AI Eval.
 ```
 
 ## Boundary

@@ -4,6 +4,13 @@
 
 No unreleased changes.
 
+## v0.16.0 - Evidence Loop
+
+Added:
+
+- Evidence loop docs and example showing ProductSpec links across implementation PRs, eval runs, analytics snapshots, and Decision Trace.
+- `get_evidence_checklist` MCP tool for agents to list expected evidence for Acceptance Criteria, AI Evals, and Success Metrics.
+
 ## v0.15.0 - MCP Spec Sessions
 
 Added:

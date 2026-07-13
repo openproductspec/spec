@@ -43,6 +43,23 @@ export interface CompletionClaimCheck {
   warnings: ProductSpecValidationWarning[];
 }
 
+export interface EvidenceChecklist {
+  spec_valid: boolean;
+  message: string;
+  acceptance_criteria: EvidenceChecklistItem[];
+  ai_evals: EvidenceChecklistItem[];
+  success_metrics: EvidenceChecklistItem[];
+  errors: ProductSpecValidationError[];
+  warnings: ProductSpecValidationWarning[];
+}
+
+export interface EvidenceChecklistItem {
+  id: string;
+  evidence_needed: string;
+  release_blocking: boolean;
+  related_artifacts: ProductSpecRelatedArtifact[];
+}
+
 export interface ProductSpecSession {
   session_id: string;
   path: string;
@@ -209,6 +226,53 @@ export function getRelatedArtifacts(args: ProductSpecMcpArgs): ProductSpecRelate
   return readValidProductSpec(args).sections.flatMap((section) => section.related_artifacts ?? []);
 }
 
+export function getEvidenceChecklist(args: ProductSpecMcpArgs): EvidenceChecklist {
+  const result = validateProductSpec(args);
+  if (!result.valid) {
+    return {
+      spec_valid: false,
+      message: "The Product Spec is invalid. Fix validation errors before collecting evidence against it.",
+      acceptance_criteria: [],
+      ai_evals: [],
+      success_metrics: [],
+      errors: result.errors,
+      warnings: result.warnings
+    };
+  }
+
+  const artifacts = result.document.sections.flatMap((section) => section.related_artifacts ?? []);
+  return {
+    spec_valid: true,
+    message: "ProductSpec does not collect evidence. It lists the evidence that should attach to the spec before and after launch.",
+    acceptance_criteria: result.document.sections.flatMap((section) =>
+      (section.acceptance_criteria ?? []).map((criterion) => ({
+        id: criterion.id,
+        evidence_needed: "Implementation evidence, such as a pull request, test, code link, or release note.",
+        release_blocking: true,
+        related_artifacts: artifactsForItem(artifacts, criterion.id)
+      }))
+    ),
+    ai_evals: result.document.sections.flatMap((section) =>
+      (section.ai_evals ?? []).map((evalSpec) => ({
+        id: evalSpec.id,
+        evidence_needed: "Eval evidence, such as an eval run, test report, or human review record.",
+        release_blocking: true,
+        related_artifacts: artifactsForItem(artifacts, evalSpec.id)
+      }))
+    ),
+    success_metrics: result.document.sections.flatMap((section) =>
+      (section.success_metrics ?? []).map((metric) => ({
+        id: metric.id,
+        evidence_needed: "Post-launch outcome evidence, such as a dashboard, analytics snapshot, experiment, or metric review.",
+        release_blocking: false,
+        related_artifacts: artifactsForItem(artifacts, metric.id)
+      }))
+    ),
+    errors: [],
+    warnings: result.warnings
+  };
+}
+
 export function checkCompletionClaim(args: ProductSpecMcpArgs & { claim?: string }): CompletionClaimCheck {
   const result = validateProductSpec(args);
   const claim = args.claim ?? "";
@@ -241,6 +305,10 @@ export function checkCompletionClaim(args: ProductSpecMcpArgs & { claim?: string
     errors: [],
     warnings: result.warnings
   };
+}
+
+function artifactsForItem(artifacts: ProductSpecRelatedArtifact[], itemId: string): ProductSpecRelatedArtifact[] {
+  return artifacts.filter((artifact) => artifact.item_id === itemId);
 }
 
 function readValidProductSpec(args: ProductSpecMcpArgs): ProductSpecDocument {

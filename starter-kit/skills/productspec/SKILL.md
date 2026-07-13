@@ -64,6 +64,7 @@ If behavior changes after implementation, propose a Product Spec revision or a D
 When reporting progress or opening a pull request:
 
 - If ProductSpec MCP is available, call `check_spec_session` first. If the Product Spec changed, re-read it and re-plan before claiming done.
+- If ProductSpec MCP is available, call `get_evidence_checklist` and attach or name evidence for covered `AC-` and `EVAL-` IDs.
 - cite the Product Spec path and `spec_revision`
 - cite the Acceptance Criteria covered
 - cite AI evals added or changed

@@ -1,0 +1,23 @@
+{
+  "eval_run_id": "transcript-search-eval-run-2026-07-13",
+  "product_spec_path": "./transcript-search-v1.product-spec.md",
+  "product_spec_revision": 1,
+  "item_id": "EVAL-1",
+  "ran_at": "2026-07-13T00:00:00Z",
+  "result": "pass",
+  "pass_rate": 1,
+  "cases": [
+    {
+      "input": "Find the quote about product judgment.",
+      "expected": "product judgment",
+      "observed": "The result includes the requested product judgment passage and timestamp.",
+      "passed": true
+    },
+    {
+      "input": "Find the passage about compounding product experience.",
+      "expected": "compounding product experience",
+      "observed": "The result includes the requested compounding product experience passage and timestamp.",
+      "passed": true
+    }
+  ]
+}

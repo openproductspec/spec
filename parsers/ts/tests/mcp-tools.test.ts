@@ -7,6 +7,7 @@ import {
   checkSpecSession,
   getAcceptanceCriteria,
   getAiEvals,
+  getEvidenceChecklist,
   getScope,
   getSpecGraph,
   listProductSpecs,
@@ -117,6 +118,82 @@ describe("ProductSpec MCP tools", () => {
         checks: ["result contains the requested phrase"]
       }
     ]);
+  });
+
+  it("returns an evidence checklist grouped by Product Spec item id", () => {
+    const dir = writeFixture();
+    const withEvidence = `${validSpec}
+
+## Related Artifacts
+
+\`\`\`productspec-related-artifacts
+- type: github_pr
+  url: "https://github.com/acme/transcripts/pull/77"
+  title: "Implement transcript search"
+  section_id: acceptance_criteria
+  item_id: AC-1
+- type: eval_run
+  url: "https://evals.example.com/transcript-search/run-12"
+  title: "Transcript search eval run"
+  section_id: acceptance_criteria
+  item_id: EVAL-1
+- type: dashboard
+  url: "https://analytics.example.com/transcript-search"
+  title: "Transcript search launch dashboard"
+  section_id: success_metrics
+  item_id: SM-1
+\`\`\`
+`;
+    writeFileSync(join(dir, "search.product-spec.md"), withEvidence, "utf8");
+
+    expect(getEvidenceChecklist({ root: dir, path: "search.product-spec.md" })).toMatchObject({
+      spec_valid: true,
+      message: "ProductSpec does not collect evidence. It lists the evidence that should attach to the spec before and after launch.",
+      acceptance_criteria: [
+        {
+          id: "AC-1",
+          evidence_needed: "Implementation evidence, such as a pull request, test, code link, or release note.",
+          related_artifacts: [
+            {
+              type: "github_pr",
+              url: "https://github.com/acme/transcripts/pull/77",
+              title: "Implement transcript search"
+            }
+          ]
+        },
+        {
+          id: "AC-2",
+          related_artifacts: []
+        }
+      ],
+      ai_evals: [
+        {
+          id: "EVAL-1",
+          evidence_needed: "Eval evidence, such as an eval run, test report, or human review record.",
+          related_artifacts: [
+            {
+              type: "eval_run",
+              url: "https://evals.example.com/transcript-search/run-12",
+              title: "Transcript search eval run"
+            }
+          ]
+        }
+      ],
+      success_metrics: [
+        {
+          id: "SM-1",
+          release_blocking: false,
+          evidence_needed: "Post-launch outcome evidence, such as a dashboard, analytics snapshot, experiment, or metric review.",
+          related_artifacts: [
+            {
+              type: "dashboard",
+              url: "https://analytics.example.com/transcript-search",
+              title: "Transcript search launch dashboard"
+            }
+          ]
+        }
+      ]
+    });
   });
 
   it("turns a completion claim into a verification checklist", () => {

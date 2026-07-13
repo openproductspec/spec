@@ -48,6 +48,21 @@ cut:
   criterion: If source data required for a computation is missing or older than 2 business days, the covenant shows a cannot-compute state naming the missing input instead of presenting a stale value.
 ```
 
+```productspec-ai-evals
+- id: EVAL-1
+  type: exact_match
+  evaluator: deterministic
+  cases:
+    - input: "Compute DSCR covenant for borrowing B-001 where repayment data timestamp is 3 business days old."
+      expected: "cannot-compute: repayment_data_stale"
+    - input: "Compute leverage covenant for borrowing B-002 where outstanding-balance data is missing."
+      expected: "cannot-compute: outstanding_balance_missing"
+  pass_threshold: 1.0
+  checks:
+    - stale source data triggers cannot-compute state rather than a computed value
+    - cannot-compute response names the specific missing or stale input
+```
+
 ## Success Metrics
 
 ```productspec-success-metrics
@@ -86,5 +101,5 @@ cut:
   url: "https://ci.example-lender.com/runs/covenant-computation-fixtures"
   title: "Covenant computation fixture run"
   section_id: acceptance_criteria
-  item_id: AC-5
+  item_id: EVAL-1
 ```

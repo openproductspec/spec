@@ -18,6 +18,7 @@ Start here if you want to see ProductSpec as a working artifact rather than a sc
 | [`platform-cache-migration.product-spec.md`](platform-cache-migration.product-spec.md) | Platform work with no conventional user-facing UI. |
 | [`provisional-success-metric.product-spec.md`](provisional-success-metric.product-spec.md) | A realistic provisional Success Metric with `target: tbd` and `target_owner`. |
 | [`converted-customer-handoff.product-spec.md`](converted-customer-handoff.product-spec.md) | A real PRD converted to a Product Spec: `applies_to`, structured scope, provisional targets, `related_artifacts`, and `tool_metadata` in one file. |
+| [`lending-covenant-monitoring.product-spec.md`](lending-covenant-monitoring.product-spec.md) | A regulated-lending workflow with committed and provisional metrics, projected into tickets in [`docs/productspec-to-tickets.md`](../docs/productspec-to-tickets.md). |
 | [`full-prd.product-spec.md`](full-prd.product-spec.md) | Optional sections and a richer PRD-style artifact. |
 | [`hypothesis.product-spec.md`](hypothesis.product-spec.md) | A smaller bet framed as a hypothesis artifact. |
 | [`revisions/`](revisions/) | A Product Spec evolving from `spec_revision: 1` to `spec_revision: 2`. |

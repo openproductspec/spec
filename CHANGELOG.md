@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-No unreleased changes.
+Added:
+
+- `docs/productspec-to-tickets.md`: guide for projecting a Product Spec into Jira or Linear tickets by reference instead of by copy.
+- `examples/lending-covenant-monitoring.product-spec.md`: a regulated-lending example with committed and provisional Success Metrics and ticket back-links via `Related Artifacts`.
 
 ## v0.19.0 - Validator Semantics
 

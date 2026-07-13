@@ -4,10 +4,23 @@
   "description": "Reference parser for ProductSpec.",
   "type": "module",
   "license": "MIT",
+  "homepage": "https://github.com/gokulrajaram/ProductSpec#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gokulrajaram/ProductSpec.git",
+    "directory": "parsers/ts"
+  },
+  "bugs": {
+    "url": "https://github.com/gokulrajaram/ProductSpec/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "publishConfig": {
     "access": "public"
@@ -17,7 +30,8 @@
   },
   "scripts": {
     "test": "vitest run",
-    "build": "tsc --declaration --emitDeclarationOnly false"
+    "build": "tsc --declaration --emitDeclarationOnly false",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",

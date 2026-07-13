@@ -1,6 +1,6 @@
 # Validator Reference
 
-ProductSpec v0.10.0 ships a TypeScript reference validator and CLI.
+ProductSpec ships a TypeScript reference validator and CLI.
 
 ```bash
 npm exec --package @productspec/parser -- productspec validate path/to/file.product-spec.md

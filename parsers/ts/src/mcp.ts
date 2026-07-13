@@ -97,7 +97,7 @@ const tools: Record<string, { description: string; inputSchema: object; handler:
       root: stringProperty("Root directory. Defaults to current working directory."),
       path: requiredStringProperty("Path to a .product-spec.md file."),
       claim: stringProperty("The implementation completion claim to check.")
-    }),
+    }, ["path"]),
     handler: (args) => checkCompletionClaim({
       ...specPathArgs(args),
       claim: optionalString(args.claim)
@@ -202,16 +202,20 @@ function messageFor(error: unknown): string {
 }
 
 function specPathSchema() {
-  return objectSchema({
-    root: stringProperty("Root directory. Defaults to current working directory."),
-    path: requiredStringProperty("Path to a .product-spec.md file.")
-  });
+  return objectSchema(
+    {
+      root: stringProperty("Root directory. Defaults to current working directory."),
+      path: requiredStringProperty("Path to a .product-spec.md file.")
+    },
+    ["path"]
+  );
 }
 
-function objectSchema(properties: Record<string, object>) {
+function objectSchema(properties: Record<string, object>, required: string[] = []) {
   return {
     type: "object",
     properties,
+    ...(required.length ? { required } : {}),
     additionalProperties: false
   };
 }

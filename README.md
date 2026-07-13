@@ -4,9 +4,9 @@
 [![npm](https://img.shields.io/npm/v/@productspec/parser.svg)](https://www.npmjs.com/package/@productspec/parser)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-ProductSpec is the open standard for AI-native software intent: a harness that tells agents what to build, what not to build, how to prove completion, and when to stop.
+ProductSpec is the open standard and harness that tells coding agents what to build, what not to build, how to prove completion, and when to stop.
 
-It gives teams and agents a portable way to define what should be built, what should not be built, what evidence proves it worked, and what changed when reality disagreed.
+It gives teams and agents a portable way to define intent up front, attach evidence after work starts, and preserve what changed when reality disagreed.
 
 Use it when consequential software work needs intent to survive handoff: from product to engineering, from humans to agents, and from implementation back to learning.
 
@@ -27,6 +27,8 @@ Product Spec
   -> Decision Trace
   -> revised Product Spec
 ```
+
+Product Spec is the core artifact. Agent Run and Decision Trace are optional companion artifacts: use them when agents implement against a spec or when evidence changes the decision.
 
 ProductSpec is neutral. It defines structure, section IDs, portable review annotations, calibration-example serialization, and portable decision traces. It does not define what makes a Product Spec good.
 
@@ -97,40 +99,42 @@ If you want to use ProductSpec as an intent harness for coding agents, start her
 - [Get started with agents](docs/get-started-with-agents.md): install the skills, convert a PRD, validate in CI, implement from a Product Spec, and record drift.
 - [Use the MCP server](docs/agent-mcp.md): expose Product Specs to coding agents as structured tools.
 - [5-minute agent harness demo](docs/agent-harness-demo.md): see Product Spec, MCP, Agent Run, and Decision Trace working together.
+- [60-second demo script](docs/demo-script.md): record the ProductSpec loop closing in a short GIF or Loom.
+- [Status badge spec](docs/status-badge.md): factual badge shapes for valid specs, run receipts, evidence, and revisions.
 - [Evidence loop](docs/evidence-loop.md): connect Product Specs to implementation, evals, metrics, and Decision Trace.
 - [Agent Run](docs/agent-run.md): record one Claude, Codex, Cursor, or other agent execution against a pinned Product Spec.
 
-1. Validate the intent:
+1. Try the harness demo:
 
 ```bash
-npm exec --package @productspec/parser -- productspec validate path/to/file.product-spec.md
+npm exec --package @productspec/parser -- productspec validate examples/harness-demo/checkout-notifications.product-spec.md
 ```
 
-2. Expose Product Specs to agents:
+2. Start the MCP server:
 
 ```bash
 npx --yes -p @productspec/parser@latest productspec mcp
 ```
 
-3. Ask Claude, Codex, Cursor, or another agent to implement against the Product Spec:
+3. Ask Claude, Codex, Cursor, or another MCP-aware agent to implement against the Product Spec:
 
 ```text
 Use ProductSpec MCP before coding.
-Validate the Product Spec, call begin_spec_session, load Scope, Acceptance Criteria, AI Evals, Success Metrics, and Related Artifacts.
-Stay inside scope.in, avoid scope.out and scope.cut, verify every AC- and EVAL- item, call check_spec_session before claiming done, and leave an Agent Run receipt.
+Validate examples/harness-demo/checkout-notifications.product-spec.md, call begin_spec_session, load Scope, Acceptance Criteria, AI Evals, Success Metrics, and Related Artifacts.
+Stay inside scope.in, avoid scope.out and scope.cut, verify every AC- and EVAL- item, call check_spec_session before claiming done, and draft an Agent Run receipt.
 ```
 
-4. Draft and validate the run receipt:
+4. Draft the run receipt:
 
 ```bash
-npm exec --package @productspec/parser -- productspec init-run path/to/file.product-spec.md path/to/file.agent-run.json
-npm exec --package @productspec/parser -- productspec validate-run path/to/file.agent-run.json
+npm exec --package @productspec/parser -- productspec init-run examples/harness-demo/checkout-notifications.product-spec.md /tmp/checkout-notifications.agent-run.json
 ```
 
-5. If intent changed, validate the Decision Trace:
+5. Validate the checked-in example receipt and trace:
 
 ```bash
-npm exec --package @productspec/parser -- productspec validate-trace path/to/file.decision-trace.json
+npm exec --package @productspec/parser -- productspec validate-run examples/harness-demo/checkout-notifications.agent-run.json
+npm exec --package @productspec/parser -- productspec validate-trace examples/harness-demo/checkout-notifications.decision-trace.json
 ```
 
 Create a starter Product Spec:

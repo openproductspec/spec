@@ -7,6 +7,9 @@ Added:
 - Support SLA analytics pipeline example.
 - README section showing what agents can do today with ProductSpec.
 - FAQ entry explaining how ProductSpec differs from a Markdown template.
+- README hero and Quick Start now lead with the agent harness payoff.
+- 60-second demo script for recording the ProductSpec loop.
+- Factual status badge spec for validation, revision, evidence, graph, and Agent Run receipts.
 
 ## v0.23.0 - Parser Fidelity And Harness Demo
 

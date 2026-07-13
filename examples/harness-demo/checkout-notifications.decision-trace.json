@@ -1,0 +1,52 @@
+{
+  "decision_trace_format_version": "0.1",
+  "trace_id": "checkout-notifications-trace",
+  "title": "Checkout Failure Notifications Decision Trace",
+  "created_at": "2026-07-13T00:00:00Z",
+  "updated_at": "2026-07-13T00:30:00Z",
+  "subject": {
+    "type": "product_spec",
+    "id": "checkout-notifications",
+    "title": "Checkout Failure Notifications",
+    "product_spec_path": "./checkout-notifications.product-spec.md",
+    "product_spec_revision": 1
+  },
+  "events": [
+    {
+      "event_id": "sms-kept-out-of-scope",
+      "event_type": "implementation_tradeoff",
+      "occurred_at": "2026-07-13T00:20:00Z",
+      "summary": "Implementation considered SMS notifications for urgent failures, but kept them out of the first release because SMS is listed in scope.out.",
+      "source": {
+        "product_spec_revision": 1,
+        "links": [
+          {
+            "type": "github_pr",
+            "url": "https://github.com/example/checkout/pull/58",
+            "title": "Add checkout failure notifications"
+          }
+        ]
+      },
+      "decision": {
+        "outcome": "no_action",
+        "rationale": "The Product Spec explicitly excludes SMS notifications. The agent kept implementation inside scope instead of redefining intent.",
+        "approved_by": ["Checkout product lead"]
+      },
+      "result": {
+        "linked_artifacts": [
+          {
+            "type": "product_spec",
+            "url": "./checkout-notifications.product-spec.md",
+            "title": "Checkout Failure Notifications"
+          },
+          {
+            "type": "code",
+            "url": "apps/worker/src/payments/high-value-failure-email.ts",
+            "title": "High-value failure email worker"
+          }
+        ],
+        "learning": "Scope.out is useful only when agents and reviewers actively check it before declaring work complete."
+      }
+    }
+  ]
+}

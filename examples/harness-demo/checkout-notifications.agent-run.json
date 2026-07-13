@@ -1,0 +1,87 @@
+{
+  "agent_run_format_version": "0.1",
+  "run_id": "checkout-notifications-run",
+  "agent": {
+    "name": "Codex",
+    "version": "cli"
+  },
+  "product_spec": {
+    "path": "examples/harness-demo/checkout-notifications.product-spec.md",
+    "spec_revision": 1,
+    "content_hash": "sha256:example"
+  },
+  "started_at": "2026-07-13T00:00:00Z",
+  "completed_at": "2026-07-13T00:25:00Z",
+  "status": "completed",
+  "checked_items": [
+    {
+      "item_id": "AC-1",
+      "status": "passed",
+      "evidence": [
+        {
+          "type": "github_pr",
+          "url": "https://github.com/example/checkout/pull/58",
+          "title": "Add checkout failure notifications"
+        }
+      ]
+    },
+    {
+      "item_id": "AC-2",
+      "status": "passed",
+      "evidence": [
+        {
+          "type": "code",
+          "url": "apps/web/src/checkout/admin-notification.ts",
+          "title": "Admin notification formatter"
+        }
+      ]
+    },
+    {
+      "item_id": "AC-3",
+      "status": "passed",
+      "evidence": [
+        {
+          "type": "code",
+          "url": "apps/worker/src/payments/high-value-failure-email.ts",
+          "title": "High-value failure email worker"
+        }
+      ]
+    },
+    {
+      "item_id": "AC-4",
+      "status": "passed",
+      "evidence": [
+        {
+          "type": "code",
+          "url": "apps/worker/src/payments/dedupe-failure-events.ts",
+          "title": "Failure notification dedupe"
+        }
+      ]
+    },
+    {
+      "item_id": "EVAL-1",
+      "status": "passed",
+      "evidence": [
+        {
+          "type": "eval_run",
+          "url": "./checkout-notifications.eval-run.json",
+          "title": "Checkout notification deterministic eval"
+        }
+      ]
+    },
+    {
+      "item_id": "SM-1",
+      "status": "not_checked",
+      "notes": "Post-launch recovery metric. Do not block implementation completion."
+    },
+    {
+      "item_id": "SM-2",
+      "status": "not_checked",
+      "notes": "Post-launch duplicate notification metric. Do not block implementation completion."
+    }
+  ],
+  "drift": {
+    "detected": false
+  },
+  "completion_claim": "Checkout failure notifications satisfy AC-1 through AC-4 and EVAL-1. SM-1 and SM-2 are post-launch checks."
+}

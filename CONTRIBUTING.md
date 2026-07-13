@@ -211,6 +211,19 @@ To open the pull request:
 
 Good examples show how ProductSpec works beyond classic product UI: APIs, internal tools, infrastructure changes, agent workflows, data pipelines, and operational systems are all welcome.
 
+If you want a concrete place to start, look for open issues labeled `good first issue` and `Example request`.
+
+Before opening the pull request:
+
+- comment on the issue you want to take
+- add one realistic `.product-spec.md` file under `examples/`
+- keep sensitive company, customer, and metric details anonymized
+- run `npm run validate -- examples/your-example.product-spec.md`
+- update `examples/README.md` so readers can find the new example
+- explain in the PR what product-work pattern the example teaches
+
+Maintainers will review the example for validity, specificity, and whether it teaches a distinct ProductSpec pattern.
+
 ## Development
 
 Install dependencies:

@@ -24,6 +24,7 @@ Start here if you want to see ProductSpec as a working artifact rather than a sc
 | [`revisions/`](revisions/) | A Product Spec evolving from `spec_revision: 1` to `spec_revision: 2`. |
 | [`decision-traces/`](decision-traces/) | Companion Decision Trace examples for decisions, drift, and revisions. |
 | [`evidence-loop/`](evidence-loop/) | Product Spec evidence links across a PR, eval run, analytics snapshot, and Decision Trace. |
+| [`harness-demo/`](harness-demo/) | A 5-minute harness example with Product Spec, Agent Run, and Decision Trace. |
 | [`agent-ready-repo/`](agent-ready-repo/) | A tiny repo layout for agents: Product Spec, Agent Run, evidence links, Decision Trace, and validation commands. |
 | [`../starter-kit/`](../starter-kit/) | Copyable repo setup with Product Spec, Decision Trace, agent instructions, PR template, and CI. |
 

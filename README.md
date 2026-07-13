@@ -68,6 +68,7 @@ If you want to use ProductSpec as an intent harness for coding agents, start her
 
 - [Get started with agents](docs/get-started-with-agents.md): install the skills, convert a PRD, validate in CI, implement from a Product Spec, and record drift.
 - [Use the MCP server](docs/agent-mcp.md): expose Product Specs to coding agents as structured tools.
+- [5-minute agent harness demo](docs/agent-harness-demo.md): see Product Spec, MCP, Agent Run, and Decision Trace working together.
 - [Evidence loop](docs/evidence-loop.md): connect Product Specs to implementation, evals, metrics, and Decision Trace.
 - [Agent Run](docs/agent-run.md): record one Claude, Codex, Cursor, or other agent execution against a pinned Product Spec.
 

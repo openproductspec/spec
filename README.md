@@ -27,7 +27,21 @@ Decision Trace is the optional companion standard for recording how consequentia
 Intent -> Implementation -> Drift -> Decision Trace -> Revised Intent
 ```
 
-ProductSpec also gives implementation evidence a place to attach. Acceptance Criteria define launch correctness, AI Evals define model behavior checks, Success Metrics define post-launch outcomes, and Related Artifacts link those IDs to pull requests, eval runs, dashboards, analytics snapshots, and releases.
+## Intent And Evidence
+
+ProductSpec defines what should be built and why.
+
+Evidence shows what happened after work started: pull requests, tests, eval runs, dashboards, analytics snapshots, releases, and support signals.
+
+Use `Related Artifacts` to attach evidence to durable ProductSpec IDs:
+
+- `AC-<number>`: implementation evidence
+- `EVAL-<number>`: model behavior evidence
+- `SM-<number>`: post-launch outcome evidence
+
+Updating evidence links does not automatically require a `spec_revision` bump. Bump `spec_revision` when evidence changes the meaning of the product intent: scope, acceptance criteria, user experience, success metrics, or the underlying bet. Use Decision Trace when evidence changes the product decision.
+
+ProductSpec does not collect traces or run evals. It gives evidence a stable intent target.
 
 ## Living Specs
 

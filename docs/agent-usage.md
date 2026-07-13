@@ -57,6 +57,8 @@ Use skills/productspec/SKILL.md.
 
 Implement the work in specs/example.product-spec.md.
 
+If ProductSpec MCP is available, call begin_spec_session before planning and check_spec_session before claiming done.
+
 Create a plan that maps tasks to Acceptance Criteria. Keep scope.out and scope.cut out of the implementation. If you need to change product intent, stop and propose a Product Spec revision or Decision Trace.
 ```
 

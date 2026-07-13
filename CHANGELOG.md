@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-No unreleased changes.
+Added:
+
+- MCP spec sessions: `begin_spec_session` pins a Product Spec's `spec_revision` and content hash at the start of agent work, and `check_spec_session` tells agents whether to continue, re-plan, or resolve validation errors before claiming done.
 
 ## v0.14.0 - Spec Graph
 

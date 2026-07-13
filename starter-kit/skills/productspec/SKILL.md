@@ -38,6 +38,7 @@ Success Metrics are post-launch outcomes. Do not treat `SM-<number>` items as im
 When creating an implementation plan:
 
 - List which Product Spec and `spec_revision` you are implementing.
+- If ProductSpec MCP is available, call `begin_spec_session` before planning and include the returned `spec_revision` and session id in your plan.
 - Map each task to the relevant Acceptance Criteria.
 - Name any Acceptance Criteria that are not covered by the plan.
 - Treat `scope.out` and `scope.cut` as explicit non-goals.
@@ -62,6 +63,7 @@ If behavior changes after implementation, propose a Product Spec revision or a D
 
 When reporting progress or opening a pull request:
 
+- If ProductSpec MCP is available, call `check_spec_session` first. If the Product Spec changed, re-read it and re-plan before claiming done.
 - cite the Product Spec path and `spec_revision`
 - cite the Acceptance Criteria covered
 - cite AI evals added or changed

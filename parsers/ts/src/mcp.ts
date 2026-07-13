@@ -1,6 +1,8 @@
 import { createInterface } from "node:readline";
 import {
+  beginSpecSession,
   checkCompletionClaim,
+  checkSpecSession,
   getAcceptanceCriteria,
   getAiEvals,
   getProductSpec,
@@ -22,6 +24,28 @@ type JsonRpcRequest = {
 type ToolHandler = (args: Record<string, unknown>) => unknown;
 
 const tools: Record<string, { description: string; inputSchema: object; handler: ToolHandler }> = {
+  begin_spec_session: {
+    description: "Pin a Product Spec revision and content hash at the start of agent work.",
+    inputSchema: specPathSchema(),
+    handler: (args) => beginSpecSession(specPathArgs(args))
+  },
+  check_spec_session: {
+    description: "Check whether a pinned Product Spec changed during an agent session.",
+    inputSchema: objectSchema({
+      session_id: stringProperty("Session id returned by begin_spec_session."),
+      root: stringProperty("Root directory. Defaults to current working directory."),
+      path: stringProperty("Path to a .product-spec.md file. Required when session_id is not provided."),
+      started_revision: numberProperty("Pinned spec_revision returned by begin_spec_session."),
+      started_hash: stringProperty("Pinned content_hash returned by begin_spec_session. Required when session_id is not provided.")
+    }),
+    handler: (args) => checkSpecSession({
+      session_id: optionalString(args.session_id),
+      root: optionalString(args.root),
+      path: optionalString(args.path),
+      started_revision: optionalNumber(args.started_revision),
+      started_hash: optionalString(args.started_hash)
+    })
+  },
   list_product_specs: {
     description: "List .product-spec.md files under a root directory.",
     inputSchema: objectSchema({ root: stringProperty("Root directory. Defaults to current working directory.") }),
@@ -169,6 +193,10 @@ function optionalString(value: unknown): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
+function optionalNumber(value: unknown): number | undefined {
+  return typeof value === "number" ? value : undefined;
+}
+
 function messageFor(error: unknown): string {
   return error instanceof Error ? error.message : "Unknown MCP error.";
 }
@@ -190,6 +218,10 @@ function objectSchema(properties: Record<string, object>) {
 
 function stringProperty(description: string) {
   return { type: "string", description };
+}
+
+function numberProperty(description: string) {
+  return { type: "number", description };
 }
 
 function requiredStringProperty(description: string) {

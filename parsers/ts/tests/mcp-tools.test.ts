@@ -3,6 +3,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  beginSpecSession,
+  checkSpecSession,
   getAcceptanceCriteria,
   getAiEvals,
   getScope,
@@ -159,5 +161,43 @@ describe("ProductSpec MCP tools", () => {
     ]);
     expect(graph.order).toEqual(["search.product-spec.md", "sharing.product-spec.md"]);
     expect(graph.warnings).toEqual([]);
+  });
+
+  it("detects when a Product Spec changes during an MCP session", () => {
+    const dir = writeFixture();
+
+    const session = beginSpecSession({ root: dir, path: "search.product-spec.md" });
+
+    expect(session).toMatchObject({
+      path: "search.product-spec.md",
+      spec_revision: 1
+    });
+    expect(session.session_id).toMatch(/^productspec-session-/);
+    expect(session.content_hash).toMatch(/^sha256:/);
+    expect(checkSpecSession({ session_id: session.session_id })).toMatchObject({
+      session_id: session.session_id,
+      path: "search.product-spec.md",
+      changed: false,
+      started_revision: 1,
+      current_revision: 1,
+      current_valid: true,
+      recommended_action: "continue_against_pinned_revision"
+    });
+
+    writeFileSync(
+      join(dir, "search.product-spec.md"),
+      validSpec.replace("spec_revision: 1", "spec_revision: 2"),
+      "utf8"
+    );
+
+    expect(checkSpecSession({ session_id: session.session_id })).toMatchObject({
+      session_id: session.session_id,
+      path: "search.product-spec.md",
+      changed: true,
+      started_revision: 1,
+      current_revision: 2,
+      current_valid: true,
+      recommended_action: "replan_before_continuing"
+    });
   });
 });

@@ -85,6 +85,8 @@ Start the ProductSpec MCP server:
 npx --yes -p @productspec/parser@latest productspec mcp
 ```
 
+The MCP server exposes tools for agents to pin a Product Spec at the start of work and check whether the `spec_revision` or content changed before claiming completion.
+
 Resolve a folder of specs into a build graph:
 
 ```bash

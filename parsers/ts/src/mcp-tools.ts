@@ -1,3 +1,4 @@
+import { createHash, randomUUID } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { isAbsolute, join, normalize, relative, resolve } from "node:path";
 import {
@@ -42,7 +43,47 @@ export interface CompletionClaimCheck {
   warnings: ProductSpecValidationWarning[];
 }
 
+export interface ProductSpecSession {
+  session_id: string;
+  path: string;
+  spec_revision?: number;
+  content_hash: string;
+  started_at: string;
+  message: string;
+}
+
+export interface ProductSpecSessionCheck {
+  session_id?: string;
+  path: string;
+  changed: boolean;
+  current_valid: boolean;
+  started_revision?: number;
+  current_revision?: number;
+  started_hash: string;
+  current_hash?: string;
+  started_at?: string;
+  checked_at: string;
+  recommended_action: "continue_against_pinned_revision" | "replan_before_continuing" | "resolve_invalid_current_spec";
+  errors: ProductSpecValidationError[];
+  warnings: ProductSpecValidationWarning[];
+}
+
+interface ProductSpecSessionRecord {
+  root: string;
+  path: string;
+  spec_revision?: number;
+  content_hash: string;
+  started_at: string;
+}
+
+export interface ProductSpecSessionCheckArgs extends ProductSpecMcpArgs {
+  session_id?: string;
+  started_revision?: number;
+  started_hash?: string;
+}
+
 const DEFAULT_ROOT = process.cwd();
+const specSessions = new Map<string, ProductSpecSessionRecord>();
 
 export function listProductSpecs(args: { root?: string } = {}): ProductSpecListItem[] {
   const root = resolveRoot(args.root);
@@ -70,6 +111,81 @@ export function getProductSpec(args: ProductSpecMcpArgs): ProductSpecDocument {
 export function validateProductSpec(args: ProductSpecMcpArgs) {
   const markdown = readProductSpecMarkdown(args);
   return validateProductSpecMarkdown(markdown);
+}
+
+export function beginSpecSession(args: ProductSpecMcpArgs): ProductSpecSession {
+  const root = resolveRoot(args.root);
+  if (!args.path) throw new Error("path is required");
+  const absolutePath = resolveSpecPath(root, args.path);
+  const path = relative(root, absolutePath);
+  const markdown = readFileSync(absolutePath, "utf8");
+  const result = validateProductSpecMarkdown(markdown);
+  if (!result.valid) {
+    throw new Error(`Invalid Product Spec: ${result.errors.map((error) => error.message).join("; ")}`);
+  }
+
+  const session_id = `productspec-session-${randomUUID()}`;
+  const started_at = new Date().toISOString();
+  const record: ProductSpecSessionRecord = {
+    root,
+    path,
+    spec_revision: result.document.frontmatter.spec_revision,
+    content_hash: contentHash(markdown),
+    started_at
+  };
+  specSessions.set(session_id, record);
+
+  return {
+    session_id,
+    path,
+    spec_revision: record.spec_revision,
+    content_hash: record.content_hash,
+    started_at,
+    message: "Product Spec session pinned. Call check_spec_session before claiming done or after long-running work."
+  };
+}
+
+export function checkSpecSession(args: ProductSpecSessionCheckArgs): ProductSpecSessionCheck {
+  const session = resolveSessionCheckArgs(args);
+  const checked_at = new Date().toISOString();
+  const markdown = readProductSpecMarkdown({ root: session.root, path: session.path });
+  const current_hash = contentHash(markdown);
+  const result = validateProductSpecMarkdown(markdown);
+
+  if (!result.valid) {
+    return {
+      session_id: session.session_id,
+      path: session.path,
+      changed: true,
+      current_valid: false,
+      started_revision: session.started_revision,
+      started_hash: session.started_hash,
+      current_hash,
+      started_at: session.started_at,
+      checked_at,
+      recommended_action: "resolve_invalid_current_spec",
+      errors: result.errors,
+      warnings: result.warnings
+    };
+  }
+
+  const current_revision = result.document.frontmatter.spec_revision;
+  const changed = current_hash !== session.started_hash || current_revision !== session.started_revision;
+  return {
+    session_id: session.session_id,
+    path: session.path,
+    changed,
+    current_valid: true,
+    started_revision: session.started_revision,
+    current_revision,
+    started_hash: session.started_hash,
+    current_hash,
+    started_at: session.started_at,
+    checked_at,
+    recommended_action: changed ? "replan_before_continuing" : "continue_against_pinned_revision",
+    errors: [],
+    warnings: result.warnings
+  };
 }
 
 export function getScope(args: ProductSpecMcpArgs): ProductSpecScope | null {
@@ -140,6 +256,34 @@ function readProductSpecMarkdown(args: ProductSpecMcpArgs): string {
   const root = resolveRoot(args.root);
   const absolutePath = resolveSpecPath(root, args.path);
   return readFileSync(absolutePath, "utf8");
+}
+
+function resolveSessionCheckArgs(args: ProductSpecSessionCheckArgs) {
+  if (args.session_id) {
+    const record = specSessions.get(args.session_id);
+    if (!record) throw new Error(`Unknown Product Spec session: ${args.session_id}`);
+    return {
+      session_id: args.session_id,
+      root: record.root,
+      path: record.path,
+      started_revision: record.spec_revision,
+      started_hash: record.content_hash,
+      started_at: record.started_at
+    };
+  }
+
+  if (!args.path) throw new Error("path is required when session_id is not provided");
+  if (!args.started_hash) throw new Error("started_hash is required when session_id is not provided");
+  return {
+    root: resolveRoot(args.root),
+    path: args.path,
+    started_revision: args.started_revision,
+    started_hash: args.started_hash
+  };
+}
+
+function contentHash(markdown: string): string {
+  return `sha256:${createHash("sha256").update(markdown).digest("hex")}`;
 }
 
 export function getSpecGraph(args: { root?: string } = {}): ProductSpecGraph {

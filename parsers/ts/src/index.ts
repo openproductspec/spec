@@ -436,6 +436,14 @@ function validateDocument(document: ProductSpecDocument): {
     }
   }
 
+  const knownItemIds = new Set(
+    document.sections.flatMap((section) => [
+      ...(section.acceptance_criteria ?? []).map((criterion) => criterion.id),
+      ...(section.ai_evals ?? []).map((evalSpec) => evalSpec.id),
+      ...(section.success_metrics ?? []).map((metric) => metric.id)
+    ])
+  );
+
   for (const section of document.sections) {
     if (section.scope) {
       const path = `sections.${section.id}.scope`;
@@ -703,10 +711,43 @@ function validateDocument(document: ProductSpecDocument): {
           path
         });
       }
+      if (artifact.item_id && /^(AC|SM|EVAL)-[1-9]\d*$/.test(artifact.item_id) && !knownItemIds.has(artifact.item_id)) {
+        errors.push({
+          code: "invalid_related_artifact",
+          message: `Invalid related artifact: item_id ${artifact.item_id} does not match any Acceptance Criterion, Success Metric, or AI Eval.`,
+          path
+        });
+      }
+      const expectedPrefix = expectedItemIdPrefixForArtifact(artifact.type);
+      if (artifact.item_id && expectedPrefix && !artifact.item_id.startsWith(`${expectedPrefix}-`)) {
+        warnings.push({
+          code: "unusual_related_artifact_target",
+          message: `Related artifact type ${artifact.type} usually attaches to ${expectedPrefix}-<number>.`,
+          path
+        });
+      }
     }
   }
 
   return { errors, warnings };
+}
+
+function expectedItemIdPrefixForArtifact(type?: string): "AC" | "EVAL" | "SM" | undefined {
+  switch (type) {
+    case "github_pr":
+    case "code":
+    case "release":
+    case "engineering_spec":
+      return "AC";
+    case "eval_run":
+      return "EVAL";
+    case "dashboard":
+    case "analytics_snapshot":
+    case "experiment":
+      return "SM";
+    default:
+      return undefined;
+  }
 }
 
 function validateDecisionTraceValue(value: unknown): ProductSpecValidationError[] {

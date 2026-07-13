@@ -289,6 +289,8 @@ Required fields:
 - `type`
 - `url`, or `product_spec_path` when `type` is `product_spec`
 
+`url` can be an external URL or a repo-relative path to an inspectable artifact, such as `./evidence/eval-run.json` or `./evidence/day-14-dashboard.png`.
+
 Optional fields:
 
 - `title`
@@ -315,7 +317,9 @@ Supported `type` values:
 - `product_spec`
 - `other`
 
-Fix: place the block inside `Related Artifacts`, include every required field, and use `item_id` only for `AC-<number>`, `SM-<number>`, or `EVAL-<number>`.
+Fix: place the block inside `Related Artifacts`, include every required field, and use `item_id` only for an existing `AC-<number>`, `SM-<number>`, or `EVAL-<number>`.
+
+The validator warns when the evidence type usually points at a different item family. For example, `eval_run` usually attaches to `EVAL-<number>`, while `dashboard`, `analytics_snapshot`, and `experiment` usually attach to `SM-<number>`.
 
 ### `missing_required_section`
 

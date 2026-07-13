@@ -1696,6 +1696,96 @@ Keep this around.
     expect(defaultSection?.related_artifacts?.[0].relation).toBe("relates_to");
   });
 
+  it("validates related artifact item_id references and warns on unusual evidence pairings", () => {
+    const markdown = `---
+spec_format_version: "0.1"
+title: "Evidence Links"
+artifact_type: "prd"
+author: "ProductSpec"
+created_at: "2026-07-13T00:00:00Z"
+updated_at: "2026-07-13T00:00:00Z"
+---
+
+## Problem
+
+Researchers lose source context.
+
+## Hypothesis
+
+If copied passages include timestamps, researchers cite sources faster.
+
+## Scope
+
+In: timestamped copy.
+
+## Acceptance Criteria
+
+\`\`\`productspec-acceptance-criteria
+- id: AC-1
+  criterion: User can copy a timestamped passage.
+\`\`\`
+
+\`\`\`productspec-ai-evals
+- id: EVAL-1
+  type: contains
+  cases:
+    - input: "Find product judgment quote"
+      expected: "product judgment"
+  evaluator: deterministic
+  pass_threshold: 1
+\`\`\`
+
+## Success Metrics
+
+\`\`\`productspec-success-metrics
+- id: SM-1
+  metric: timestamped_quote_copy_rate
+  target: ">= 35%"
+  target_status: committed
+  window: first 14 days after launch
+\`\`\`
+
+## Related Artifacts
+
+\`\`\`productspec-related-artifacts
+- type: github_pr
+  url: "https://github.com/acme/app/pull/1"
+  item_id: AC-1
+- type: eval_run
+  url: "./evidence/eval-run.json"
+  item_id: EVAL-1
+- type: dashboard
+  url: "./evidence/day-14-dashboard.png"
+  item_id: SM-1
+- type: eval_run
+  url: "https://evals.example.com/wrong-target"
+  item_id: SM-1
+\`\`\`
+`;
+
+    const result = validateProductSpecMarkdown(markdown);
+
+    expect(result.valid).toBe(true);
+    if (result.valid) {
+      expect(result.warnings).toContainEqual({
+        code: "unusual_related_artifact_target",
+        message: "Related artifact type eval_run usually attaches to EVAL-<number>.",
+        path: "sections.related_artifacts.related_artifacts.3"
+      });
+    }
+
+    const missingTarget = validateProductSpecMarkdown(markdown.replace("item_id: AC-1", "item_id: AC-99"));
+
+    expect(missingTarget.valid).toBe(false);
+    if (!missingTarget.valid) {
+      expect(missingTarget.errors).toContainEqual({
+        code: "invalid_related_artifact",
+        message: "Invalid related artifact: item_id AC-99 does not match any Acceptance Criterion, Success Metric, or AI Eval.",
+        path: "sections.related_artifacts.related_artifacts.0"
+      });
+    }
+  });
+
   it("ignores ## headings inside fenced code blocks", () => {
     const markdown = readFileSync(
       fileURLToPath(

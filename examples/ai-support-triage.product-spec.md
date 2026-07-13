@@ -99,3 +99,23 @@ https://example.com/support-triage-dashboard
   target: ">= 50%"
   window: weekly
 ```
+
+## Related Artifacts
+
+```productspec-related-artifacts
+- type: github_pr
+  url: "https://github.com/productspec/example-support-triage/pull/42"
+  title: "Implement AI support triage labels"
+  section_id: acceptance_criteria
+  item_id: AC-1
+- type: eval_run
+  url: "./evidence/support-triage-eval-run.json"
+  title: "Support triage urgency and redaction eval"
+  section_id: acceptance_criteria
+  item_id: EVAL-1
+- type: analytics_snapshot
+  url: "./evidence/support-triage-weekly-metrics.png"
+  title: "Weekly support triage metric snapshot"
+  section_id: success_metrics
+  item_id: SM-1
+```

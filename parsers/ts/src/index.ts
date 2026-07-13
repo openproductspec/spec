@@ -251,7 +251,8 @@ const LABELS: Record<string, string> = {
   related_artifacts: "Related Artifacts"
 };
 
-export function parseProductSpecMarkdown(markdown: string): ProductSpecDocument {
+export function parseProductSpecMarkdown(input: string): ProductSpecDocument {
+  const markdown = input.replace(/\r\n/g, "\n");
   const frontmatterMatch = /^---\n([\s\S]*?)\n---\n?/.exec(markdown);
   if (!frontmatterMatch) throw new Error("Product Spec frontmatter is required.");
 

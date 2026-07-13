@@ -25,14 +25,15 @@ function collectSpecFiles(dir: string): string[] {
   return found;
 }
 
-const starterProductSpec = `---
+function starterProductSpec(timestamp: string): string {
+  return `---
 spec_format_version: "0.1"
 title: "Untitled Product Spec"
 artifact_type: "prd"
 spec_revision: 1
 author: "ProductSpec"
-created_at: "2026-07-06T00:00:00Z"
-updated_at: "2026-07-06T00:00:00Z"
+created_at: "${timestamp}"
+updated_at: "${timestamp}"
 ---
 
 ## Problem
@@ -67,6 +68,17 @@ Cut from this version: what is tempting but deliberately deferred.
   window: measurement window
 \`\`\`
 `;
+}
+
+function readFileOrExit(path: string): string {
+  try {
+    return readFileSync(path, "utf8");
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    console.error(`error: cannot read ${path}: ${reason}`);
+    process.exit(1);
+  }
+}
 
 if (command === "init" && filePath) {
   if (existsSync(filePath)) {
@@ -74,7 +86,7 @@ if (command === "init" && filePath) {
     process.exit(1);
   }
 
-  writeFileSync(filePath, starterProductSpec, "utf8");
+  writeFileSync(filePath, starterProductSpec(new Date().toISOString()), "utf8");
   console.log(`${filePath}: created`);
   process.exit(0);
 }
@@ -83,7 +95,7 @@ if (command === "mcp") {
   runProductSpecMcpServer();
   process.stdin.resume();
 } else if (command === "validate-trace" && filePath) {
-  const result = validateDecisionTraceJson(readFileSync(filePath, "utf8"));
+  const result = validateDecisionTraceJson(readFileOrExit(filePath));
   if (result.valid) {
     console.log(`${filePath}: valid`);
     process.exit(0);
@@ -155,7 +167,7 @@ if (command === "mcp") {
   console.error("Usage: productspec validate path/to/file.product-spec.md\n       productspec validate-trace path/to/file.decision-trace.json\n       productspec graph path/to/spec-directory [--json]\n       productspec init path/to/file.product-spec.md\n       productspec mcp");
   process.exit(1);
 } else {
-  const result = validateProductSpecMarkdown(readFileSync(filePath, "utf8"));
+  const result = validateProductSpecMarkdown(readFileOrExit(filePath));
 
   for (const warning of result.warnings) {
     console.warn(`warning ${warning.code}: ${warning.message}`);

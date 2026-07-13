@@ -1719,6 +1719,57 @@ Keep this around.
     expect(validateProductSpecMarkdown(markdown).errors).toEqual([]);
   });
 
+  it("parses and validates a spec with CRLF line endings", () => {
+    const markdown = `---
+spec_format_version: "0.1"
+title: "CRLF Spec"
+artifact_type: "prd"
+author: "ProductSpec"
+created_at: "2026-07-05T00:00:00Z"
+updated_at: "2026-07-05T00:00:00Z"
+---
+
+## Problem
+
+Windows-authored specs use carriage returns and must still parse.
+
+## Hypothesis
+
+If CRLF is normalized, cross-platform specs validate identically.
+
+## Scope
+
+In: CRLF normalization before frontmatter parsing.
+
+## Acceptance Criteria
+
+\`\`\`productspec-acceptance-criteria
+- id: AC-1
+  criterion: A CRLF spec produces the same sections as its LF form.
+\`\`\`
+
+## Success Metrics
+
+\`\`\`productspec-success-metrics
+- id: SM-1
+  metric: crlf_specs_parse
+  target: ">= 100%"
+  window: per validation
+\`\`\`
+`;
+    const crlf = markdown.replace(/\n/g, "\r\n");
+
+    const result = validateProductSpecMarkdown(crlf);
+    expect(result.valid).toBe(true);
+    expect(parseProductSpecMarkdown(crlf).sections.map((section) => section.id)).toEqual([
+      "problem",
+      "hypothesis",
+      "scope",
+      "acceptance_criteria",
+      "success_metrics"
+    ]);
+  });
+
 });
 
 function productSpecFiles(directory: string): string[] {

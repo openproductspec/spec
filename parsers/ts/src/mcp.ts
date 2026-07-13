@@ -123,6 +123,8 @@ export function runProductSpecMcpServer() {
 }
 
 export function handleRequest(request: JsonRpcRequest) {
+  // JSON-RPC notifications (requests without an id) must never receive a response.
+  if (request.id === undefined) return null;
   if (!request.method) return errorResponse(request.id ?? null, -32600, "method is required");
 
   try {
@@ -158,7 +160,7 @@ function callTool(request: JsonRpcRequest) {
   const name = params.name;
   if (typeof name !== "string") throw new Error("tools/call requires a string name");
   const tool = tools[name];
-  if (!tool) throw new Error(`Unknown tool: ${name}`);
+  if (!tool) return errorResponse(request.id, -32601, `Unknown tool: ${name}`);
   const args = asRecord(params.arguments);
   return resultResponse(request.id, {
     content: [

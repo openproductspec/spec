@@ -28,4 +28,19 @@ describe("ProductSpec MCP server", () => {
       error: { code: -32601, message: "Unknown method: missing/method" }
     });
   });
+
+  it("does not respond to notifications (requests without an id)", () => {
+    expect(handleRequest({ jsonrpc: "2.0", method: "notifications/cancelled" })).toBeNull();
+    expect(handleRequest({ jsonrpc: "2.0", method: "notifications/initialized" })).toBeNull();
+  });
+
+  it("reports an unknown tool as method-not-found", () => {
+    expect(
+      handleRequest({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "nope", arguments: {} } })
+    ).toEqual({
+      jsonrpc: "2.0",
+      id: 3,
+      error: { code: -32601, message: "Unknown tool: nope" }
+    });
+  });
 });

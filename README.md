@@ -300,6 +300,7 @@ Early ecosystem contributions are welcome: examples, importer/exporter experimen
 - [docs/agent-usage.md](docs/agent-usage.md): how to use ProductSpec as a control file for coding agents.
 - [docs/graph.md](docs/graph.md): resolving a folder of Product Specs into buildable, blocked, and ordered work.
 - [docs/adoption.md](docs/adoption.md): how teams can adopt ProductSpec across Git, Jira, Linear, Figma, CI, engineering specs, and agents.
+- [docs/productspec-to-tickets.md](docs/productspec-to-tickets.md): how to project a Product Spec into Jira or Linear tickets without forking intent.
 - [docs/adoption-levels.md](docs/adoption-levels.md): a step-by-step maturity ladder for adopting ProductSpec.
 - [docs/before-after.md](docs/before-after.md): a loose PRD transformed into ProductSpec.
 - [docs/productspec-vs.md](docs/productspec-vs.md): how ProductSpec differs from PRDs, Jira, Git, Figma, engineering design docs, OpenSpec, Spec Kit, and ADRs.

@@ -1032,6 +1032,69 @@ In: transcript search.
     expect(parseProductSpecMarkdown(serialized)).toEqual(parsed);
   });
 
+  it("preserves unknown frontmatter keys that are not snake_case", () => {
+    const markdown = `---
+spec_format_version: "0.1"
+title: "Unknown Key Shapes"
+artifact_type: "prd"
+author: "ProductSpec"
+created_at: "2026-07-13T00:00:00Z"
+updated_at: "2026-07-13T00:00:00Z"
+code-fold: true
+header-includes:
+  - \\usepackage{fontspec}
+review date: 2026-08-01
+"due-date": 2026-08-01
+期日: 2026-08-01
+---
+
+## Problem
+
+Researchers lose time finding exact quotes in long video transcripts.
+
+## Hypothesis
+
+If transcript search returns timestamped passages, researchers will cite video sources more often.
+
+## Scope
+
+In: transcript search.
+
+## Acceptance Criteria
+
+\`\`\`productspec-acceptance-criteria
+- id: AC-1
+  criterion: User can search one transcript by phrase.
+\`\`\`
+
+## Success Metrics
+
+\`\`\`productspec-success-metrics
+- id: SM-1
+  metric: copied_timestamped_quote_rate
+  target: ">= 35%"
+  window: within 7 days of transcript creation
+\`\`\`
+`;
+
+    const parsed = parseProductSpecMarkdown(markdown);
+    const serialized = serializeProductSpecMarkdown(parsed);
+
+    expect(parsed.parser_metadata?.unknown_frontmatter).toEqual([
+      "code-fold: true",
+      "header-includes:\n  - \\usepackage{fontspec}",
+      "review date: 2026-08-01",
+      '"due-date": 2026-08-01',
+      "期日: 2026-08-01"
+    ]);
+    expect(serialized).toContain("code-fold: true\n");
+    expect(serialized).toContain("header-includes:\n  - \\usepackage{fontspec}\n");
+    expect(serialized).toContain("review date: 2026-08-01\n");
+    expect(serialized).toContain('"due-date": 2026-08-01\n');
+    expect(serialized).toContain("期日: 2026-08-01\n");
+    expect(parseProductSpecMarkdown(serialized)).toEqual(parsed);
+  });
+
   it("treats custom section after metadata as advisory while preserving physical order", () => {
     const markdown = `---
 spec_format_version: "0.1"

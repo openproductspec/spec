@@ -219,7 +219,7 @@ Item-level traceability belongs in the optional `related_artifacts` section with
 Each related artifact requires:
 
 - `type`: one of `github_issue`, `github_pr`, `jira_issue`, `linear_issue`, `figma`, `engineering_spec`, `eval_run`, `dashboard`, `analytics_snapshot`, `experiment`, `release`, `code`, `product_spec`, or `other`.
-- `url`: the linked artifact URL or durable external reference. When `type` is `product_spec`, `product_spec_path` replaces `url`.
+- `url`: a durable URL or repo-relative path to an inspectable artifact. When `type` is `product_spec`, `product_spec_path` replaces `url`.
 
 Optional fields:
 
@@ -249,6 +249,8 @@ Related Artifacts also connect ProductSpec IDs to evidence:
 - `AC-<number>` links to implementation evidence such as pull requests, tests, code links, release notes, or engineering specs.
 - `EVAL-<number>` links to eval evidence such as eval runs, test reports, or human review records.
 - `SM-<number>` links to post-launch outcome evidence such as dashboards, analytics snapshots, experiments, or metric reviews.
+
+Files and images should be stored as durable artifacts and referenced by `url`. For example, a dashboard screenshot can use `type: analytics_snapshot` with `url: ./evidence/day-14-dashboard.png`.
 
 ProductSpec does not collect evidence. It gives evidence a durable item ID to attach to.
 

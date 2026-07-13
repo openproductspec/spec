@@ -335,6 +335,17 @@ Use item IDs to attach evidence:
 - `EVAL-<number>`: eval evidence such as eval runs, test reports, or human review records.
 - `SM-<number>`: post-launch outcome evidence such as dashboards, analytics snapshots, experiments, or metric reviews.
 
+The `url` field can be an external URL or a repo-relative path to an inspectable artifact. Use repo-relative paths for evidence files that should travel with the spec:
+
+```productspec-related-artifacts
+- type: eval_run
+  url: "./evidence/transcript-search-eval-run.json"
+  item_id: EVAL-1
+- type: analytics_snapshot
+  url: "./evidence/day-14-dashboard.png"
+  item_id: SM-1
+```
+
 A related artifact can also point at another Product Spec. Use `type: product_spec` with `product_spec_path`, an optional `product_spec_revision` pin, and an optional `relation` of `depends_on`, `blocks`, `supersedes`, or `relates_to`:
 
 ```productspec-related-artifacts

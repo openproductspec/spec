@@ -4,6 +4,15 @@
 
 No unreleased changes.
 
+## v0.17.0 - Related Artifact Evidence Validation
+
+Changed:
+
+- Related Artifact `url` is documented as either a durable external URL or a repo-relative path to an inspectable artifact such as an eval JSON file or dashboard screenshot.
+- The validator now rejects `item_id` references that do not match an existing `AC-`, `EVAL-`, or `SM-` item in the same Product Spec.
+- The validator now warns when evidence type and `item_id` family look unusual, such as `eval_run` attached to `SM-<number>`.
+- The AI support triage example now includes Related Artifacts for implementation, eval, and analytics evidence.
+
 ## v0.16.0 - Evidence Loop
 
 Added:

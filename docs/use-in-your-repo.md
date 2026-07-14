@@ -67,6 +67,12 @@ Use `skills/productspec/SKILL.md` before planning or implementing work governed 
 
 Agents should cite Acceptance Criteria IDs in implementation plans and pull request summaries.
 
+Skill copies go stale as ProductSpec evolves. Refresh them anytime with:
+
+```bash
+npm exec --yes --package @productspec/parser@latest -- productspec upgrade-skills
+```
+
 For a ready-to-copy agent setup, use:
 
 ```text

@@ -20,6 +20,28 @@ npm exec --package @productspec/parser -- productspec validate-run path/to/file.
 
 The validator returns errors for structurally invalid Product Specs and warnings for weak-but-parseable specs. Decision Trace and Agent Run validation return errors for structurally invalid JSON files.
 
+## Upgrade Commands
+
+Print the installed CLI version:
+
+```bash
+npm exec --package @productspec/parser -- productspec version
+```
+
+Print changelog entries newer than a version (omit the version to print only the latest release):
+
+```bash
+npm exec --package @productspec/parser -- productspec whats-new 0.23.0
+```
+
+Upgrade installed agent skill copies to the packaged release. Without an argument the command detects existing ProductSpec skills in `./skills/`, `./.claude/skills/`, and `~/.claude/skills/`; with a directory argument it installs or refreshes all packaged skills there:
+
+```bash
+npm exec --package @productspec/parser@latest -- productspec upgrade-skills [path/to/skills-dir] [--json] [--dry-run]
+```
+
+Each replaced skill is backed up during the swap and restored if the copy fails. The new version is stamped into the skill's frontmatter as `version`, which is how future runs detect up-to-date copies.
+
 ## Schema Parity
 
 `schema/product-spec.schema.json` mirrors the parser's structural contract where JSON Schema can express it:

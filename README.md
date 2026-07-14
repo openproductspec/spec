@@ -324,7 +324,7 @@ ProductSpec is meant to be implemented by many tools.
 Current repo artifacts:
 
 - `@productspec/parser`: TypeScript parser, validator, and CLI.
-- `skills/productspec` and `skills/productspec-authoring`: loadable agent skills for implementing from a Product Spec and for writing one.
+- `skills/productspec`, `skills/productspec-authoring`, and `skills/productspec-upgrade`: loadable agent skills for implementing from a Product Spec, writing one, and upgrading installed skill copies.
 - JSON Schema for parsed Product Spec documents.
 - Valid and invalid conformance fixtures.
 - `starter-kit/`: copyable repo setup with Product Specs, Agent Runs, Decision Traces, agent instructions, PR template, and CI.
@@ -386,6 +386,7 @@ Early ecosystem contributions are welcome: examples, importer/exporter experimen
 - [schema/review-annotation.schema.json](schema/review-annotation.schema.json): JSON Schema for portable review annotations.
 - [skills/productspec/SKILL.md](skills/productspec/SKILL.md): loadable agent guidance for implementing from Product Specs.
 - [skills/productspec-authoring/SKILL.md](skills/productspec-authoring/SKILL.md): loadable agent guidance for writing, validating, and converting Product Specs.
+- [skills/productspec-upgrade/SKILL.md](skills/productspec-upgrade/SKILL.md): loadable agent guidance for upgrading installed ProductSpec skills and reporting what changed.
 - [conformance/](conformance/): valid and invalid fixtures for implementers.
 - [examples/README.md](examples/README.md): guide to choosing the right example.
 - [examples/](examples/): minimal and expanded examples.

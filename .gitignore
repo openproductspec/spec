@@ -1,5 +1,7 @@
 node_modules/
 dist/
+parsers/ts/skills/
+parsers/ts/CHANGELOG.md
 .vite/
 .DS_Store
 CLAUDE.md

@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { fileURLToPath } from "node:url";
 import { draftAgentRun } from "./mcp-tools.js";
+import { changelogSince, defaultSkillRoots, parseChangelog, upgradeSkills } from "./upgrade.js";
 import {
   resolveProductSpecGraph,
   validateAgentRunJson,
@@ -15,6 +18,16 @@ const args = process.argv.slice(2);
 const positional = args.filter((arg) => !arg.startsWith("--"));
 const [command, filePath, outputPath] = positional;
 const jsonOutput = args.includes("--json");
+const dryRun = args.includes("--dry-run");
+
+function packageVersion(): string {
+  const packageJsonPath = fileURLToPath(new URL("../package.json", import.meta.url));
+  return JSON.parse(readFileSync(packageJsonPath, "utf8")).version as string;
+}
+
+function packagedAssetPath(relative: string): string {
+  return fileURLToPath(new URL(`../${relative}`, import.meta.url));
+}
 
 function mcpClientConfig() {
   return {
@@ -122,6 +135,74 @@ if (command === "init-run" && filePath) {
   }
 }
 
+if (command === "version" || args.includes("--version")) {
+  console.log(packageVersion());
+  process.exit(0);
+}
+
+if (command === "whats-new") {
+  const changelogPath = packagedAssetPath("CHANGELOG.md");
+  if (!existsSync(changelogPath)) {
+    console.error("error: CHANGELOG.md is not bundled in this build; run `npm run build` to package assets");
+    process.exit(1);
+  }
+
+  const entries = parseChangelog(readFileOrExit(changelogPath));
+  if (!entries.length) {
+    console.error("error: no changelog entries found");
+    process.exit(1);
+  }
+
+  const since = filePath;
+  const selected = since ? changelogSince(entries, since) : [entries[0]];
+  if (!selected.length) {
+    console.log(`No changes since v${since}. Current version: v${entries[0].version}.`);
+    process.exit(0);
+  }
+
+  for (const entry of selected) {
+    console.log(`## v${entry.version}${entry.title ? ` - ${entry.title}` : ""}\n`);
+    if (entry.body) console.log(`${entry.body}\n`);
+  }
+  process.exit(0);
+}
+
+if (command === "upgrade-skills") {
+  const packagedSkillsDir = packagedAssetPath("skills");
+  if (!existsSync(packagedSkillsDir)) {
+    console.error("error: skills are not bundled in this build; run `npm run build` to package assets");
+    process.exit(1);
+  }
+
+  const roots = filePath
+    ? [{ path: filePath, installMissing: true }]
+    : defaultSkillRoots(process.cwd(), homedir()).map((path) => ({ path, installMissing: false }));
+
+  if (!roots.length) {
+    console.error("error: no skill directories found (looked in ./skills, ./.claude/skills, ~/.claude/skills); pass a target directory to install into");
+    process.exit(1);
+  }
+
+  try {
+    const results = upgradeSkills({ packagedSkillsDir, version: packageVersion(), roots, dryRun });
+    if (jsonOutput) {
+      console.log(JSON.stringify({ version: packageVersion(), results }, null, 2));
+    } else if (!results.length) {
+      console.log("No installed ProductSpec skills found in the detected directories.");
+    } else {
+      for (const result of results) {
+        const from = result.from ?? "unversioned";
+        const suffix = result.dry_run ? " (dry run)" : "";
+        console.log(`${result.path}: ${from} -> ${result.to} (${result.action})${suffix}`);
+      }
+    }
+    process.exit(0);
+  } catch (error) {
+    console.error(`error: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(1);
+  }
+}
+
 if (command === "mcp") {
   runProductSpecMcpServer();
   process.stdin.resume();
@@ -214,7 +295,7 @@ if (command === "mcp") {
   }
   process.exit(0);
 } else if (command !== "validate" || !filePath) {
-  console.error("Usage: productspec validate path/to/file.product-spec.md\n       productspec validate-trace path/to/file.decision-trace.json\n       productspec validate-run path/to/file.agent-run.json\n       productspec graph path/to/spec-directory [--json]\n       productspec init path/to/file.product-spec.md\n       productspec init-run path/to/file.product-spec.md [path/to/file.agent-run.json]\n       productspec mcp\n       productspec mcp-config claude|cursor");
+  console.error("Usage: productspec validate path/to/file.product-spec.md\n       productspec validate-trace path/to/file.decision-trace.json\n       productspec validate-run path/to/file.agent-run.json\n       productspec graph path/to/spec-directory [--json]\n       productspec init path/to/file.product-spec.md\n       productspec init-run path/to/file.product-spec.md [path/to/file.agent-run.json]\n       productspec mcp\n       productspec mcp-config claude|cursor\n       productspec upgrade-skills [path/to/skills-dir] [--json] [--dry-run]\n       productspec whats-new [since-version]\n       productspec version");
   process.exit(1);
 } else {
   const result = validateProductSpecMarkdown(readFileOrExit(filePath));

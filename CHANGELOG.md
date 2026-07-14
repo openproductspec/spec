@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+Added:
+
+- `productspec upgrade-skills [dir] [--json] [--dry-run]` upgrades installed agent skill copies (repo `skills/`, `.claude/skills/`, `~/.claude/skills/`) to the packaged release, with backup-and-restore around each swap and a `version` frontmatter stamp for future comparisons.
+- `productspec whats-new [since-version]` prints changelog entries newer than a version, or the latest release entry when no version is given.
+- `productspec version` prints the installed CLI version.
+- `skills/productspec-upgrade`: agent skill that runs the upgrade and summarizes the new capabilities for the user in the console.
+- The npm package now bundles `skills/` (version-stamped at build time) and `CHANGELOG.md` so upgrades and what's-new work offline from the installed package.
+
 ## v0.24.0 - MCP Install And Showcase Examples
 
 Added:

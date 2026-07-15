@@ -2211,6 +2211,7 @@ Keep this around.
 
       expect(stdoutHandoff.status).toBe(0);
       expect(stdoutHandoff.stdout).toContain("# Agent Handoff: Checkout Failure Notifications");
+      expect(stdoutHandoff.stdout).toContain("## Evidence The Agent Must Produce");
       expect(stdoutHandoff.stdout).toContain("## Evidence To Return");
 
       const fileHandoff = spawnSync("node", [

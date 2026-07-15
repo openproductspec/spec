@@ -344,13 +344,13 @@ export function generateAgentHandoff(args: ProductSpecMcpArgs): AgentHandoff {
     lines.push("- No Acceptance Criteria found.");
   }
 
-  lines.push("", "## Suggested Verification", "");
+  lines.push("", "## Evidence The Agent Must Produce", "");
   if (acceptanceCriteria.length) {
     for (const criterion of acceptanceCriteria) {
       lines.push(`- Verification for ${criterion.id}: prove that "${criterion.criterion}" is true in the built product.`);
     }
   } else {
-    lines.push("- Add verification for each Acceptance Criterion.");
+    lines.push("- Return proof for each Acceptance Criterion before claiming the work is done.");
   }
 
   if (aiEvals.length) {

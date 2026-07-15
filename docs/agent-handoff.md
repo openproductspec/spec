@@ -34,7 +34,7 @@ A generated handoff should usually include:
 - Product Summary: what should exist when the work is done.
 - Scope Guardrails: `scope.in`, `scope.out`, and `scope.cut`.
 - Must Satisfy: every `AC-<number>` item.
-- Suggested Verification: how to prove each acceptance criterion passed.
+- Evidence The Agent Must Produce: generated proof prompts for each acceptance criterion.
 - AI Evals: every `EVAL-<number>` gate.
 - Evidence To Return: pull request URL, verification result for each acceptance criterion, eval run result for each AI eval, screenshots or demo link if UI changed, and Decision Trace when implementation changes intent.
 

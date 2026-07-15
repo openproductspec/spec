@@ -29,7 +29,7 @@ A video transcript search product lets a researcher submit one video URL, genera
 - AC-3: When the researcher searches for a keyword that appears in the transcript, the page returns matching passages with timestamps.
 - AC-4: When the researcher searches for a keyword that does not appear in the transcript, the page shows an empty state instead of an error.
 
-## Suggested Verification
+## Evidence The Agent Must Produce
 
 - Verification for AC-1: prove that "When a researcher submits a supported public video URL, the system creates one transcript job and shows a pending status." is true in the built product.
 - Verification for AC-2: prove that "When transcript generation completes, the transcript page shows searchable transcript text." is true in the built product.

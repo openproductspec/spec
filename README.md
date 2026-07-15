@@ -152,6 +152,26 @@ npm exec --package @productspec/parser -- productspec validate-run examples/harn
 npm exec --package @productspec/parser -- productspec validate-trace examples/harness-demo/checkout-notifications.decision-trace.json
 ```
 
+## Try This With Your Coding Agent
+
+1. Pick a real feature you would otherwise describe in a PRD, ticket, or chat thread.
+2. Write a Product Spec for it, or start from `examples/product-harness/video-transcript.product-spec.md`.
+3. Validate it:
+
+```bash
+npm exec --package @productspec/parser -- productspec validate path/to/your.product-spec.md
+```
+
+4. Generate the Agent Handoff:
+
+```bash
+npm exec --package @productspec/parser -- productspec handoff path/to/your.product-spec.md
+```
+
+5. Paste the handoff into Claude, Codex, Cursor, or another coding agent.
+6. Require evidence for every `AC-<number>` and `EVAL-<number>` before the agent claims completion.
+7. If implementation pressure changes product intent, update the Product Spec or record a Decision Trace.
+
 Create a starter Product Spec:
 
 ```bash
@@ -362,6 +382,8 @@ Traceability uses two shapes:
 - `## Related Artifacts` with a structured `productspec-related-artifacts` block for item-level links from `AC-<number>`, `SM-<number>`, or `EVAL-<number>` to issues, pull requests, eval runs, dashboards, designs, releases, or engineering specs.
 
 Early ecosystem contributions are welcome: examples, importer/exporter experiments, editor integrations, CI validation actions, review tools, and mappings into engineering-spec systems.
+
+Want a small first contribution? Start with pinned issue [#7: add an internal admin tool ProductSpec example](https://github.com/gokulrajaram/ProductSpec/issues/7).
 
 ## What Is Included
 

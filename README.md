@@ -94,6 +94,8 @@ See `examples/revisions/` for a Product Spec that evolves from revision 1 to rev
 
 ## Quick Start
 
+![ProductSpec Product Harness loop](docs/assets/product-harness-loop.gif)
+
 If you want to use ProductSpec as a Product Harness for coding agents, start here:
 
 - [Get started with agents](docs/get-started-with-agents.md): install the skills, convert a PRD, validate in CI, implement from a Product Spec, and record drift.

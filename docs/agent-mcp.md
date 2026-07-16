@@ -51,7 +51,7 @@ See [`docs/mcp-install.md`](mcp-install.md) for Claude Desktop and Cursor instal
 - `get_ai_evals`: returns AI Evals.
 - `get_success_metrics`: returns Success Metrics.
 - `get_related_artifacts`: returns Related Artifacts.
-- `get_spec_graph`: resolves `product_spec` links across all specs under a root into buildable, blocked, and ordered work.
+- `get_spec_graph`: resolves `product_spec` links across all specs under a root into buildable, blocked, and ordered work. It also returns `contention` (the surfaces more than one live spec touches), `waves` (the sets of specs that are safe to run at the same time), and `unscoped` (live specs that declare no `applies_to`, so their surface is unknown). An agent that reads the graph before it starts can tell whether another agent is already on its surface, which a spec session cannot: a session pins one spec against drift, and contention is about two specs colliding.
 - `get_evidence_checklist`: returns the implementation, eval, and post-launch evidence expected for a Product Spec.
 - `get_agent_handoff`: returns a generated Agent Handoff Markdown build contract for a Product Spec.
 - `draft_agent_run`: drafts an Agent Run receipt with every `AC-`, `EVAL-`, and `SM-` item marked `not_checked`.

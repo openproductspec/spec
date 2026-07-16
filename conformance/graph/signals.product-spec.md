@@ -6,6 +6,9 @@ spec_revision: 1
 author: "ProductSpec"
 created_at: "2026-07-11T00:00:00Z"
 updated_at: "2026-07-11T00:00:00Z"
+applies_to:
+  - path: "apps/api/src/conversations/signals/"
+  - component: "signals"
 ---
 
 ## Problem

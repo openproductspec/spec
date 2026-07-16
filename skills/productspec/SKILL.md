@@ -48,6 +48,7 @@ When creating an implementation plan:
 - Use `applies_to` and `Related Artifacts` to find relevant code, issues, pull requests, designs, evals, and dashboards.
 - Resolve `product_spec` related artifacts before planning. A spec whose `depends_on` target is not built yet is blocked, not buildable, and the plan should say what it waits for.
 - For a folder of specs, run `productspec graph <dir> --json` (or the `get_spec_graph` MCP tool) to get the buildable set, the blocked set with what each spec waits for, and a dependency-respecting build order in one call, instead of re-reading every spec to derive it.
+- If another agent may be working the same folder, read `contention` and `waves` from that same call. Two specs that touch one surface must not be built at the same time, even when both are buildable. Take work from the current wave, and treat a spec listed in `unscoped` as unknown scope rather than safe scope.
 - Treat `RESOLVE-IN-PLAN:` markers as unresolved technical bindings. Resolve each marker against the codebase with a source citation before coding.
 - Do not implement guessed table names, fields, endpoints, services, or file paths as if they were binding instructions.
 

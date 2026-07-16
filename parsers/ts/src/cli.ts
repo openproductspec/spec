@@ -239,6 +239,21 @@ if (command === "mcp") {
   if (graph.order.length > 1) {
     console.log(`order: ${graph.order.join(" -> ")}`);
   }
+  if (graph.waves.length > 1) {
+    console.log("waves (safe to run at the same time):");
+    graph.waves.forEach((wave, index) => {
+      console.log(`  ${index + 1}. ${wave.join(", ")}`);
+    });
+  }
+  if (graph.contention.length) {
+    console.log("contention (never hand these to two agents at once):");
+    for (const surface of graph.contention) {
+      console.log(`  ${surface.kind} "${surface.value}": ${surface.specs.join(", ")}`);
+    }
+  }
+  if (graph.unscoped.length) {
+    console.log(`unscoped (no applies_to, surface unknown): ${graph.unscoped.join(", ")}`);
+  }
   for (const warning of graph.warnings) {
     console.warn(`warning ${warning.code}: ${warning.message}`);
   }

@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+Added:
+
+- `graph` resolves `contention`, `waves`, and `unscoped` so a fleet can dispatch agents in parallel without two of them landing on one surface.
+- `graph` warns with `supersedes_cycle` when specs supersede each other in a loop, and keeps all of them, since none can be the replacement.
+- `graph` warns with `unschedulable_dependency` and names the dependency, when a spec waits on work that cannot be built and therefore lands in no wave.
+- `graph` treats an `applies_to` path of `.` or `/` as a claim on the whole repository, so a spec scoped to the repo contends with every spec scoped inside it.
+
 ## v0.26.0 - Product Harness And Agent Handoff
 
 Added:

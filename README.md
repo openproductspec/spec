@@ -194,6 +194,8 @@ Resolve a folder of specs into a build graph:
 npm exec --package @productspec/parser -- productspec graph conformance/graph
 ```
 
+The graph answers the fleet question too: which specs are safe to hand to different agents at the same time. It reports `contention` (the surfaces more than one live spec touches, read from `applies_to`) and `waves` (sets of specs that share no surface and whose dependencies are already met), so two agents never land in the same files and find out at merge.
+
 ## Status Badges
 
 ProductSpec badges should report facts, not subjective quality scores.
@@ -406,7 +408,7 @@ Want a small first contribution? Start with pinned issue [#43: add a real Produc
 - [docs/agent-usage.md](docs/agent-usage.md): how to use ProductSpec as an intent harness for coding agents.
 - [docs/agent-handoff.md](docs/agent-handoff.md): how to generate an implementation brief from a Product Spec without duplicating canonical intent.
 - [docs/agent-run.md](docs/agent-run.md): how to record one agent execution against a pinned Product Spec.
-- [docs/graph.md](docs/graph.md): resolving a folder of Product Specs into buildable, blocked, and ordered work.
+- [docs/graph.md](docs/graph.md): resolving a folder of Product Specs into buildable, blocked, and ordered work, plus the contention and waves a fleet of agents needs to run in parallel safely.
 - [docs/adoption.md](docs/adoption.md): how teams can adopt ProductSpec across Git, Jira, Linear, Figma, CI, engineering specs, and agents.
 - [docs/productspec-to-tickets.md](docs/productspec-to-tickets.md): how to project a Product Spec into Jira or Linear tickets without forking intent.
 - [docs/adoption-levels.md](docs/adoption-levels.md): a step-by-step maturity ladder for adopting ProductSpec.

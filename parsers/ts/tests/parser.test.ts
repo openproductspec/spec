@@ -2715,7 +2715,8 @@ describe("resolveProductSpecGraph", () => {
   function graphInput(
     path: string,
     links: Array<{ to: string; relation?: "depends_on" | "blocks" | "supersedes" | "relates_to"; revision?: number }> = [],
-    revision?: number
+    revision?: number,
+    appliesTo?: Array<{ path?: string; component?: string }>
   ): ProductSpecGraphInput {
     return {
       path,
@@ -2727,7 +2728,8 @@ describe("resolveProductSpecGraph", () => {
           ...(revision !== undefined ? { spec_revision: revision } : {}),
           author: "ProductSpec",
           created_at: "2026-07-11T00:00:00Z",
-          updated_at: "2026-07-11T00:00:00Z"
+          updated_at: "2026-07-11T00:00:00Z",
+          ...(appliesTo ? { applies_to: appliesTo } : {})
         },
         sections: [
           {
@@ -2946,6 +2948,539 @@ describe("resolveProductSpecGraph", () => {
     ]);
   });
 
+  it("groups a contended surface into one entry naming every claimant", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("handoff.product-spec.md", [], undefined, [{ component: "conversation" }]),
+      graphInput("signals.product-spec.md", [], undefined, [{ component: "conversation" }]),
+      graphInput("summaries.product-spec.md", [], undefined, [{ component: "conversation" }]),
+      graphInput("voice.product-spec.md", [], undefined, [{ component: "conversation" }])
+    ]);
+
+    // Contention is a fact, reported once per surface. It is never a warning: two
+    // specs sharing a surface is often deliberate, and scolding a library that
+    // uses applies_to for traceability would be noise.
+    expect(graph.warnings).toEqual([]);
+    expect(graph.contention).toEqual([
+      {
+        kind: "component",
+        value: "conversation",
+        specs: [
+          "handoff.product-spec.md",
+          "signals.product-spec.md",
+          "summaries.product-spec.md",
+          "voice.product-spec.md"
+        ]
+      }
+    ]);
+  });
+
+  it("reports the surface a nested path collides on and leaves similar siblings alone", () => {
+    const nested = resolveProductSpecGraph([
+      graphInput("a.product-spec.md", [], undefined, [{ path: "src/auth" }]),
+      graphInput("b.product-spec.md", [], undefined, [{ path: "src/auth/tokens" }])
+    ]);
+    // The surface is the inner path, because that is where the two specs meet. The
+    // spec scoped to `src/auth` edits inside `src/auth/tokens` as well.
+    expect(nested.contention).toEqual([
+      { kind: "path", value: "src/auth/tokens", specs: ["a.product-spec.md", "b.product-spec.md"] }
+    ]);
+    expect(nested.warnings).toEqual([]);
+
+    const siblings = resolveProductSpecGraph([
+      graphInput("a.product-spec.md", [], undefined, [{ path: "src/auth" }]),
+      graphInput("b.product-spec.md", [], undefined, [{ path: "src/authorize" }])
+    ]);
+    expect(siblings.contention).toEqual([]);
+  });
+
+  it("builds sibling directories under one parent side by side", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("parent.product-spec.md", [], undefined, [{ path: "src/api" }]),
+      graphInput("v2.product-spec.md", [], undefined, [{ path: "src/api/v2" }]),
+      graphInput("v3.product-spec.md", [], undefined, [{ path: "src/api/v3" }])
+    ]);
+
+    // v2 and v3 both sit under the parent, so neither may ship beside it. Neither
+    // one sits inside the other, so they ship together. Sharing a parent is not the
+    // same as colliding.
+    expect(graph.waves).toEqual([
+      ["parent.product-spec.md"],
+      ["v2.product-spec.md", "v3.product-spec.md"]
+    ]);
+    expect(graph.contention.map((entry) => entry.value)).toEqual(["src/api/v2", "src/api/v3"]);
+  });
+
+  it("excludes superseded specs from contention", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("new.product-spec.md", [{ to: "old.product-spec.md", relation: "supersedes" }], undefined, [
+        { component: "conversation" }
+      ]),
+      graphInput("old.product-spec.md", [], undefined, [{ component: "conversation" }])
+    ]);
+
+    expect(graph.contention).toEqual([]);
+    expect(graph.warnings).toEqual([]);
+  });
+
+  it("never compares components against paths and reports one entry per contended surface", () => {
+    const crossKind = resolveProductSpecGraph([
+      graphInput("a.product-spec.md", [], undefined, [{ component: "src" }]),
+      graphInput("b.product-spec.md", [], undefined, [{ path: "src" }])
+    ]);
+    expect(crossKind.contention).toEqual([]);
+
+    const twoSurfaces = resolveProductSpecGraph([
+      graphInput("a.product-spec.md", [], undefined, [{ component: "conversation" }, { path: "src/auth" }]),
+      graphInput("b.product-spec.md", [], undefined, [{ component: "conversation" }, { path: "src/auth" }])
+    ]);
+    expect(twoSurfaces.contention.map((surface) => surface.kind)).toEqual(["component", "path"]);
+    expect(twoSurfaces.warnings).toEqual([]);
+  });
+
+  it("splits contending specs into separate waves even when both are buildable", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("a.product-spec.md", [], undefined, [{ component: "conversation" }]),
+      graphInput("b.product-spec.md", [], undefined, [{ component: "conversation" }]),
+      graphInput("free.product-spec.md", [], undefined, [{ component: "billing" }])
+    ]);
+
+    expect(graph.buildable).toHaveLength(3);
+    expect(graph.waves).toEqual([
+      ["a.product-spec.md", "free.product-spec.md"],
+      ["b.product-spec.md"]
+    ]);
+    expect(graph.contention).toEqual([
+      { kind: "component", value: "conversation", specs: ["a.product-spec.md", "b.product-spec.md"] }
+    ]);
+  });
+
+  it("gives every claimant of one surface its own wave", () => {
+    const graph = resolveProductSpecGraph(
+      ["a", "b", "c", "d"].map((name) =>
+        graphInput(`${name}.product-spec.md`, [], undefined, [{ component: "conversation" }])
+      )
+    );
+
+    expect(graph.waves).toHaveLength(4);
+    expect(graph.waves.every((wave) => wave.length === 1)).toBe(true);
+  });
+
+  it("keeps a dependency in an earlier wave than its dependent", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("child.product-spec.md", [{ to: "parent.product-spec.md", relation: "depends_on" }], undefined, [
+        { component: "billing" }
+      ]),
+      graphInput("parent.product-spec.md", [], undefined, [{ component: "core" }])
+    ]);
+
+    const waveOf = (path: string) => graph.waves.findIndex((wave) => wave.includes(path));
+    expect(waveOf("parent.product-spec.md")).toBeLessThan(waveOf("child.product-spec.md"));
+  });
+
+  it("serializes a nested path family under its outermost path", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("root.product-spec.md", [], undefined, [{ path: "src/api" }]),
+      graphInput("mid.product-spec.md", [], undefined, [{ path: "src/api/conversations" }]),
+      graphInput("leaf.product-spec.md", [], undefined, [{ path: "src/api/conversations/signals" }]),
+      graphInput("other.product-spec.md", [], undefined, [{ path: "src/web" }])
+    ]);
+
+    // One entry per surface where specs actually meet. `src/api` itself is only
+    // claimed by root, so it is not contended; the two paths inside it are.
+    expect(graph.contention).toEqual([
+      {
+        kind: "path",
+        value: "src/api/conversations",
+        specs: ["mid.product-spec.md", "root.product-spec.md"]
+      },
+      {
+        kind: "path",
+        value: "src/api/conversations/signals",
+        specs: ["leaf.product-spec.md", "mid.product-spec.md", "root.product-spec.md"]
+      }
+    ]);
+    // A true chain still serializes, and the unrelated spec rides along in wave 1.
+    expect(graph.waves).toHaveLength(3);
+    for (const wave of graph.waves) {
+      expect(wave.filter((path) => path !== "other.product-spec.md")).toHaveLength(1);
+    }
+    expect(graph.waves[0]).toContain("other.product-spec.md");
+  });
+
+  it("never merges a component and a path that share a name", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("a.product-spec.md", [], undefined, [{ component: "conversations" }]),
+      graphInput("b.product-spec.md", [], undefined, [{ path: "conversations" }])
+    ]);
+
+    expect(graph.contention).toEqual([]);
+    expect(graph.warnings).toEqual([]);
+    expect(graph.waves).toEqual([["a.product-spec.md", "b.product-spec.md"]]);
+  });
+
+  it("reports specs that declare no surface instead of calling them safe", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("scoped.product-spec.md", [], undefined, [{ component: "conversation" }]),
+      graphInput("silent.product-spec.md")
+    ]);
+
+    expect(graph.unscoped).toEqual(["silent.product-spec.md"]);
+    expect(graph.contention).toEqual([]);
+    expect(graph.waves).toEqual([["scoped.product-spec.md", "silent.product-spec.md"]]);
+  });
+
+  it("does not let a superseded spec contend for a surface or hold up a wave", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("new.product-spec.md", [{ to: "old.product-spec.md", relation: "supersedes" }], undefined, [
+        { component: "conversation" }
+      ]),
+      graphInput("old.product-spec.md", [], undefined, [{ component: "conversation" }]),
+      graphInput("peer.product-spec.md", [], undefined, [{ component: "conversation" }])
+    ]);
+
+    expect(graph.contention).toEqual([
+      { kind: "component", value: "conversation", specs: ["new.product-spec.md", "peer.product-spec.md"] }
+    ]);
+    expect(graph.waves.some((wave) => wave.includes("new.product-spec.md") && wave.includes("peer.product-spec.md"))).toBe(
+      false
+    );
+  });
+
+  it("keeps a superseded spec out of the waves even when a live spec claims its surface", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput(
+        "newer.product-spec.md",
+        [
+          { to: "older.product-spec.md", relation: "supersedes" },
+          { to: "blocker.product-spec.md", relation: "depends_on" }
+        ],
+        undefined,
+        [{ component: "conversation" }]
+      ),
+      graphInput("older.product-spec.md", [], undefined, [{ component: "conversation" }]),
+      graphInput("peer.product-spec.md", [], undefined, [{ component: "conversation" }]),
+      graphInput("blocker.product-spec.md", [], undefined, [{ component: "billing" }])
+    ]);
+
+    // `newer` waits on `blocker`, so it lands in a later wave than `peer`. The spec
+    // it replaces stays out of every wave regardless, since replaced work is not
+    // work a fleet should pick up.
+    expect(graph.order).toContain("older.product-spec.md");
+    expect(graph.waves.flat()).not.toContain("older.product-spec.md");
+    for (const wave of graph.waves) {
+      for (const surface of graph.contention) {
+        expect(wave.filter((path) => surface.specs.includes(path)).length).toBeLessThan(2);
+      }
+    }
+  });
+
+  it("keeps specs that supersede each other in a loop, and says so", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("a.product-spec.md", [{ to: "b.product-spec.md", relation: "supersedes" }], undefined, [
+        { component: "conversation" }
+      ]),
+      graphInput("b.product-spec.md", [{ to: "a.product-spec.md", relation: "supersedes" }], undefined, [
+        { component: "conversation" }
+      ]),
+      graphInput("peer.product-spec.md", [], undefined, [{ component: "conversation" }])
+    ]);
+
+    // Neither can be the replacement, so dropping both would lose them silently.
+    expect(graph.warnings.map((warning) => warning.code)).toContain("supersedes_cycle");
+    expect(graph.waves.flat().sort()).toEqual([
+      "a.product-spec.md",
+      "b.product-spec.md",
+      "peer.product-spec.md"
+    ]);
+    expect(graph.contention[0].specs).toEqual([
+      "a.product-spec.md",
+      "b.product-spec.md",
+      "peer.product-spec.md"
+    ]);
+    expect(graph.waves).toHaveLength(3);
+  });
+
+  it("leaves a spec blocked on a missing dependency out of the waves", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("needy.product-spec.md", [{ to: "ghost.product-spec.md", relation: "depends_on" }], undefined, [
+        { component: "conversation" }
+      ]),
+      graphInput("ok.product-spec.md", [], undefined, [{ component: "billing" }])
+    ]);
+
+    expect(graph.warnings.map((warning) => warning.code)).toContain("missing_link_target");
+    expect(graph.blocked.map((node) => node.path)).toEqual(["needy.product-spec.md"]);
+    expect(graph.order).not.toContain("needy.product-spec.md");
+    expect(graph.waves.flat()).toEqual(["ok.product-spec.md"]);
+  });
+
+  it("leaves specs trapped in a dependency cycle out of the waves", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("a.product-spec.md", [{ to: "b.product-spec.md", relation: "depends_on" }]),
+      graphInput("b.product-spec.md", [{ to: "a.product-spec.md", relation: "depends_on" }]),
+      graphInput("free.product-spec.md")
+    ]);
+
+    expect(graph.warnings.map((warning) => warning.code)).toContain("dependency_cycle");
+    expect(graph.waves.flat()).toEqual(["free.product-spec.md"]);
+  });
+
+  it("keeps a spec out of the waves when the spec it waits on was superseded", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("waiter.product-spec.md", [{ to: "old.product-spec.md", relation: "depends_on" }], undefined, [
+        { component: "billing" }
+      ]),
+      graphInput("old.product-spec.md", [], undefined, [{ component: "conversation" }]),
+      graphInput("new.product-spec.md", [{ to: "old.product-spec.md", relation: "supersedes" }], undefined, [
+        { component: "conversation" }
+      ])
+    ]);
+
+    // `old` is replaced work and never gets a wave, so `waiter` cannot be built.
+    // `blocked` already says so, and the waves must not contradict it.
+    expect(graph.blocked.map((node) => node.path)).toContain("waiter.product-spec.md");
+    expect(graph.waves.flat()).not.toContain("waiter.product-spec.md");
+    expect(graph.waves).toEqual([["new.product-spec.md"]]);
+  });
+
+  it("takes both surfaces when one applies_to entry carries a component and a path", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("both.product-spec.md", [], undefined, [{ component: "auth", path: "src/auth" }]),
+      graphInput("bycomponent.product-spec.md", [], undefined, [{ component: "auth" }]),
+      graphInput("bypath.product-spec.md", [], undefined, [{ path: "src/auth" }])
+    ]);
+
+    // Neither claim may be dropped, so `both` contends with each of the others.
+    expect(graph.contention).toEqual([
+      { kind: "component", value: "auth", specs: ["both.product-spec.md", "bycomponent.product-spec.md"] },
+      { kind: "path", value: "src/auth", specs: ["both.product-spec.md", "bypath.product-spec.md"] }
+    ]);
+    const waveOf = (path: string) => graph.waves.findIndex((wave) => wave.includes(path));
+    expect(waveOf("both.product-spec.md")).not.toBe(waveOf("bycomponent.product-spec.md"));
+    expect(waveOf("both.product-spec.md")).not.toBe(waveOf("bypath.product-spec.md"));
+  });
+
+  it("normalizes applies_to paths the way it normalizes spec links", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("a.product-spec.md", [], undefined, [{ path: "apps/web/src/checkout/" }]),
+      graphInput("b.product-spec.md", [], undefined, [{ path: "./apps/web/src/checkout" }]),
+      graphInput("c.product-spec.md", [], undefined, [{ path: "apps\\web\\src\\checkout" }])
+    ]);
+
+    // A trailing slash, a leading ./, and Windows separators all name one surface.
+    expect(graph.contention).toEqual([
+      {
+        kind: "path",
+        value: "apps/web/src/checkout",
+        specs: ["a.product-spec.md", "b.product-spec.md", "c.product-spec.md"]
+      }
+    ]);
+    expect(graph.waves).toHaveLength(3);
+  });
+
+  it("does not over serialize specs that contend through a third spec", () => {
+    // a contends with b on one surface and with c on another. b and c never touch
+    // each other, so they must still share a wave.
+    const graph = resolveProductSpecGraph([
+      graphInput("a.product-spec.md", [], undefined, [{ component: "shared" }, { path: "src/api" }]),
+      graphInput("b.product-spec.md", [], undefined, [{ component: "shared" }]),
+      graphInput("c.product-spec.md", [], undefined, [{ path: "src/api" }])
+    ]);
+
+    const waveOf = (path: string) => graph.waves.findIndex((wave) => wave.includes(path));
+    expect(waveOf("a.product-spec.md")).not.toBe(waveOf("b.product-spec.md"));
+    expect(waveOf("a.product-spec.md")).not.toBe(waveOf("c.product-spec.md"));
+    expect(waveOf("b.product-spec.md")).toBe(waveOf("c.product-spec.md"));
+  });
+
+  it("never puts two specs that touch one surface in the same wave, over 2000 random graphs", () => {
+    // The whole guarantee, as a property. Seeded, so a failure is reproducible.
+    let seed = 1337;
+    const random = () => {
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      return seed / 0x7fffffff;
+    };
+
+    for (let graphIndex = 0; graphIndex < 2000; graphIndex += 1) {
+      const size = 3 + Math.floor(random() * 7);
+      const inputs = [];
+      for (let index = 0; index < size; index += 1) {
+        const links: Array<{ to: string; relation?: "depends_on" | "blocks" | "supersedes" }> = [];
+        if (index > 0 && random() < 0.4) {
+          links.push({ to: `s${Math.floor(random() * index)}.product-spec.md`, relation: "depends_on" });
+        }
+        if (index > 0 && random() < 0.25) {
+          links.push({ to: `s${Math.floor(random() * index)}.product-spec.md`, relation: "supersedes" });
+        }
+        if (index > 0 && random() < 0.15) {
+          links.push({ to: `s${Math.floor(random() * index)}.product-spec.md`, relation: "blocks" });
+        }
+        const surfaces =
+          random() < 0.5
+            ? [{ component: `c${Math.floor(random() * 3)}` }]
+            : [{ path: `src/m${Math.floor(random() * 3)}` }];
+        inputs.push(graphInput(`s${index}.product-spec.md`, links, undefined, surfaces));
+      }
+
+      const graph = resolveProductSpecGraph(inputs);
+
+      for (const wave of graph.waves) {
+        for (const surface of graph.contention) {
+          const clash = wave.filter((path) => surface.specs.includes(path));
+          expect(clash.length, `graph ${graphIndex}: ${clash.join(", ")} share ${surface.value}`).toBeLessThan(2);
+        }
+      }
+
+      const waveOf = new Map<string, number>();
+      graph.waves.forEach((wave, index) => wave.forEach((path) => waveOf.set(path, index)));
+      for (const [path, wave] of waveOf) {
+        for (const dependency of graph.blocked.find((node) => node.path === path)?.waits_on ?? []) {
+          const dependencyWave = waveOf.get(dependency);
+          if (dependencyWave !== undefined) {
+            expect(dependencyWave, `graph ${graphIndex}: ${path} not after ${dependency}`).toBeLessThan(wave);
+          }
+        }
+      }
+    }
+  });
+
+  it("names the dependency that stranded a spec rather than dropping it from the waves", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("waiter.product-spec.md", [{ to: "old.product-spec.md", relation: "depends_on" }], undefined, [
+        { component: "billing" }
+      ]),
+      graphInput("old.product-spec.md", [], undefined, [{ component: "conversation" }]),
+      graphInput("new.product-spec.md", [{ to: "old.product-spec.md", relation: "supersedes" }], undefined, [
+        { component: "conversation" }
+      ])
+    ]);
+
+    expect(graph.waves.flat()).not.toContain("waiter.product-spec.md");
+    const stranded = graph.warnings.find((warning) => warning.code === "unschedulable_dependency");
+    expect(stranded?.path).toBe("waiter.product-spec.md");
+    expect(stranded?.message).toContain("old.product-spec.md");
+  });
+
+  it("contends a whole-repository applies_to against every scoped spec", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("platform.product-spec.md", [], undefined, [{ path: "." }]),
+      graphInput("api.product-spec.md", [], undefined, [{ path: "apps/api/src/contacts" }]),
+      graphInput("web.product-spec.md", [], undefined, [{ path: "apps/web" }])
+    ]);
+
+    // The repo-wide spec edits inside both scoped surfaces, so it is named on both.
+    expect(graph.contention).toEqual([
+      {
+        kind: "path",
+        value: "apps/api/src/contacts",
+        specs: ["api.product-spec.md", "platform.product-spec.md"]
+      },
+      {
+        kind: "path",
+        value: "apps/web",
+        specs: ["platform.product-spec.md", "web.product-spec.md"]
+      }
+    ]);
+
+    // A spec that owns the repository owns every file the others will edit, so it
+    // ships alone. The two scoped specs do not overlap each other and ship together.
+    expect(graph.waves).toEqual([
+      ["platform.product-spec.md"],
+      ["api.product-spec.md", "web.product-spec.md"]
+    ]);
+  });
+
+  it("holds a repository-wide spec apart while the rest of the library still runs together", () => {
+    const specs = Array.from({ length: 50 }, (_, index) =>
+      graphInput(`pkg${index}.product-spec.md`, [], undefined, [{ path: `pkg${index}/src` }])
+    );
+    const graph = resolveProductSpecGraph([
+      graphInput("repo.product-spec.md", [], undefined, [{ path: "." }]),
+      ...specs
+    ]);
+
+    // Fifty packages that share no directory. The repo-wide spec contends with each
+    // of them, but they do not contend with each other, so this is two waves and
+    // not fifty one.
+    expect(graph.waves).toHaveLength(2);
+    expect(graph.waves[0]).toEqual(["repo.product-spec.md"]);
+    expect(graph.waves[1]).toHaveLength(50);
+  });
+
+  it("names the dependency that stranded a spec, not an unrelated blocks warning", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("new.product-spec.md", [{ to: "old.product-spec.md", relation: "supersedes" }]),
+      graphInput("old.product-spec.md"),
+      graphInput("waiter.product-spec.md", [
+        { to: "old.product-spec.md", relation: "depends_on" },
+        { to: "ghost.product-spec.md", relation: "blocks" }
+      ])
+    ]);
+
+    // A missing `blocks` target warns but gates nothing. It must not be mistaken
+    // for the reason this spec is in no wave, which is the superseded dependency.
+    expect(graph.waves.flat()).not.toContain("waiter.product-spec.md");
+    const stranded = graph.warnings.find(
+      (warning) => warning.code === "unschedulable_dependency" && warning.path === "waiter.product-spec.md"
+    );
+    expect(stranded?.message).toContain("old.product-spec.md");
+  });
+
+  it("names why a spec behind a dependency cycle is in no wave", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("a.product-spec.md", [{ to: "b.product-spec.md", relation: "depends_on" }]),
+      graphInput("b.product-spec.md", [{ to: "a.product-spec.md", relation: "depends_on" }]),
+      graphInput("downstream.product-spec.md", [{ to: "a.product-spec.md", relation: "depends_on" }])
+    ]);
+
+    expect(graph.waves.flat()).toEqual([]);
+    // The cycle warning names a and b. Without a second warning, downstream is a
+    // live spec in no wave that nothing in the output accounts for.
+    const stranded = graph.warnings.filter((warning) => warning.code === "unschedulable_dependency");
+    expect(stranded.map((warning) => warning.path)).toContain("downstream.product-spec.md");
+  });
+
+  it("names why a spec behind a missing link target is in no wave", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("a.product-spec.md", [{ to: "ghost.product-spec.md", relation: "depends_on" }]),
+      graphInput("downstream.product-spec.md", [{ to: "a.product-spec.md", relation: "depends_on" }])
+    ]);
+
+    expect(graph.waves.flat()).toEqual([]);
+    const stranded = graph.warnings.filter((warning) => warning.code === "unschedulable_dependency");
+    expect(stranded.map((warning) => warning.path)).toContain("downstream.product-spec.md");
+  });
+
+  it("survives an applies_to that is malformed rather than throwing at the caller", () => {
+    const entries = [null, undefined, 7, "src/auth", { note: "neither" }] as unknown as Array<{
+      path?: string;
+      component?: string;
+    }>;
+    const graph = resolveProductSpecGraph([
+      graphInput("junk.product-spec.md", [], undefined, entries),
+      graphInput("good.product-spec.md", [], undefined, [{ component: "auth" }])
+    ]);
+
+    expect(graph.unscoped).toContain("junk.product-spec.md");
+    expect(graph.contention).toEqual([]);
+    expect(graph.waves.flat().sort()).toEqual(["good.product-spec.md", "junk.product-spec.md"]);
+  });
+
+  it("treats a path that normalizes away as a claim on the whole repository", () => {
+    const graph = resolveProductSpecGraph([
+      graphInput("everything.product-spec.md", [], undefined, [{ path: "." }]),
+      graphInput("root.product-spec.md", [], undefined, [{ path: "/" }])
+    ]);
+
+    // "." and "/" are the widest claim there is. Reading them as no claim at all
+    // would hide the biggest overlap in the library.
+    expect(graph.unscoped).toEqual([]);
+    expect(graph.contention).toEqual([
+      { kind: "path", value: "/", specs: ["everything.product-spec.md", "root.product-spec.md"] }
+    ]);
+    expect(graph.waves).toHaveLength(2);
+  });
+
   it("resolves the shipped graph fixtures end to end", () => {
     const fixtureDir = `${root}/conformance/graph`;
     const inputs = productSpecFiles(fixtureDir).map((file) => {
@@ -2966,6 +3501,17 @@ describe("resolveProductSpecGraph", () => {
     ]);
     expect(graph.order[graph.order.length - 1]).toBe("conformance/graph/unified-inbox.product-spec.md");
     expect(graph.warnings).toEqual([]);
+
+    // The shipped fixtures declare disjoint surfaces, so they contend for nothing and
+    // the waves come purely from the dependency chain. unified-inbox declares no
+    // applies_to, which is what puts it in unscoped.
+    expect(graph.contention).toEqual([]);
+    expect(graph.waves).toEqual([
+      ["conformance/graph/contact-profiles.product-spec.md", "conformance/graph/signals.product-spec.md"],
+      ["conformance/graph/human-handoff.product-spec.md"],
+      ["conformance/graph/unified-inbox.product-spec.md"]
+    ]);
+    expect(graph.unscoped).toEqual(["conformance/graph/unified-inbox.product-spec.md"]);
   });
 
   it("provides a CLI graph command with table and JSON output", () => {

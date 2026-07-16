@@ -1879,10 +1879,25 @@ export interface ProductSpecGraphWarning {
   path: string;
 }
 
+export interface ProductSpecGraphContention {
+  kind: "path" | "component";
+  value: string;
+  specs: string[];
+}
+
 export interface ProductSpecGraph {
   buildable: string[];
   blocked: ProductSpecGraphBlockedNode[];
   order: string[];
+  waves: string[][];
+  contention: ProductSpecGraphContention[];
+  /**
+   * Live specs that declare no `applies_to`. The graph cannot reason about a
+   * surface a spec never names, so these carry no contention and land in the
+   * earliest wave their dependencies allow. A fleet should read this as unknown
+   * scope, not as safe scope.
+   */
+  unscoped: string[];
   edges: ProductSpecGraphEdge[];
   warnings: ProductSpecGraphWarning[];
 }
@@ -2061,8 +2076,22 @@ export function resolveProductSpecGraph(inputs: ProductSpecGraphInput[]): Produc
       if (left === 0) queue.push(dependent);
     }
   }
+  // A spec that is itself the fault, because it sits in a cycle or waits on a
+  // target that is not in the graph, is already named by its own warning. Only a
+  // spec stranded by someone else's fault needs a second one.
+  //
+  // A missing `depends_on` target is the spec's own fault, since it gates the spec
+  // that declared it. A missing `blocks` target is not: it warns, but it gates
+  // nothing, so a spec carrying that warning can still be stranded by other work
+  // and still needs to be told why.
+  const explained = new Set(
+    edges
+      .filter((edge) => edge.relation === "depends_on" && !nodes.has(edge.to))
+      .map((edge) => edge.from)
+  );
   if (order.length < nodes.size) {
     for (const cycle of findDependencyCycles(waitsOn)) {
+      for (const path of cycle) explained.add(path);
       warnings.push({
         code: "dependency_cycle",
         message: `Dependency cycle among: ${cycle.join(", ")}.`,
@@ -2071,5 +2100,240 @@ export function resolveProductSpecGraph(inputs: ProductSpecGraphInput[]): Produc
     }
   }
 
-  return { buildable, blocked, order, edges, warnings };
+  // Two specs that supersede each other cannot both be the replacement. Treating
+  // either as replaced would drop both out of the fleet plan without saying so,
+  // which is worse than a loud malformed library, so the loop is reported and
+  // every spec in it stays live.
+  const supersedesEdges = edges.filter((edge) => edge.relation === "supersedes");
+  const replaces = new Map<string, Set<string>>();
+  for (const path of nodes.keys()) replaces.set(path, new Set());
+  for (const edge of supersedesEdges) replaces.get(edge.from)?.add(edge.to);
+
+  const supersedesLoop = new Set<string>();
+  for (const cycle of findDependencyCycles(replaces)) {
+    for (const path of cycle) supersedesLoop.add(path);
+    warnings.push({
+      code: "supersedes_cycle",
+      message: `Specs supersede each other in a loop: ${cycle.join(", ")}. None of them is treated as replaced.`,
+      path: cycle[0]
+    });
+  }
+
+  const superseded = new Set(
+    supersedesEdges.map((edge) => edge.to).filter((path) => !supersedesLoop.has(path))
+  );
+  const live = [...nodes.entries()].filter(([path]) => !superseded.has(path));
+
+  // Contention is reported, never warned about. Two specs sharing a surface is a
+  // fact, and often a deliberate one: a parent and a child split a directory on
+  // purpose. Warning about it would scold every library that has only ever used
+  // `applies_to` for traceability, which is what it was added for. The fact is in
+  // `contention` for anyone dispatching agents, and `waves` acts on it.
+  const { contention, waves, unscoped, unschedulable } = resolveFleetPlan(live, order, waitsOn, explained);
+  warnings.push(...unschedulable);
+
+  return { buildable, blocked, order, waves, contention, unscoped, edges, warnings };
 }
+
+/**
+ * Everything a fleet needs before it hands specs to several agents at once.
+ *
+ * `live` is the one list this works from. A spec replaced by a `supersedes` edge
+ * is not in it, so it neither claims a surface nor gets scheduled. Contention,
+ * waves, and unscoped all come off that same list, which is what stops a spec
+ * being scheduled into a wave that knows nothing about the surface it touches.
+ */
+function resolveFleetPlan(
+  live: Array<[string, ProductSpecGraphInput]>,
+  order: string[],
+  waitsOn: Map<string, Set<string>>,
+  explained: Set<string>
+): Pick<ProductSpecGraph, "contention" | "waves" | "unscoped"> & {
+  unschedulable: ProductSpecGraphWarning[];
+} {
+  const pathClaims = new Map<string, Set<string>>();
+  const componentClaims = new Map<string, Set<string>>();
+  const pathsOf = new Map<string, Set<string>>();
+  const componentsOf = new Map<string, Set<string>>();
+  const unscoped: string[] = [];
+  const unschedulable: ProductSpecGraphWarning[] = [];
+
+  const claim = (
+    claims: Map<string, Set<string>>,
+    declaredBy: Map<string, Set<string>>,
+    value: string,
+    spec: string
+  ): void => {
+    if (!value) return;
+    let specs = claims.get(value);
+    if (!specs) claims.set(value, (specs = new Set()));
+    specs.add(spec);
+    let values = declaredBy.get(spec);
+    if (!values) declaredBy.set(spec, (values = new Set()));
+    values.add(value);
+  };
+
+  for (const [path, input] of live) {
+    const declared = input.document.frontmatter.applies_to;
+    let declaresSurface = false;
+    for (const entry of Array.isArray(declared) ? declared : []) {
+      if (!entry || typeof entry !== "object") continue;
+      // Nothing stops one entry carrying both a component and a path. Take both,
+      // rather than picking one and dropping the other surface without a word.
+      const component = typeof entry.component === "string" ? entry.component.trim() : "";
+      const rawPath = typeof entry.path === "string" ? entry.path.trim() : "";
+      // A path that normalizes away, like "." or "/", is a claim on the whole
+      // repository. Treating it as no claim at all would hide the widest overlap
+      // there is, so it keeps its own surface.
+      const declaredPath = rawPath ? normalizeSpecPath(rawPath) || REPO_ROOT_SURFACE : "";
+      if (!component && !declaredPath) continue;
+      declaresSurface = true;
+      claim(componentClaims, componentsOf, component, path);
+      claim(pathClaims, pathsOf, declaredPath, path);
+    }
+    if (!declaresSurface) unscoped.push(path);
+  }
+  unscoped.sort();
+
+  const ancestorCache = new Map<string, string[]>();
+  const contention: ProductSpecGraphContention[] = [];
+  for (const [component, specs] of componentClaims) {
+    if (specs.size < 2) continue;
+    contention.push({ kind: "component", value: component, specs: [...specs].sort() });
+  }
+  for (const [claimed, specs] of pathClaims) {
+    // A surface names every spec scoped at or above it, because a spec scoped to
+    // `src/api` edits inside `src/api/v2` as well. One entry per declared surface
+    // keeps each entry true on its own terms: `src/api/v2` and `src/api/v3` each
+    // name the parent they sit under, and neither one names the other, because
+    // they are different directories.
+    const touching = new Set(specs);
+    for (const ancestor of surfaceAncestors(claimed, ancestorCache)) {
+      if (ancestor === claimed) continue;
+      for (const spec of pathClaims.get(ancestor) ?? []) touching.add(spec);
+    }
+    if (touching.size < 2) continue;
+    contention.push({ kind: "path", value: claimed, specs: [...touching].sort() });
+  }
+  contention.sort((a, b) => a.kind.localeCompare(b.kind) || a.value.localeCompare(b.value));
+
+  // Every spec that claims a path at or below this one. A spec registers under its
+  // own path and under each of its ancestors, so a lookup on `src/api` returns the
+  // specs scoped to `src/api`, `src/api/v2`, and everything deeper.
+  const specsUnder = new Map<string, Set<string>>();
+  for (const [spec, claimedPaths] of pathsOf) {
+    for (const claimed of claimedPaths) {
+      for (const ancestor of surfaceAncestors(claimed, ancestorCache)) {
+        let specs = specsUnder.get(ancestor);
+        if (!specs) specsUnder.set(ancestor, (specs = new Set()));
+        specs.add(spec);
+      }
+    }
+  }
+
+  const scheduled = new Set(live.map(([path]) => path));
+  const waves: string[][] = [];
+  const waveOf = new Map<string, number>();
+
+  // Two specs collide when they name the same component, or when one's path
+  // contains the other's. Containment runs in both directions, so both are looked
+  // up: walking a spec's ancestors through `pathClaims` finds the specs scoped
+  // above it, and `specsUnder` finds the specs scoped inside it.
+  //
+  // Collision is between a pair of specs. Sharing a parent directory is not enough
+  // on its own: `src/api/v2` and `src/api/v3` both sit under `src/api`, so neither
+  // ships beside a spec scoped to `src/api`, and the two of them ship together.
+  const collidingSpecs = (spec: string): Set<string> => {
+    const colliding = new Set<string>();
+    for (const component of componentsOf.get(spec) ?? []) {
+      for (const other of componentClaims.get(component) ?? []) colliding.add(other);
+    }
+    for (const claimed of pathsOf.get(spec) ?? []) {
+      for (const ancestor of surfaceAncestors(claimed, ancestorCache)) {
+        for (const other of pathClaims.get(ancestor) ?? []) colliding.add(other);
+      }
+      for (const other of specsUnder.get(claimed) ?? []) colliding.add(other);
+    }
+    colliding.delete(spec);
+    return colliding;
+  };
+
+  for (const path of order.filter((candidate) => scheduled.has(candidate))) {
+    // A spec can only be dispatched once every spec it waits on has been. A
+    // dependency that is itself unschedulable, because a supersedes edge replaced
+    // it or a cycle traps it, never gets a wave, and a spec waiting on that cannot
+    // be built either. `blocked` already says so, and scheduling it anyway would
+    // have waves contradict blocked.
+    let index = 0;
+    let stranded = false;
+    for (const dependency of waitsOn.get(path) ?? []) {
+      const dependencyWave = waveOf.get(dependency);
+      if (dependencyWave === undefined) {
+        stranded = true;
+        break;
+      }
+      index = Math.max(index, dependencyWave + 1);
+    }
+    if (stranded) continue;
+
+    // The waves this spec may not join are exactly the waves its colliding specs
+    // already sit in, so the search for a free wave costs one step per spec that
+    // collides with this one, however long the schedule has grown.
+    const taken = new Set<number>();
+    for (const other of collidingSpecs(path)) {
+      const wave = waveOf.get(other);
+      if (wave !== undefined) taken.add(wave);
+    }
+    while (taken.has(index)) index += 1;
+
+    if (!waves[index]) waves[index] = [];
+    waves[index].push(path);
+    waveOf.set(path, index);
+  }
+
+  // A spec can miss a wave two ways: it was reached above and its dependency has
+  // no wave, or it never reached the loop at all, because the topological order
+  // drops everything downstream of a cycle or a missing link target. Both end the
+  // same way, a live spec in no wave, so both are reported the same way. A spec
+  // that is itself the fault is skipped here, because its own warning already
+  // names it. Nothing else leaves the schedule quietly.
+  for (const [path] of live) {
+    if (waveOf.has(path) || explained.has(path)) continue;
+    const stranding = [...(waitsOn.get(path) ?? [])].filter((dependency) => !waveOf.has(dependency));
+    unschedulable.push({
+      code: "unschedulable_dependency",
+      message: `${path} waits on ${stranding.join(", ")}, which cannot be built, so it is not in any wave. Point the dependency at work that can be built.`,
+      path
+    });
+  }
+
+  return { contention, waves, unscoped, unschedulable };
+}
+
+/**
+ * A path and every path that contains it, outermost first, starting at the
+ * repository root. `src/api` yields `/`, `src`, `src/api`. Comparing whole
+ * segments is what keeps `src/api` from containing `src/apiv2`.
+ *
+ * A claimed path is walked while the surface index is built, and again for every
+ * spec compared against it, so the answers are cached. Each ancestor is grown from
+ * the one before it, which keeps a deep path linear in its own depth.
+ */
+function surfaceAncestors(path: string, cache: Map<string, string[]>): string[] {
+  const cached = cache.get(path);
+  if (cached) return cached;
+
+  const ancestors: string[] = [REPO_ROOT_SURFACE];
+  if (path !== REPO_ROOT_SURFACE) {
+    let prefix = "";
+    for (const segment of path.split("/")) {
+      prefix = prefix ? `${prefix}/${segment}` : segment;
+      ancestors.push(prefix);
+    }
+  }
+
+  cache.set(path, ancestors);
+  return ancestors;
+}
+
+const REPO_ROOT_SURFACE = "/";

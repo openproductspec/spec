@@ -7,6 +7,9 @@ lifecycle_status: in_review
 author: "ProductSpec"
 created_at: "2026-07-11T00:00:00Z"
 updated_at: "2026-07-11T00:00:00Z"
+applies_to:
+  - path: "apps/api/src/contacts/"
+  - component: "contacts"
 ---
 
 ## Problem

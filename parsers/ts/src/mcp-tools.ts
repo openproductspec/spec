@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
+import { type Dirent, existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { isAbsolute, join, normalize, relative, resolve } from "node:path";
 import {
   parseProductSpecMarkdown,
@@ -201,7 +201,12 @@ export function checkSpecSession(args: ProductSpecSessionCheckArgs): ProductSpec
   }
 
   const current_revision = result.document.frontmatter.spec_revision;
-  const changed = current_hash !== session.started_hash || current_revision !== session.started_revision;
+  // The content hash covers the whole file including spec_revision, so a hash match
+  // already means the revision matches. Only compare revisions when one was pinned;
+  // otherwise an unpinned revision (a hash-only CLI check) would falsely read as drift.
+  const changed =
+    current_hash !== session.started_hash ||
+    (session.started_revision !== undefined && current_revision !== session.started_revision);
   return {
     session_id: session.session_id,
     path: session.path,
@@ -586,7 +591,14 @@ function findProductSpecFiles(root: string): string[] {
   return results.sort((a, b) => relative(root, a).localeCompare(relative(root, b)));
 
   function visit(dir: string) {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    let entries: Dirent[];
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      // A directory the process cannot read (permissions, races) is skipped, not fatal.
+      return;
+    }
+    for (const entry of entries) {
       if (shouldSkip(entry.name) || entry.isSymbolicLink()) continue;
       const absolutePath = join(dir, entry.name);
       if (entry.isDirectory()) {

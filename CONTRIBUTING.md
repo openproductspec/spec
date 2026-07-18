@@ -149,6 +149,19 @@ Use the lightweight ProductSpec process:
 
 For small documentation fixes, a pull request without a prior issue is fine.
 
+## Surface Parity (CLI and MCP)
+
+Every operation an agent can perform against a Product Spec must be reachable from both the CLI and the MCP, and both must be backed by the same function in `parsers/ts/src/mcp-tools.ts`. A caller cannot drift from a definition it does not own.
+
+A pull request that adds or changes an operation on one surface only is incomplete. When you add or change a function in `mcp-tools.ts`:
+
+1. Register it as an MCP tool in `parsers/ts/src/mcp.ts`.
+2. Add or update the CLI command in `parsers/ts/src/cli.ts` so it calls the same function, with a `--json` mode.
+3. Document it in `docs/cli.md` and the CLI `--help` text.
+4. Add a parity assertion in `parsers/ts/tests/cli.test.ts` that the CLI output equals the function output.
+
+The CLI may add input-validation niceties on top of the shared function, such as a clear error for a missing file or an empty directory. It must not reimplement the operation. The parity test exists to catch that drift.
+
 ## Section Vocabulary Changes
 
 Section vocabulary changes require extra care because they affect interoperability.

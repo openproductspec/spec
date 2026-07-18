@@ -34,6 +34,14 @@ Agents and downstream tools use it to plan, implement, review, and report progre
 
 That is why ProductSpec is Markdown with structure. Plain text keeps the artifact readable. Section IDs, frontmatter, parser output, schema, and validator rules make it usable by tools.
 
+## Portable access
+
+The same operations reach a Product Spec through more than one surface.
+
+The CLI is the most portable. It runs in any shell, any CI job, any script, with no client to install and no tool definitions to load into context first. The MCP adds a typed tool surface for agents that speak it, with room for auth and stateful sessions.
+
+Neither surface is privileged. Every operation an agent can perform is reachable from the CLI, backed by the same function the MCP tool wraps. The MCP is additive, not the only door. A spec library can be validated, read, planned, and checked from a plain terminal, not only from an MCP client.
+
 ## Acceptance Criteria and Success Metrics
 
 Acceptance Criteria are the build contract.

@@ -318,6 +318,22 @@ describe("ProductSpec MCP tools", () => {
     });
   });
 
+  it("a hash-only session check (no started_revision) does not fabricate drift on an unchanged spec", () => {
+    const dir = writeFixture();
+    const session = beginSpecSession({ root: dir, path: "search.product-spec.md" });
+
+    // Stateless path: only the content hash is pinned, no started_revision. This is the
+    // CLI's `session check --against <hash>` case. It must not read as drift when nothing changed.
+    const unchanged = checkSpecSession({ root: dir, path: "search.product-spec.md", started_hash: session.content_hash });
+    expect(unchanged.changed).toBe(false);
+    expect(unchanged.recommended_action).toBe("continue_against_pinned_revision");
+
+    // A real edit is still caught, because the content hash covers the whole file.
+    writeFileSync(join(dir, "search.product-spec.md"), `${validSpec}\n<!-- edit -->\n`, "utf8");
+    const drifted = checkSpecSession({ root: dir, path: "search.product-spec.md", started_hash: session.content_hash });
+    expect(drifted.changed).toBe(true);
+  });
+
   it("refuses to read a spec whose symlink resolves outside root", () => {
     const base = mkdtempSync(join(tmpdir(), "productspec-confine-"));
     const root = join(base, "root");

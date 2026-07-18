@@ -196,6 +196,16 @@ npm exec --package @productspec/parser -- productspec graph conformance/graph
 
 The graph answers the fleet question too: which specs are safe to hand to different agents at the same time. It reports `contention` (the surfaces more than one live spec touches, read from `applies_to`) and `waves` (sets of specs that share no surface and whose dependencies are already met), so two agents never land in the same files and find out at merge.
 
+Read and inspect a spec from the shell:
+
+```bash
+npm exec --package @productspec/parser -- productspec list specs
+npm exec --package @productspec/parser -- productspec get path/to/your.product-spec.md acceptance --json
+npm exec --package @productspec/parser -- productspec check-claim path/to/your.product-spec.md
+```
+
+The CLI reaches every operation the MCP does: validate, list, show, read a section (`scope`, `acceptance`, `evals`, `metrics`, `related`, `evidence`), graph, generate a handoff, check a completion claim, and pin or check a session for drift. Every read command supports `--json`, so anyone who finds MCP overkill can do the same work from a plain terminal. See the [CLI reference](docs/cli.md) for all commands and flags. The CLI and the MCP call the same functions, so their output cannot drift.
+
 ## Status Badges
 
 ProductSpec badges should report facts, not subjective quality scores.

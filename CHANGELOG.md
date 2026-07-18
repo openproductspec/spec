@@ -8,6 +8,17 @@ Added:
 - `graph` warns with `supersedes_cycle` when specs supersede each other in a loop, and keeps all of them, since none can be the replacement.
 - `graph` warns with `unschedulable_dependency` and names the dependency, when a spec waits on work that cannot be built and therefore lands in no wave.
 - `graph` treats an `applies_to` path of `.` or `/` as a claim on the whole repository, so a spec scoped to the repo contends with every spec scoped inside it.
+- `list`, `show`, `get <file> <section>`, `check-claim`, and `session begin` / `session check` bring the CLI to parity with the MCP: every read, evidence, and session operation the MCP exposes is now reachable from the CLI, each with `--json`.
+- `validate` accepts `--json` for the full validation result.
+- The CLI parses options with standard getopt conventions: `--flag value` or `--flag=value`, `--` to end option parsing, and unknown options are rejected.
+- `productspec --help` and `productspec help` print a full command reference, and the fallback usage now shows it too.
+- `docs/cli.md` documents every CLI command and flag.
+- `tests/cli.test.ts` asserts each CLI command returns the same data as the function its MCP tool wraps, so a change that ships on one surface only fails CI.
+
+Changed:
+
+- `graph` now routes through the same `getSpecGraph` function the MCP `get_spec_graph` tool wraps, instead of resolving the folder inline, so the CLI and MCP graph output cannot drift. Graph paths are now relative to the resolved directory, matching the MCP.
+- `CONTRIBUTING.md` and `docs/philosophy.md` state CLI and MCP surface parity as a contributor rule and a principle.
 
 ## v0.26.0 - Product Harness And Agent Handoff
 

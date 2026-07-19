@@ -61,6 +61,23 @@ With the parser, CLI, MCP server, and companion artifacts in this repo, agents c
 
 ProductSpec does not tell the agent how to code. It tells the agent what intent it is accountable to.
 
+## Repo Maintenance Commands
+
+Once Product Specs live in a repo, use these commands to operate the Product Harness across many files:
+
+```bash
+# Scan repo health: specs, runs, traces, graph, evidence, stale revision pins
+npm exec --package @productspec/parser -- productspec garden .
+
+# Check whether one Agent Run satisfies one Product Spec revision
+npm exec --package @productspec/parser -- productspec reconcile docs/product-specs/my-feature.product-spec.md --against docs/agent-runs/my-feature.agent-run.json
+
+# Open a local read-only dashboard over the same garden report
+npm exec --package @productspec/parser -- productspec serve . --port 4317
+```
+
+See [`docs/repo-maintenance.md`](docs/repo-maintenance.md) for the full semantics.
+
 ## Intent And Evidence
 
 ProductSpec defines what should be built and why.

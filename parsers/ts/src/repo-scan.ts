@@ -53,6 +53,13 @@ export interface StaleRevisionLink {
   current_revision: number;
 }
 
+export interface StaleAgentRun {
+  spec_path: string;
+  run_path: string;
+  pinned_revision: number;
+  current_revision: number;
+}
+
 export interface AgentRunGap {
   spec_path: string;
   message: string;
@@ -71,6 +78,7 @@ export interface ProductSpecRepoReport {
   graph: ProductSpecGraph | null;
   evidence_gaps: EvidenceGap[];
   stale_revision_links: StaleRevisionLink[];
+  stale_agent_runs: StaleAgentRun[];
   agent_run_gaps: AgentRunGap[];
   decision_trace_gaps: DecisionTraceGap[];
   ready_for_agents: string[];
@@ -121,6 +129,7 @@ export function scanProductSpecRepo(rootPath: string): ProductSpecRepoReport {
 
   const evidenceGaps = collectEvidenceGaps(productSpecs, agentRuns);
   const staleRevisionLinks = collectStaleRevisionLinks(productSpecs);
+  const staleAgentRuns = collectStaleAgentRuns(productSpecs, agentRuns);
   const agentRunGaps = collectAgentRunGaps(productSpecs, agentRuns);
   const decisionTraceGaps = collectDecisionTraceGaps(productSpecs, decisionTraces);
   const needsAttention = new Set<string>();
@@ -129,6 +138,7 @@ export function scanProductSpecRepo(rootPath: string): ProductSpecRepoReport {
   }
   for (const gap of evidenceGaps) needsAttention.add(gap.spec_path);
   for (const link of staleRevisionLinks) needsAttention.add(link.spec_path);
+  for (const run of staleAgentRuns) needsAttention.add(run.spec_path);
   for (const gap of agentRunGaps) needsAttention.add(gap.spec_path);
   for (const warning of graph?.warnings ?? []) needsAttention.add(warning.path);
 
@@ -144,6 +154,7 @@ export function scanProductSpecRepo(rootPath: string): ProductSpecRepoReport {
     graph,
     evidence_gaps: evidenceGaps,
     stale_revision_links: staleRevisionLinks,
+    stale_agent_runs: staleAgentRuns,
     agent_run_gaps: agentRunGaps,
     decision_trace_gaps: decisionTraceGaps,
     ready_for_agents: readyForAgents,
@@ -175,7 +186,9 @@ export function reconcileProductSpec(rootPath: string, specPath: string, runPath
   }
 
   const expectedItems = expectedEvidenceItems(spec.document);
-  const absoluteRunPath = runPath ? resolve(root, runPath) : findRunForSpec(root, relative(root, absoluteSpecPath));
+  const absoluteRunPath = runPath
+    ? resolve(root, runPath)
+    : findRunForSpec(root, relative(root, absoluteSpecPath), spec.document.frontmatter.spec_revision);
   const run = absoluteRunPath ? scanAgentRun(root, absoluteRunPath) : undefined;
   if (run && !run.valid) errors.push(...run.errors);
   const checked = run?.document?.checked_items.map((item) => ({
@@ -262,6 +275,8 @@ export function gardenText(report: ProductSpecRepoReport): string {
   pushList(lines, report.evidence_gaps.map((gap) => `${gap.spec_path} ${gap.item_id}: ${gap.message}`));
   lines.push("Stale revision links:");
   pushList(lines, report.stale_revision_links.map((link) => `${link.spec_path} pins ${link.target_path} at ${link.pinned_revision}, current ${link.current_revision}`));
+  lines.push("Stale Agent Runs:");
+  pushList(lines, report.stale_agent_runs.map((run) => `${run.run_path} pins ${run.spec_path} at ${run.pinned_revision}, current ${run.current_revision}`));
   lines.push("Agent Run gaps:");
   pushList(lines, report.agent_run_gaps.map((gap) => `${gap.spec_path}: ${gap.message}`));
   lines.push("Decision Trace gaps:");
@@ -323,6 +338,7 @@ ${htmlSection("Ready for agents", report.ready_for_agents)}
 ${htmlSection("Parallel waves", graph?.waves.map((wave, index) => `Wave ${index + 1}: ${wave.join(", ")}`) ?? [])}
 ${htmlSection("Contention", graph?.contention.map((surface) => `${surface.kind} ${surface.value}: ${surface.specs.join(", ")}`) ?? [])}
 ${htmlSection("Missing evidence", report.evidence_gaps.map((gap) => `${gap.spec_path} ${gap.item_id}: ${gap.message}`))}
+${htmlSection("Stale Agent Runs", report.stale_agent_runs.map((run) => `${run.run_path} pins ${run.spec_path} at ${run.pinned_revision}, current ${run.current_revision}`))}
 ${htmlSection("Agent Run gaps", report.agent_run_gaps.map((gap) => `${gap.spec_path}: ${gap.message}`))}
 ${htmlSection("Decision Trace gaps", report.decision_trace_gaps.map((gap) => `${gap.trace_path}: ${gap.message}`))}
 </main></body></html>`;
@@ -410,6 +426,29 @@ function collectStaleRevisionLinks(specs: ScannedProductSpec[]): StaleRevisionLi
   return stale;
 }
 
+function collectStaleAgentRuns(specs: ScannedProductSpec[], runs: ScannedAgentRun[]): StaleAgentRun[] {
+  const stale: StaleAgentRun[] = [];
+  for (const run of runs) {
+    if (!run.valid || !run.document) continue;
+    const runDocument = run.document;
+    const spec = specs.find((candidate) => (
+      candidate.valid
+      && candidate.document
+      && referencesSpec(candidate.path, runDocument.product_spec.path)
+    ));
+    const currentRevision = spec?.document?.frontmatter.spec_revision;
+    if (spec && currentRevision !== undefined && currentRevision !== runDocument.product_spec.spec_revision) {
+      stale.push({
+        spec_path: spec.path,
+        run_path: run.path,
+        pinned_revision: runDocument.product_spec.spec_revision,
+        current_revision: currentRevision
+      });
+    }
+  }
+  return stale;
+}
+
 function collectAgentRunGaps(specs: ScannedProductSpec[], runs: ScannedAgentRun[]): AgentRunGap[] {
   const runsBySpec = new Map<string, AgentRunDocument[]>();
   for (const run of runs) {
@@ -448,13 +487,16 @@ function collectDecisionTraceGaps(specs: ScannedProductSpec[], traces: ScannedDe
   return gaps;
 }
 
-function findRunForSpec(root: string, specPath: string): string | undefined {
+function findRunForSpec(root: string, specPath: string, specRevision?: number): string | undefined {
   const runs = collectFiles(root).filter((file) => file.endsWith(".agent-run.json"));
+  let fallback: string | undefined;
   for (const file of runs) {
     const result = validateAgentRunJson(readFileSync(file, "utf8"));
-    if (result.valid && result.document.product_spec.path === specPath) return file;
+    if (!result.valid || !referencesSpec(specPath, result.document.product_spec.path)) continue;
+    fallback ??= file;
+    if (result.document.product_spec.spec_revision === specRevision) return file;
   }
-  return undefined;
+  return fallback;
 }
 
 function hasEvidence(artifacts: ProductSpecRelatedArtifact[], itemId: string): boolean {

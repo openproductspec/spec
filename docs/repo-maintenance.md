@@ -23,6 +23,7 @@ The report includes:
 - the spec graph, including buildable specs, blocked specs, waves, contention, and unscoped specs
 - missing evidence for `AC-`, `EVAL-`, and `SM-` items
 - stale `product_spec_revision` pins in `product_spec` related artifacts
+- stale Product Spec revision pins in Agent Run receipts
 - Agent Run gaps when execution evidence exists but no run receipt references the spec
 - Decision Trace links that point at missing or stale Product Spec revisions
 
@@ -37,6 +38,8 @@ npm exec --package @productspec/parser -- productspec reconcile docs/product-spe
 ```
 
 If `--against` is omitted, the command looks for an Agent Run whose `product_spec.path` matches the spec path.
+It prefers a receipt pinned to the Product Spec's current revision and falls
+back to a historical receipt only when no current receipt exists.
 
 ```bash
 npm exec --package @productspec/parser -- productspec reconcile docs/product-specs/transcript-search.product-spec.md --json

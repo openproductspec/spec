@@ -390,7 +390,12 @@ function collectEvidenceGaps(specs: ScannedProductSpec[], runs: ScannedAgentRun[
   for (const spec of specs) {
     if (!spec.valid || !spec.document) continue;
     const artifacts = spec.document.sections.flatMap((section) => section.related_artifacts ?? []);
-    const specRuns = runs.filter((run) => run.valid && run.document && referencesSpec(spec.path, run.document.product_spec.path));
+    const specRuns = runs.filter((run) => (
+      run.valid
+      && run.document
+      && referencesSpec(spec.path, run.document.product_spec.path)
+      && run.document.product_spec.spec_revision === spec.document?.frontmatter.spec_revision
+    ));
     for (const section of spec.document.sections) {
       for (const item of section.acceptance_criteria ?? []) {
         if (!hasEvidence(artifacts, item.id) && !hasRunEvidence(specRuns, item.id)) gaps.push({ spec_path: spec.path, item_id: item.id, kind: "acceptance_criterion", message: "No related artifact or Agent Run evidence is linked." });
@@ -429,7 +434,7 @@ function collectStaleRevisionLinks(specs: ScannedProductSpec[]): StaleRevisionLi
 function collectStaleAgentRuns(specs: ScannedProductSpec[], runs: ScannedAgentRun[]): StaleAgentRun[] {
   const stale: StaleAgentRun[] = [];
   for (const run of runs) {
-    if (!run.valid || !run.document) continue;
+    if (!run.valid || !run.document || run.document.status === "completed") continue;
     const runDocument = run.document;
     const spec = specs.find((candidate) => (
       candidate.valid

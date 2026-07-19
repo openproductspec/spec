@@ -239,13 +239,14 @@ describe("CLI behavior", () => {
 
   it("reports stale Agent Runs and implicitly reconciles the current revision", () => {
     const dir = mkdtempSync(join(tmpdir(), "productspec-cli-stale-run-"));
-    const run = (run_id: string, spec_revision: number) => ({
+    const run = (run_id: string, spec_revision: number, status = "draft") => ({
       agent_run_format_version: "0.1",
       run_id,
       agent: { name: "Codex" },
       product_spec: { path: "spec.product-spec.md", spec_revision },
       started_at: "2026-07-17T00:00:00Z",
-      status: "draft",
+      ...(status === "completed" ? { completed_at: "2026-07-17T00:05:00Z" } : {}),
+      status,
       checked_items: [],
       drift: { detected: false }
     });
@@ -253,6 +254,14 @@ describe("CLI behavior", () => {
     try {
       writeFileSync(join(dir, "spec.product-spec.md"), readFileSync(resolve(repoRoot, minimalSpec), "utf8"));
       writeFileSync(join(dir, "a-historical.agent-run.json"), JSON.stringify(run("historical", 2), null, 2));
+      writeFileSync(join(dir, "b-completed.agent-run.json"), JSON.stringify({
+        ...run("completed-history", 2, "completed"),
+        checked_items: [{
+          item_id: "AC-1",
+          status: "passed",
+          evidence: [{ type: "code", url: "evidence/old-ac-1.json" }]
+        }]
+      }, null, 2));
       writeFileSync(join(dir, "z-current.agent-run.json"), JSON.stringify(run("current", 1), null, 2));
 
       const garden = cliRun(["garden", dir, "--json"], dir);
@@ -265,6 +274,12 @@ describe("CLI behavior", () => {
           current_revision: 1
         }
       ]);
+      expect(JSON.parse(garden.stdout).evidence_gaps).toContainEqual({
+        spec_path: "spec.product-spec.md",
+        item_id: "AC-1",
+        kind: "acceptance_criterion",
+        message: "No related artifact or Agent Run evidence is linked."
+      });
 
       const reconciliation = cliRun(["reconcile", "spec.product-spec.md", "--json"], dir);
       expect(reconciliation.status).toBe(1);

@@ -23,11 +23,14 @@ The report includes:
 - the spec graph, including buildable specs, blocked specs, waves, contention, and unscoped specs
 - missing evidence for `AC-`, `EVAL-`, and `SM-` items
 - stale `product_spec_revision` pins in `product_spec` related artifacts
-- stale Product Spec revision pins in Agent Run receipts
+- stale Product Spec revision pins in non-completed Agent Run receipts; completed
+  receipts remain immutable history
 - Agent Run gaps when execution evidence exists but no run receipt references the spec
 - Decision Trace links that point at missing or stale Product Spec revisions
 
 `garden` is a read-only command. It does not rewrite specs, create traces, or decide whether the product judgment is good. It tells humans and agents where the repo needs attention.
+Agent Run evidence counts toward the current repository-health view only when
+the receipt pins the current Product Spec revision.
 
 ## Reconcile
 

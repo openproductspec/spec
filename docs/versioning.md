@@ -135,6 +135,15 @@ v0.26 keeps the Product Spec document shape at `spec_format_version: "0.1"` and 
 - `get_agent_handoff` exposes the same build contract through MCP.
 - Agent Handoff remains generated from Product Spec. It is not a canonical ProductSpec section.
 
+## v0.27 Repo Maintenance Milestone
+
+v0.27 keeps the Product Spec document shape at `spec_format_version: "0.1"` and adds repository-level harness operations:
+
+- `productspec garden <repo> [--json]` scans a repo for Product Specs, Agent Runs, Decision Traces, graph health, missing evidence, stale revision pins, Agent Run gaps, and Decision Trace gaps.
+- `productspec reconcile <spec.product-spec.md> [--against run.agent-run.json] [--json]` checks whether one Agent Run satisfies one Product Spec revision before completion is claimed.
+- `productspec serve <repo> [--port 4317]` serves a local read-only dashboard over the garden report.
+- These commands are read-only. They do not change the Product Spec format or rewrite repo artifacts.
+
 ## v1.0 Bar
 
 v1.0 is the first compatibility promise.

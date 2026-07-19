@@ -2,7 +2,18 @@
 
 ## Unreleased
 
+No unreleased changes.
+
+## v0.27.0 - Repo Gardening And Reconciliation
+
 Added:
+
+- `productspec garden <repo> [--json]` scans a repo for Product Specs, Agent Runs, Decision Traces, graph health, missing evidence, stale revision pins, Agent Run gaps, and Decision Trace gaps.
+- `productspec reconcile <spec.product-spec.md> [--against run.agent-run.json] [--json]` checks whether one Agent Run satisfies one Product Spec revision before completion is claimed.
+- `productspec serve <repo> [--port 4317]` serves a local read-only ProductSpec dashboard over the garden report.
+- `docs/repo-maintenance.md` explains garden, reconcile, serve, and how they fit with graph, Agent Handoff, Agent Run, and Decision Trace.
+
+Changed:
 
 - `graph` resolves `contention`, `waves`, and `unscoped` so a fleet can dispatch agents in parallel without two of them landing on one surface.
 - `graph` warns with `supersedes_cycle` when specs supersede each other in a loop, and keeps all of them, since none can be the replacement.

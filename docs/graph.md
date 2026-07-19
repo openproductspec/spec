@@ -85,6 +85,16 @@ Components and paths are separate namespaces and never compare against each othe
 
 The same graph is available to agents as the `get_spec_graph` tool on the MCP server (`productspec mcp`), taking an optional `root` and returning the identical JSON shape. The graph does not know which agents are running. An agent about to start work reads `contention` to learn whether another spec would land on the surface it is about to edit, and `waves` to learn which specs it is safe to be working alongside.
 
+## Graph vs. Garden
+
+`graph` answers dependency planning: buildable, blocked, order, waves, contention, and unscoped specs.
+
+`garden` uses the same graph and adds repo health: invalid specs, missing evidence, stale revision pins, Agent Run gaps, and Decision Trace gaps. Use `graph` when an agent only needs scheduling context. Use `garden` when a human or agent needs to know what needs attention across the ProductSpec library.
+
+```bash
+npm exec --package @productspec/parser -- productspec garden docs/product-specs --json
+```
+
 ## Boundary
 
 `resolveProductSpecGraph(inputs)` is a pure function in the parser package: it takes already-parsed documents with their paths and never touches the filesystem. The CLI owns file discovery and feeds it. Single-file validation stays single-file; the graph is a separate read over many documents. Nothing in this command changes the format, and a library that never uses `product_spec` links never sees it.

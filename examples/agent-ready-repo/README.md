@@ -47,3 +47,18 @@ npx --yes -p @productspec/parser@latest productspec mcp
 ```
 
 An agent can then retrieve the Product Spec, pin the `spec_revision`, check the build graph, ask for the evidence checklist, and leave behind an Agent Run before declaring the work done.
+
+
+Garden this example repo from the ProductSpec repository root:
+
+```bash
+npm exec --package @productspec/parser -- productspec garden examples/agent-ready-repo
+```
+
+Reconcile the checked-in Agent Run against the Product Spec:
+
+```bash
+npm exec --package @productspec/parser -- productspec reconcile docs/product-specs/transcript-search.product-spec.md --against docs/agent-runs/transcript-search.agent-run.json
+```
+
+Run that command from `examples/agent-ready-repo/` so the repo-relative paths match the Agent Run.

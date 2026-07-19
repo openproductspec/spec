@@ -28,6 +28,15 @@ npx --yes -p @productspec/parser productspec init-run path/to/file.product-spec.
 # Resolve the spec dependency graph under a directory
 npx --yes -p @productspec/parser productspec graph path/to/spec-directory
 
+# Garden a repo for missing evidence, stale revision pins, run gaps, and graph health
+npx --yes -p @productspec/parser productspec garden path/to/repo
+
+# Reconcile one Product Spec against one Agent Run
+npx --yes -p @productspec/parser productspec reconcile path/to/file.product-spec.md --against path/to/file.agent-run.json
+
+# Serve a local read-only ProductSpec repo dashboard
+npx --yes -p @productspec/parser productspec serve path/to/repo --port 4317
+
 # Scaffold a new Product Spec
 npx --yes -p @productspec/parser productspec init path/to/new.product-spec.md
 

@@ -2316,6 +2316,141 @@ Keep this around.
     }
   }, 30000);
 
+
+  it("gardens a repo and reports missing evidence, waves, and unscoped specs", () => {
+    const dir = mkdtempSync(join(tmpdir(), "productspec-garden-"));
+    try {
+      writeFileSync(join(dir, "ready.product-spec.md"), `---
+spec_format_version: "0.1"
+title: "Ready Spec"
+artifact_type: "prd"
+spec_revision: 1
+lifecycle_status: draft
+author: "ProductSpec"
+created_at: "2026-07-17T00:00:00Z"
+updated_at: "2026-07-17T00:00:00Z"
+applies_to:
+  - path: "apps/ready"
+---
+
+## Problem
+
+Teams need a ready spec for agent execution.
+
+## Hypothesis
+
+If the spec has evidence links, agents can start with less ambiguity.
+
+## Product Summary
+
+This spec is intentionally ready for the garden report.
+
+## Scope
+
+In: Build the ready path.
+
+Out: Do not build unrelated admin flows.
+
+Cut from this version: Defer bulk actions.
+
+## Acceptance Criteria
+
+\`\`\`productspec-acceptance-criteria
+- id: AC-1
+  criterion: Given a valid request, when the ready path runs, then the user sees the expected result.
+\`\`\`
+
+\`\`\`productspec-related-artifacts
+- type: github_pr
+  url: https://github.com/example/repo/pull/1
+  item_id: AC-1
+\`\`\`
+
+## Success Metrics
+
+\`\`\`productspec-success-metrics
+- id: SM-1
+  metric: ready_path_success
+  target: ">= 90%"
+  window: first 14 days
+\`\`\`
+`, "utf8");
+      writeFileSync(join(dir, "missing.product-spec.md"), readFileSync(`${root}/examples/minimal.product-spec.md`, "utf8"), "utf8");
+
+      const result = spawnSync("node", [
+        fileURLToPath(new URL("../dist/cli.js", import.meta.url)),
+        "garden",
+        dir,
+        "--json"
+      ], { encoding: "utf8" });
+
+      expect(result.status).toBe(0);
+      const report = JSON.parse(result.stdout);
+      expect(report.product_specs).toHaveLength(2);
+      expect(report.evidence_gaps.some((gap: { item_id: string }) => gap.item_id === "AC-1")).toBe(true);
+      expect(report.graph.waves.length).toBeGreaterThan(0);
+      expect(report.graph.unscoped).toContain("missing.product-spec.md");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 30000);
+
+  it("reconciles a Product Spec against an Agent Run", () => {
+    const dir = mkdtempSync(join(tmpdir(), "productspec-reconcile-"));
+    try {
+      writeFileSync(join(dir, "spec.product-spec.md"), readFileSync(`${root}/examples/minimal.product-spec.md`, "utf8"), "utf8");
+      writeFileSync(join(dir, "spec.agent-run.json"), JSON.stringify({
+        agent_run_format_version: "0.1",
+        run_id: "spec-run",
+        agent: { name: "Codex" },
+        product_spec: { path: "spec.product-spec.md", spec_revision: 1 },
+        started_at: "2026-07-17T00:00:00Z",
+        status: "completed",
+        checked_items: [
+          { item_id: "AC-1", status: "passed" },
+          { item_id: "SM-1", status: "not_checked" }
+        ],
+        drift: { detected: false },
+        completion_claim: "AC-1 passed."
+      }, null, 2), "utf8");
+
+      const result = spawnSync("node", [
+        fileURLToPath(new URL("../dist/cli.js", import.meta.url)),
+        "reconcile",
+        "spec.product-spec.md",
+        "--against",
+        "spec.agent-run.json",
+        "--json"
+      ], { cwd: dir, encoding: "utf8" });
+
+      expect(result.status).toBe(0);
+      const report = JSON.parse(result.stdout);
+      expect(report.checked).toContainEqual({ item_id: "AC-1", status: "passed", evidence_count: 0 });
+      expect(report.recommended_actions).toContain("Attach evidence for AC-1 before treating it as complete.");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 30000);
+
+  it("serves a local read-only repo dashboard", () => {
+    const dir = mkdtempSync(join(tmpdir(), "productspec-serve-"));
+    try {
+      writeFileSync(join(dir, "spec.product-spec.md"), readFileSync(`${root}/examples/minimal.product-spec.md`, "utf8"), "utf8");
+      const child = spawnSync("node", [
+        fileURLToPath(new URL("../dist/cli.js", import.meta.url)),
+        "serve",
+        dir,
+        "--port",
+        "0"
+      ], { encoding: "utf8" });
+
+      expect(child.status).toBe(1);
+      expect(child.stderr).toContain("--port must be a positive integer");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 30000);
+
   it("initializes a starter Product Spec from the CLI", () => {
     const dir = mkdtempSync(join(tmpdir(), "productspec-init-"));
     const target = join(dir, "starter.product-spec.md");

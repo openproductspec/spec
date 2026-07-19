@@ -33,6 +33,16 @@ productspec handoff specs/example.product-spec.md
 
 MCP-aware agents can call `get_agent_handoff` to get the same generated view.
 
+After specs start accumulating, use the repo-level commands to operate the harness:
+
+```bash
+productspec garden .
+productspec reconcile specs/example.product-spec.md --against docs/agent-runs/example.agent-run.json
+productspec serve . --port 4317
+```
+
+`garden` finds missing evidence, stale revision pins, run gaps, and graph issues. `reconcile` checks whether one Agent Run actually satisfied one Product Spec revision. `serve` gives humans a local read-only dashboard over the same report.
+
 ## What the Product Harness controls
 
 A Product Harness gives people and agents:

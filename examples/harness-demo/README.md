@@ -29,3 +29,16 @@ npx --yes -p @productspec/parser@latest productspec mcp
 ```
 
 An MCP-aware agent can then load the Product Spec, pin the spec revision, retrieve scope, acceptance criteria, AI evals, success metrics, related artifacts, and draft an Agent Run before claiming completion.
+
+
+Garden the demo folder:
+
+```bash
+npm exec --package @productspec/parser -- productspec garden examples/harness-demo
+```
+
+Reconcile the Agent Run from inside the demo folder:
+
+```bash
+npm exec --package @productspec/parser -- productspec reconcile checkout-notifications.product-spec.md --against checkout-notifications.agent-run.json
+```

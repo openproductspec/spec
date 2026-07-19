@@ -123,6 +123,20 @@ You can also validate Product Specs, Decision Traces, and Agent Runs with the Gi
 
 To show validation status in your README, see the [CI badge demo](ci-badge-demo.md).
 
+## 10. Optional Repo Maintenance
+
+Once the repo has multiple Product Specs, Agent Runs, Decision Traces, and evidence links, use the repo maintenance commands:
+
+```bash
+npm exec --package @productspec/parser -- productspec garden .
+npm exec --package @productspec/parser -- productspec reconcile specs/my-feature.product-spec.md --against docs/agent-runs/my-feature.agent-run.json
+npm exec --package @productspec/parser -- productspec serve . --port 4317
+```
+
+`garden` reports repo health. `reconcile` checks one implementation run against one spec revision. `serve` opens the same garden report as a local read-only dashboard.
+
+See [Repo maintenance](repo-maintenance.md).
+
 ## Suggested Pull Request Text
 
 ```md

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { draftAgentRun, generateAgentHandoff } from "./mcp-tools.js";
+import { gardenText, reconciliationText, scanProductSpecRepo, serveProductSpecRepo, reconcileProductSpec } from "./repo-scan.js";
 import {
   resolveProductSpecGraph,
   validateAgentRunJson,
@@ -95,6 +96,45 @@ function readFileOrExit(path: string): string {
     console.error(`error: cannot read ${path}: ${reason}`);
     process.exit(1);
   }
+}
+
+
+if (command === "garden" && filePath) {
+  if (!existsSync(filePath) || !statSync(filePath).isDirectory()) {
+    console.error(`${filePath}: not a directory`);
+    process.exit(1);
+  }
+
+  const report = scanProductSpecRepo(filePath);
+  if (jsonOutput) console.log(JSON.stringify(report, null, 2));
+  else process.stdout.write(gardenText(report));
+  process.exit(0);
+}
+
+if (command === "reconcile" && filePath) {
+  const againstIndex = args.indexOf("--against");
+  const againstPath = againstIndex === -1 ? undefined : args[againstIndex + 1];
+  const report = reconcileProductSpec(process.cwd(), filePath, againstPath);
+  if (jsonOutput) console.log(JSON.stringify(report, null, 2));
+  else process.stdout.write(reconciliationText(report));
+  process.exit(report.errors.length ? 1 : 0);
+}
+
+if (command === "serve" && filePath) {
+  if (!existsSync(filePath) || !statSync(filePath).isDirectory()) {
+    console.error(`${filePath}: not a directory`);
+    process.exit(1);
+  }
+  const portIndex = args.indexOf("--port");
+  const portValue = portIndex === -1 ? "4317" : args[portIndex + 1];
+  const port = Number(portValue);
+  if (!Number.isInteger(port) || port <= 0) {
+    console.error("error: --port must be a positive integer");
+    process.exit(1);
+  }
+  const report = scanProductSpecRepo(filePath);
+  serveProductSpecRepo(report, port);
+  console.log(`ProductSpec repo dashboard listening on http://localhost:${port}`);
 }
 
 if (command === "init" && filePath) {
@@ -259,7 +299,7 @@ if (command === "mcp") {
   }
   process.exit(0);
 } else if (command !== "validate" || !filePath) {
-  console.error("Usage: productspec validate path/to/file.product-spec.md\n       productspec validate-trace path/to/file.decision-trace.json\n       productspec validate-run path/to/file.agent-run.json\n       productspec graph path/to/spec-directory [--json]\n       productspec init path/to/file.product-spec.md\n       productspec init-run path/to/file.product-spec.md [path/to/file.agent-run.json]\n       productspec handoff path/to/file.product-spec.md [path/to/file.agent-handoff.md]\n       productspec mcp\n       productspec mcp-config claude|cursor");
+  console.error("Usage: productspec validate path/to/file.product-spec.md\n       productspec validate-trace path/to/file.decision-trace.json\n       productspec validate-run path/to/file.agent-run.json\n       productspec graph path/to/spec-directory [--json]\n       productspec garden path/to/repo [--json]\n       productspec reconcile path/to/file.product-spec.md [--against path/to/file.agent-run.json] [--json]\n       productspec serve path/to/repo [--port 4317]\n       productspec init path/to/file.product-spec.md\n       productspec init-run path/to/file.product-spec.md [path/to/file.agent-run.json]\n       productspec handoff path/to/file.product-spec.md [path/to/file.agent-handoff.md]\n       productspec mcp\n       productspec mcp-config claude|cursor");
   process.exit(1);
 } else {
   const result = validateProductSpecMarkdown(readFileOrExit(filePath));

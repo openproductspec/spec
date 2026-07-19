@@ -89,6 +89,16 @@ Decision Trace records the actual decision. Agent Run records that drift was obs
 npm exec --package @productspec/parser -- productspec validate-run docs/agent-runs/transcript-search.agent-run.json
 ```
 
+## Reconcile
+
+Validation checks the Agent Run shape. Reconciliation checks whether the run is enough evidence for one Product Spec revision.
+
+```bash
+npm exec --package @productspec/parser -- productspec reconcile docs/product-specs/transcript-search.product-spec.md --against docs/agent-runs/transcript-search.agent-run.json
+```
+
+Use reconciliation before an agent or human claims implementation complete. It reports stale revision pins, missing checked items, failed items, passed items without evidence, and drift without a Decision Trace link.
+
 Schema: [`schema/agent-run.schema.json`](../schema/agent-run.schema.json)
 
 Example: [`examples/agent-ready-repo/docs/agent-runs/transcript-search.agent-run.json`](../examples/agent-ready-repo/docs/agent-runs/transcript-search.agent-run.json)

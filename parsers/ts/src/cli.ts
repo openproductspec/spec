@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { gardenText, reconciliationText, scanProductSpecRepo, serveProductSpecRepo, reconcileProductSpec } from "./repo-scan.js";
 import {
   beginSpecSession,
   checkCompletionClaim,
@@ -26,7 +27,7 @@ import { runProductSpecMcpServer } from "./mcp.js";
 
 const argv = process.argv.slice(2);
 
-const VALUE_FLAGS = new Set(["--claim", "--against", "--revision"]);
+const VALUE_FLAGS = new Set(["--claim", "--against", "--revision", "--port"]);
 const BOOL_FLAGS = new Set(["--json", "--help", "-h"]);
 
 /**
@@ -114,8 +115,12 @@ Read a spec
                                                 summary | scope | acceptance | evals | metrics | related | evidence
   productspec list <dir> [--json]             List every .product-spec.md under a directory, with validity.
 
-Plan a spec library
+Plan and maintain a spec library
   productspec graph <dir> [--json]            Resolve links into buildable, blocked, order, waves, and contention.
+  productspec garden <repo> [--json]          Scan repo health: graph, evidence gaps, stale pins, run gaps, and traces.
+  productspec reconcile <file> [--against <agent-run>] [--json]
+                                              Check whether one Agent Run satisfies one Product Spec revision.
+  productspec serve <repo> [--port 4317]      Serve a local read-only dashboard over the garden report.
 
 Build contract
   productspec handoff <file> [out.md]         Generate the Agent Handoff build contract (stdout, or write to out.md).
@@ -140,8 +145,9 @@ MCP
 Flags
   --json               Machine-readable JSON (validate, show, get, list, graph, check-claim, session *).
   --claim "<text>"     The completion claim for check-claim.
-  --against <hash>     The pinned content hash for session check (from session begin).
+  --against <hash|file> The pinned content hash for session check, or an Agent Run path for reconcile.
   --revision <n>       The pinned spec revision for session check, a non-negative integer. Optional.
+  --port <n>           Port for serve. Defaults to 4317.
   --help, -h           Show this help.
 
 Value flags also accept --flag=value, and their values never shift the positional
@@ -150,6 +156,8 @@ arguments. Unknown options are rejected. Use -- to end option parsing.
 Examples
   productspec list specs --json
   productspec get specs/checkout.product-spec.md acceptance --json
+  productspec garden . --json
+  productspec reconcile specs/checkout.product-spec.md --against docs/agent-runs/checkout.agent-run.json
   productspec check-claim specs/checkout.product-spec.md --claim "shipped 3DS recovery"
   productspec session begin specs/checkout.product-spec.md
   productspec session check specs/checkout.product-spec.md --against sha256:abc --revision 2`;
@@ -238,6 +246,41 @@ function readFileOrExit(path: string): string {
     console.error(`error: cannot read ${path}: ${reason}`);
     process.exit(1);
   }
+}
+
+
+if (command === "garden" && filePath) {
+  if (!existsSync(filePath) || !statSync(filePath).isDirectory()) {
+    console.error(`${filePath}: not a directory`);
+    process.exit(1);
+  }
+
+  const report = scanProductSpecRepo(filePath);
+  if (jsonOutput) console.log(JSON.stringify(report, null, 2));
+  else process.stdout.write(gardenText(report));
+  process.exit(0);
+}
+
+if (command === "reconcile" && filePath) {
+  const report = reconcileProductSpec(process.cwd(), filePath, flagValue("--against"));
+  if (jsonOutput) console.log(JSON.stringify(report, null, 2));
+  else process.stdout.write(reconciliationText(report));
+  process.exit(report.errors.length ? 1 : 0);
+}
+
+if (command === "serve" && filePath) {
+  if (!existsSync(filePath) || !statSync(filePath).isDirectory()) {
+    console.error(`${filePath}: not a directory`);
+    process.exit(1);
+  }
+  const port = Number(flagValue("--port") ?? "4317");
+  if (!Number.isInteger(port) || port <= 0) {
+    console.error("error: --port must be a positive integer");
+    process.exit(1);
+  }
+  const report = scanProductSpecRepo(filePath);
+  serveProductSpecRepo(report, port);
+  console.log(`ProductSpec repo dashboard listening on http://localhost:${port}`);
 }
 
 if (command === "init" && filePath) {

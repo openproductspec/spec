@@ -18,7 +18,25 @@ Validate an Agent Run:
 npm exec --package @productspec/parser -- productspec validate-run path/to/file.agent-run.json
 ```
 
-The validator returns errors for structurally invalid Product Specs and warnings for weak-but-parseable specs. Decision Trace and Agent Run validation return errors for structurally invalid JSON files.
+Scan a repo for ProductSpec health:
+
+```bash
+npm exec --package @productspec/parser -- productspec garden path/to/repo
+```
+
+Reconcile one Product Spec against one Agent Run:
+
+```bash
+npm exec --package @productspec/parser -- productspec reconcile path/to/file.product-spec.md --against path/to/file.agent-run.json
+```
+
+Serve a local read-only dashboard over the same garden report:
+
+```bash
+npm exec --package @productspec/parser -- productspec serve path/to/repo --port 4317
+```
+
+The validator returns errors for structurally invalid Product Specs and warnings for weak-but-parseable specs. Decision Trace and Agent Run validation return errors for structurally invalid JSON files. Repo maintenance commands are read-only and report graph health, evidence gaps, stale revision pins, and run gaps.
 
 ## Schema Parity
 

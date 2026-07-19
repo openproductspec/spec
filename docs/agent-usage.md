@@ -41,9 +41,11 @@ Agents should:
 - treat `scope.out` and `scope.cut` as explicit non-goals
 - use `applies_to` and `Related Artifacts` to find linked code, issues, pull requests, designs, eval runs, and dashboards
 - resolve `product_spec` related artifacts across the repo before planning, so build order follows the dependency graph. `productspec graph <dir> --json` resolves a whole folder in one call: buildable set, blocked set with reasons, and build order
+- run `productspec garden <repo> --json` when choosing work from a repo of specs, so missing evidence, stale revision pins, run gaps, unscoped specs, contention, and waves are visible before implementation starts
 - treat `RESOLVE-IN-PLAN:` markers as planning questions to answer against the codebase before coding
 - propose a Product Spec revision or Decision Trace when implementation diverges from intent
 - leave an Agent Run receipt when the repo uses `*.agent-run.json` files
+- run `productspec reconcile <spec> --against <agent-run>` before claiming completion when the local CLI is available
 
 Agents should not:
 
@@ -60,7 +62,7 @@ Use skills/productspec/SKILL.md.
 
 Implement the work in specs/example.product-spec.md.
 
-If ProductSpec MCP is available, call begin_spec_session before planning and check_spec_session before claiming done.
+If ProductSpec MCP is available, call begin_spec_session before planning and check_spec_session before claiming done. If a local CLI is available, run productspec garden before choosing repo work and productspec reconcile before claiming implementation complete.
 
 Create a plan that maps tasks to Acceptance Criteria. Keep scope.out and scope.cut out of the implementation. If you need to change product intent, stop and propose a Product Spec revision or Decision Trace. If the repo uses Agent Run files, leave a run receipt before claiming done.
 

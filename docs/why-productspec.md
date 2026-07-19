@@ -36,7 +36,7 @@ A Product Spec has two readers:
 1. Humans deciding whether the work is worth doing.
 2. AI agents and downstream tools that need enough structure to plan and execute the work.
 
-ProductSpec is intentionally Markdown-first because the artifact should remain readable in normal product and engineering workflows. It is also structured enough for parsers, validators, review tools, imports, exports, and agent handoffs.
+ProductSpec is intentionally Markdown-first because the artifact should remain readable in normal product and engineering workflows. It is also structured enough for parsers, validators, repo gardening, reconciliation, local dashboards, review tools, imports, exports, and agent handoffs.
 
 That is the difference from a classic PRD. A PRD was mostly a human handoff. A Product Spec is a human-readable Product Harness for downstream software work.
 
@@ -77,6 +77,7 @@ It defines the portable structure:
 - conformance fixtures
 - review annotation shapes
 - Decision Trace companion documents
+- repo maintenance commands for graph health, evidence gaps, Agent Run reconciliation, and local dashboards
 
 Different products and teams can build opinionated review layers on top.
 

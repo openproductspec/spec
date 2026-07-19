@@ -52,12 +52,31 @@ With the parser, CLI, MCP server, and companion artifacts in this repo, agents c
 - pin `spec_revision` and content hash at the start of a work session
 - read Product Summary, Scope, Acceptance Criteria, AI Evals, Success Metrics, and Related Artifacts as structured data
 - resolve a folder of specs into buildable, blocked, and ordered work
+- garden a repo to find missing evidence, stale revision pins, unscoped specs, and run gaps
+- reconcile one Product Spec against one Agent Run before claiming completion
 - ask what evidence is expected for each `AC-`, `EVAL-`, and `SM-` item
 - check whether the Product Spec changed before claiming completion
 - draft an Agent Run receipt
 - record drift or learning through Decision Trace
 
 ProductSpec does not tell the agent how to code. It tells the agent what intent it is accountable to.
+
+## Repo Maintenance Commands
+
+Once Product Specs live in a repo, use these commands to operate the Product Harness across many files:
+
+```bash
+# Scan repo health: specs, runs, traces, graph, evidence, stale revision pins
+npm exec --package @productspec/parser -- productspec garden .
+
+# Check whether one Agent Run satisfies one Product Spec revision
+npm exec --package @productspec/parser -- productspec reconcile docs/product-specs/my-feature.product-spec.md --against docs/agent-runs/my-feature.agent-run.json
+
+# Open a local read-only dashboard over the same garden report
+npm exec --package @productspec/parser -- productspec serve . --port 4317
+```
+
+See [`docs/repo-maintenance.md`](docs/repo-maintenance.md) for the full semantics.
 
 ## Intent And Evidence
 
@@ -111,6 +130,7 @@ If you want to use ProductSpec as a Product Harness for coding agents, start her
 - [Awesome ProductSpec](awesome-productspec.md): curated docs, examples, workflows, and adjacent tools.
 - [Status badge spec](docs/status-badge.md): factual badge shapes for valid specs, run receipts, evidence, and revisions.
 - [Evidence loop](docs/evidence-loop.md): connect Product Specs to implementation, evals, metrics, and Decision Trace.
+- [Repo maintenance](docs/repo-maintenance.md): garden a repo, reconcile Agent Runs, and serve a local ProductSpec dashboard.
 - [Agent Run](docs/agent-run.md): record one Claude, Codex, Cursor, or other agent execution against a pinned Product Spec.
 
 1. Try the Product Harness demo:
@@ -151,7 +171,7 @@ Stay inside scope.in, avoid scope.out and scope.cut, verify every AC- and EVAL- 
 npm exec --package @productspec/parser -- productspec init-run examples/harness-demo/checkout-notifications.product-spec.md /tmp/checkout-notifications.agent-run.json
 ```
 
-5. Validate the checked-in example receipt and trace:
+6. Validate the checked-in example receipt and trace:
 
 ```bash
 npm exec --package @productspec/parser -- productspec validate-run examples/harness-demo/checkout-notifications.agent-run.json
@@ -205,6 +225,26 @@ npm exec --package @productspec/parser -- productspec check-claim path/to/your.p
 ```
 
 The CLI reaches every operation the MCP does: validate, list, show, read a section (`scope`, `acceptance`, `evals`, `metrics`, `related`, `evidence`), graph, generate a handoff, check a completion claim, and pin or check a session for drift. Every read command supports `--json`, so anyone who finds MCP overkill can do the same work from a plain terminal. See the [CLI reference](docs/cli.md) for all commands and flags. The CLI and the MCP call the same functions, so their output cannot drift.
+
+Garden the whole repo for missing evidence, stale revision pins, run gaps, Decision Trace gaps, and graph health:
+
+```bash
+npm exec --package @productspec/parser -- productspec garden .
+```
+
+Reconcile one implementation run against one Product Spec revision:
+
+```bash
+npm exec --package @productspec/parser -- productspec reconcile docs/product-specs/my-feature.product-spec.md --against docs/agent-runs/my-feature.agent-run.json
+```
+
+Serve the same repo-health view locally:
+
+```bash
+npm exec --package @productspec/parser -- productspec serve . --port 4317
+```
+
+See [`docs/repo-maintenance.md`](docs/repo-maintenance.md) for the command semantics.
 
 ## Status Badges
 
@@ -419,6 +459,7 @@ Want a small first contribution? Start with pinned issue [#43: add a real Produc
 - [docs/agent-handoff.md](docs/agent-handoff.md): how to generate an implementation brief from a Product Spec without duplicating canonical intent.
 - [docs/agent-run.md](docs/agent-run.md): how to record one agent execution against a pinned Product Spec.
 - [docs/graph.md](docs/graph.md): resolving a folder of Product Specs into buildable, blocked, and ordered work, plus the contention and waves a fleet of agents needs to run in parallel safely.
+- [docs/repo-maintenance.md](docs/repo-maintenance.md): repo-level garden, reconciliation, and local dashboard commands for ProductSpec libraries.
 - [docs/adoption.md](docs/adoption.md): how teams can adopt ProductSpec across Git, Jira, Linear, Figma, CI, engineering specs, and agents.
 - [docs/productspec-to-tickets.md](docs/productspec-to-tickets.md): how to project a Product Spec into Jira or Linear tickets without forking intent.
 - [docs/adoption-levels.md](docs/adoption-levels.md): a step-by-step maturity ladder for adopting ProductSpec.
@@ -486,7 +527,7 @@ ProductSpec distinguishes the standard version from the document revision:
 - `spec_format_version` tells tools which ProductSpec format the file uses.
 - `spec_revision` is an optional positive integer for this particular product decision. It starts at `1` and increments when intent materially changes.
 
-The current v0.x standard includes conformance fixtures, a structured validator, examples, a CLI, optional `spec_revision` frontmatter, traceability fields, an MCP server, a loadable agent skill, a copyable repo starter kit, generated Agent Handoffs, Decision Trace validation, and Agent Run drafting and validation:
+The current v0.x standard includes conformance fixtures, a structured validator, examples, a CLI, optional `spec_revision` frontmatter, traceability fields, an MCP server, a loadable agent skill, a copyable repo starter kit, generated Agent Handoffs, Decision Trace validation, Agent Run drafting and validation, repo gardening, reconciliation, and a local read-only dashboard:
 
 ```bash
 npm exec --package @productspec/parser -- productspec validate examples/minimal.product-spec.md
